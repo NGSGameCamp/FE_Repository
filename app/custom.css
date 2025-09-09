@@ -1,0 +1,19 @@
+/* Custom responsive grid helpers */
+.grid-6-4 {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .grid-6-4 {
+    grid-template-columns: 6fr 4fr;
+  }
+}
+
+/* 7:3 variant */
+.grid-7-3 {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .grid-7-3 {
+    grid-template-columns: 7fr 3fr;
+  }
+}
