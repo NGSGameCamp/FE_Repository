@@ -129,9 +129,7 @@
   }
 }
 
-/**
- * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
- */
+/* Base typography (applies only where no Tailwind text class is present) */
 @layer base {
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
     h1 {
@@ -188,51 +186,14 @@ html {
   font-size: var(--font-size);
 }
 
-/* Cyberpunk Glow Effects */
+/* Optional: Thematic extras */
 @layer components {
   .neon-glow {
-    box-shadow: 
+    box-shadow:
       0 0 5px #2563eb,
       0 0 10px #2563eb,
       0 0 15px #2563eb,
       0 0 20px #2563eb;
   }
-
-  .cyber-grid {
-    background-image: 
-      linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-
-  .cyber-border {
-    position: relative;
-  }
-
-  .cyber-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    background: linear-gradient(45deg, #2563eb, #0891b2, #1e40af);
-    border-radius: inherit;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-  }
-
-  .text-neon {
-    text-shadow: 
-      0 0 5px #2563eb,
-      0 0 10px #2563eb,
-      0 0 15px #2563eb;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
 }
+
