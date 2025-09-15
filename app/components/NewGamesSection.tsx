@@ -1,4 +1,5 @@
 import { Card } from "./ui/card";
+import { Link } from "react-router-dom";
 
 interface Game {
   id: string;
@@ -15,28 +16,35 @@ export function NewGamesSection({ games, embed = false }: { games: Game[]; embed
     embed ? <>{children}</> : <section className="mx-auto max-w-7xl">{children}</section>
   );
 
+  const colors = [
+    "from-blue-500/60 to-indigo-500/60",
+    "from-emerald-500/60 to-teal-500/60",
+    "from-amber-500/60 to-orange-500/60",
+    "from-violet-500/60 to-fuchsia-500/60",
+    "from-rose-500/60 to-red-500/60",
+  ];
+
   return (
     <Wrapper>
       <Card className="h-full rounded-xl border border-primary/20 bg-background/80 overflow-hidden">
         <div className="p-4 border-b border-primary/10 flex items-center justify-between">
-          <h3 className="font-semibold">신규 게임</h3>
-          <a href="#" className="text-xs text-primary/80 hover:text-primary">더 보기</a>
+          <h3 className="font-semibold">신작 게임</h3>
+          <Link to="/search" className="text-xs text-primary/80 hover:text-primary">더 보기 →</Link>
         </div>
-        <ul className="divide-y divide-primary/10">
-          {games.slice(0, 5).map((g) => (
-            <li key={g.id} className="p-4 flex items-center gap-3 hover:bg-primary/5 transition">
-              <div className="h-10 w-10 rounded overflow-hidden bg-primary/10">
-                {g.image ? (
-                  <img src={g.image} alt={g.title} className="h-full w-full object-cover" />
-                ) : null}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{g.title}</div>
-                {g.description ? (
-                  <div className="text-xs text-muted-foreground truncate">{g.description}</div>
-                ) : null}
-              </div>
-              <div className="text-sm text-foreground/90">{g.price}</div>
+        <ul className="p-3 space-y-3">
+          {games.slice(0, 5).map((g, idx) => (
+            <li key={g.id} className="rounded-xl bg-muted/10 hover:bg-muted/20 transition border border-primary/10">
+              <Link to={`/game/${g.id}`} className="flex items-center gap-3 p-3">
+                <div className={`h-10 w-10 rounded-md overflow-hidden bg-gradient-to-br ${colors[idx % colors.length]}`}> 
+                  {g.image ? (
+                    <img src={g.image} alt={g.title} className="h-full w-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{g.title}</div>
+                </div>
+                <div className="text-sm font-semibold text-primary whitespace-nowrap">{g.price}</div>
+              </Link>
             </li>
           ))}
         </ul>
