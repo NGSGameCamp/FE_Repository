@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Header } from "./components/Header";
 import { GameGrid } from "./components/GameGrid";
+import { Routes, Route, useParams } from "react-router-dom";
+import { CommunityPage } from "./components/CommunityPage";
+import { SupportPage } from "./components/SupportPage";
+import { CartPage } from "./components/CartPage";
+import { OrdersPage } from "./components/OrdersPage";
+import { PaymentPage } from "./components/PaymentPage";
+import { GameSearchView } from "./components/GameSearchView";
+import { GameDetailView } from "./components/GameDetailView";
+import { LoginPage, SignupPage, ScreenStub } from "./components/auth/AuthPages";
 
 // Mock data for games
 const mockGames = [
@@ -94,21 +103,60 @@ const mockGames = [
   }
 ];
 
+function Payment02Stub() {
+  const params = useParams();
+  const id = params.method ? `payment02-${params.method}` : "payment02";
+  return <ScreenStub id={id} />;
+}
+
+function Home({
+  selectedCategory,
+  setSelectedCategory,
+}: {
+  selectedCategory: string;
+  setSelectedCategory: (v: string) => void;
+}) {
+  return (
+    <GameGrid
+      games={mockGames}
+      selectedCategory={selectedCategory}
+      onCategoryChange={setSelectedCategory}
+    />
+  );
+}
+
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState("recommended");
 
   return (
     <div className="min-h-screen bg-background dark">
-      <Header 
+      <Header
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
       />
-      <GameGrid 
-        games={mockGames} 
-        selectedCategory={selectedCategory} 
-        onCategoryChange={setSelectedCategory}
-      />
-      
+
+      <Routes>
+        <Route
+          path="/"
+          element={<Home selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />}
+        />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/search" element={<GameSearchView />} />
+        <Route path="/game/:id" element={<GameDetailView />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/support" element={<SupportPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/payment01" element={<PaymentPage />} />
+        <Route path="/payment02-:method" element={<Payment02Stub />} />
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/order02" element={<ScreenStub id="order02" />} />
+        <Route path="/user01" element={<ScreenStub id="user01" />} />
+        <Route path="/user02" element={<ScreenStub id="user02" />} />
+        <Route path="/user03" element={<ScreenStub id="user03" />} />
+        <Route path="/user04" element={<ScreenStub id="user04" />} />
+      </Routes>
+
       {/* Background Effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-primary/5 blur-3xl"></div>

@@ -1,7 +1,9 @@
 import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { 
   Users, 
+  ShoppingCart,
   HelpCircle, 
   LogIn, 
   Search,
@@ -49,15 +51,15 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
         {/* Main Header */}
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <div className="relative">
               <Gamepad2 className="h-8 w-8 text-primary" />
               <div className="absolute inset-0 h-8 w-8 bg-primary blur-lg opacity-30"></div>
             </div>
             <h1 className="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text font-bold text-transparent">
-              NEXUS GAMING
+              NGS GAME CAMP
             </h1>
-          </div>
+          </Link>
 
           {/* Search Bar */}
           <div className="flex-1 max-w-md mx-8">
@@ -73,31 +75,33 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
 
           {/* User Actions */}
           <nav className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              커뮤니티
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/search" className="inline-flex items-center">
+                <Search className="h-4 w-4 mr-2" />검색
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/community" className="inline-flex items-center">
+                <Users className="h-4 w-4 mr-2" />커뮤니티
+              </Link>
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              고객센터
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/support" className="inline-flex items-center">
+                <HelpCircle className="h-4 w-4 mr-2" />고객센터
+              </Link>
             </Button>
             
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
-            >
-              <LogIn className="h-4 w-4 mr-2" />
-              로그인
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/cart" className="inline-flex items-center">
+                <ShoppingCart className="h-4 w-4 mr-2" />장바구니
+              </Link>
+            </Button>
+
+            <Button asChild variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary">
+              <Link to="/login" className="inline-flex items-center">
+                <LogIn className="h-4 w-4 mr-2" />로그인
+              </Link>
             </Button>
             
             <Avatar className="h-8 w-8 ring-2 ring-primary/30">
