@@ -67,7 +67,7 @@ export function CartPage() {
 
   return (
     <div className="container mx-auto px-6 py-6">
-      <h2 className="text-xl font-semibold mb-6">Cart</h2>
+      <h2 className="text-3xl font-semibold mb-6 px-4 text-white">장바구니</h2>
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 grid-7-3">
         {/* List */}
         <Card className="lg:col-span-2 border-primary/20">

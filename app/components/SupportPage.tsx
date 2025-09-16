@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
 import { HelpCircle, Gamepad2, RefreshCw, User, MoreHorizontal, Mail, Phone, Clock } from "lucide-react";
+import StarBorder from "@/components/ui/StarBorder";
 
 type Category = "전체" | "게임 문의" | "환불 문의" | "1:1 문의" | "기타 문의";
 
@@ -79,12 +80,12 @@ export function SupportPage() {
   }, [keyword, selected]);
 
   return (
-    <div className="container mx-auto px-6 py-6 space-y-6">
+    <div className="container mx-auto px-6 py-6 space-y-8">
       {/* Intro */}
       <div className="flex items-start gap-3">
         <HelpCircle className="h-6 w-6 text-primary mt-0.5" />
         <div>
-          <h2 className="text-xl font-semibold">고객센터</h2>
+          <h2 className="text-3xl font-semibold text-white">고객센터</h2>
           <p className="text-sm text-muted-foreground">언제든지 도움이 필요하시면 문의해주세요. 빠르고 정확한 답변을 드리겠습니다.</p>
         </div>
       </div>
@@ -95,12 +96,12 @@ export function SupportPage() {
           placeholder="문의 검색 (제목/내용/게임/카테고리)"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="h-11"
+          className="h-11 text-white"
         />
       </div>
 
       {/* Category chooser */}
-      <Card className="border-primary/20">
+      <Card className="border-primary/30 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base">문의 유형 선택</CardTitle>
         </CardHeader>
@@ -128,10 +129,10 @@ export function SupportPage() {
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 grid-7-3">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 grid-7-3">
+        <div className="lg:col-span-2 space-y-6">
           {filtered.map((q) => (
-            <Card key={q.id} className="border-primary/20">
+            <Card key={q.id} className="border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-shadow transition-colors hover:bg-primary/5">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">{q.title}</CardTitle>
               </CardHeader>
@@ -147,19 +148,20 @@ export function SupportPage() {
             </Card>
           ))}
           {filtered.length === 0 && (
-            <Card className="border-primary/20">
+            <Card className="border-primary/30">
               <CardContent className="py-10 text-center text-sm text-muted-foreground">조건에 맞는 문의가 없습니다.</CardContent>
             </Card>
           )}
         </div>
 
         {/* Sidebar: contact */}
-        <div className="space-y-4">
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">연락처 정보</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <div className="space-y-6">
+          <StarBorder as="div" color="cyan" speed="5s" className="block w-full" style={{ borderRadius: 12 }}>
+            <Card className="border-transparent shadow-sm rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-base">연락처 정보</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4" />
                 <div>
@@ -183,8 +185,9 @@ export function SupportPage() {
                   <div className="text-xs text-muted-foreground">평일 09:00 - 18:00</div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </StarBorder>
         </div>
       </div>
     </div>
@@ -207,4 +210,3 @@ function CategoryItem({ icon, title, desc, onClick }: { icon: React.ReactNode; t
 }
 
 export default SupportPage;
-

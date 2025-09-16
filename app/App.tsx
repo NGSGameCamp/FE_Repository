@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "./components/Header";
 import { GameGrid } from "./components/GameGrid";
-import { Routes, Route, useParams } from "react-router-dom";
+import { Routes, Route, useParams, useLocation } from "react-router-dom";
 import { CommunityPage } from "./components/CommunityPage";
 import { SupportPage } from "./components/SupportPage";
 import { CartPage } from "./components/CartPage";
@@ -127,6 +127,14 @@ function Home({
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState("recommended");
+  const location = useLocation();
+
+  // Ensure navigating to home resets to 추천
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setSelectedCategory("recommended");
+    }
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-background dark">

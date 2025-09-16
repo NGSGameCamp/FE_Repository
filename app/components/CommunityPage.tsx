@@ -12,6 +12,7 @@ import {
 import { Separator } from "./ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { MessageSquare, Heart, Eye } from "lucide-react";
+import StarBorder from "@/components/ui/StarBorder";
 
 type Post = {
   id: string;
@@ -123,13 +124,13 @@ export function CommunityPage() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-6 space-y-6">
+    <div className="container mx-auto px-6 py-6 space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">커뮤니티</h2>
+        <h2 className="text-xl font-semibold text-white px-4">커뮤니티</h2>
         <div className="text-sm text-muted-foreground">등록된 게시글 {filteredPosts.length}건</div>
       </div>
 
-      <Card className="border-primary/20">
+      <Card className="border-primary/30 shadow-sm">
         <CardContent className="pt-6">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
@@ -190,11 +191,14 @@ export function CommunityPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 grid-7-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 grid-7-3">
         {/* Main list */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {filteredPosts.map((p) => (
-            <Card key={p.id} className="border-primary/20">
+            <Card
+              key={p.id}
+              className="border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-shadow transition-colors hover:bg-primary/5"
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">{p.title}</CardTitle>
               </CardHeader>
@@ -222,7 +226,7 @@ export function CommunityPage() {
           ))}
 
           {filteredPosts.length === 0 && (
-            <Card className="border-primary/20">
+            <Card className="border-primary/30">
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
                 조건에 맞는 게시글이 없습니다.
               </CardContent>
@@ -231,23 +235,25 @@ export function CommunityPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">트렌딩 토픽</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {trending.map((t) => (
-                <div key={t.id} className="flex items-start justify-between">
-                  <div>
-                    <div className="text-sm">{t.title}</div>
-                    <div className="text-xs text-muted-foreground">{t.time}</div>
+        <div className="space-y-6">
+          <StarBorder as="div" color="cyan" speed="5s" className="block w-full" style={{ borderRadius: 12 }}>
+            <Card className="border-transparent shadow-sm rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-base">트렌딩 토픽</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {trending.map((t) => (
+                  <div key={t.id} className="flex items-start justify-between">
+                    <div>
+                      <div className="text-sm">{t.title}</div>
+                      <div className="text-xs text-muted-foreground">{t.time}</div>
+                    </div>
+                    <Badge variant="outline">게시글 {t.posts}</Badge>
                   </div>
-                  <Badge variant="outline">게시글 {t.posts}</Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                ))}
+              </CardContent>
+            </Card>
+          </StarBorder>
         </div>
       </div>
     </div>
@@ -255,4 +261,3 @@ export function CommunityPage() {
 }
 
 export default CommunityPage;
-
