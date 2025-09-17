@@ -9,6 +9,7 @@ import {
   Share2, 
   PlayCircle 
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface GameCardProps {
   game: {
@@ -28,11 +29,13 @@ export function GameCard({ game }: GameCardProps) {
   return (
     <Card className="group relative overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-cyan-500/5 hover:from-primary/10 hover:to-cyan-500/10 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
       <div className="relative aspect-video overflow-hidden">
-        <ImageWithFallback
-          src={game.image}
-          alt={game.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        <Link to={`/game/${game.id}`} aria-label={`${game.title} 상세보기`}>
+          <ImageWithFallback
+            src={game.image}
+            alt={game.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </Link>
         
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -64,7 +67,7 @@ export function GameCard({ game }: GameCardProps) {
       <CardContent className="p-4">
         <div className="mb-2">
           <h3 className="font-medium truncate group-hover:text-primary transition-colors">
-            {game.title}
+            <Link to={`/game/${game.id}`}>{game.title}</Link>
           </h3>
           <p className="text-sm text-muted-foreground truncate">
             {game.description}

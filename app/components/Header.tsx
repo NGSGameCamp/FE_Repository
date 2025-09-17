@@ -117,7 +117,7 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
             {!isAuthenticated ? (
               <Button asChild variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary">
                 <Link to="/login" className="inline-flex items-center">
-                  <LogIn className="h-4 w-4 mr-2" />로그인
+                  <LogIn className="h-4 w-4 mr-2" />Sign in
                 </Link>
               </Button>
             ) : (
@@ -130,7 +130,7 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
                   navigate("/");
                 }}
               >
-                로그아웃
+                Sign out
               </Button>
             )}
             {isAuthenticated && (

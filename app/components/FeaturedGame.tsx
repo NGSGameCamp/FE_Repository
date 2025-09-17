@@ -1,5 +1,6 @@
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { Link } from "react-router-dom";
 import { Star, Download, Play } from "lucide-react";
 
 interface Game {
@@ -57,7 +58,7 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-400 fill-current" />
                 <span className="font-semibold">{game.rating}</span>
@@ -73,7 +74,7 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
               <div className="text-2xl font-bold text-primary">
                 {game.price}
               </div>
-            </div>
+              </div>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
@@ -86,6 +87,7 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
                   {tag}
                 </Badge>
               ))}
+              <Link to={`/community/board/${game.title.toLowerCase().replace(/\s+/g,'-')}`} className="text-primary underline-offset-2 hover:underline">게시판 보기</Link>
             </div>
 
             {/* Action Buttons */}

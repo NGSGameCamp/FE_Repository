@@ -12,6 +12,7 @@ import {
 import { Separator } from "./ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { MessageSquare, Heart, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 import StarBorder from "@/components/ui/StarBorder";
 
 type Post = {
@@ -127,7 +128,12 @@ export function CommunityPage() {
     <div className="container mx-auto px-6 py-6 space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white px-4">커뮤니티</h2>
-        <div className="text-sm text-muted-foreground">등록된 게시글 {filteredPosts.length}건</div>
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-muted-foreground">등록된 게시글 {filteredPosts.length}건</div>
+          <Button asChild size="sm" variant="outline" className="border-primary/30">
+            <Link to="/community/all">전체 글</Link>
+          </Button>
+        </div>
       </div>
 
       <Card className="border-primary/30 shadow-sm">

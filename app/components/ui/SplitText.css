@@ -1,0 +1,17 @@
+.split-parent {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+.split-unit {
+  display: inline-block;
+  will-change: transform, opacity;
+  transform: translateY(var(--from-y, 24px));
+  opacity: var(--from-o, 0);
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.split-parent[data-animate="true"] .split-unit {
+  transform: translateY(0);
+  opacity: 1;
+}
+

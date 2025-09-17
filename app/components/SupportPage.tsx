@@ -6,6 +6,7 @@ import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
 import { HelpCircle, Gamepad2, RefreshCw, User, MoreHorizontal, Mail, Phone, Clock } from "lucide-react";
 import StarBorder from "@/components/ui/StarBorder";
+import { useAuth } from "./auth/AuthContext";
 
 type Category = "전체" | "게임 문의" | "환불 문의" | "1:1 문의" | "기타 문의";
 
@@ -67,6 +68,7 @@ const inquiries: Inquiry[] = [
 const categories: Category[] = ["전체", "게임 문의", "환불 문의", "1:1 문의", "기타 문의"];
 
 export function SupportPage() {
+  const { isAuthenticated } = useAuth();
   const [keyword, setKeyword] = useState("");
   const [selected, setSelected] = useState<Category>("전체");
 
@@ -82,12 +84,22 @@ export function SupportPage() {
   return (
     <div className="container mx-auto px-6 py-6 space-y-8">
       {/* Intro */}
-      <div className="flex items-start gap-3">
-        <HelpCircle className="h-6 w-6 text-primary mt-0.5" />
-        <div>
-          <h2 className="text-3xl font-semibold text-white">고객센터</h2>
-          <p className="text-sm text-muted-foreground">언제든지 도움이 필요하시면 문의해주세요. 빠르고 정확한 답변을 드리겠습니다.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <HelpCircle className="h-6 w-6 text-primary mt-0.5" />
+          <div>
+            <h2 className="text-3xl font-semibold text-white">고객센터</h2>
+            <p className="text-sm text-muted-foreground">언제든지 도움이 필요하시면 문의해주세요. 빠르고 정확한 답변을 드리겠습니다.</p>
+          </div>
         </div>
+        {isAuthenticated && (
+          <div className="flex gap-2">
+            <a href="/support/new"><Button>문의 글 등록</Button></a>
+            <a href="/support/refund"><Button variant="outline" className="border-primary/30">환불 문의</Button></a>
+            <a href="/support/one-to-one"><Button variant="outline">1:1 문의</Button></a>
+            <a href="/support/other"><Button variant="outline">기타 문의</Button></a>
+          </div>
+        )}
       </div>
 
       {/* Search */}
@@ -108,7 +120,7 @@ export function SupportPage() {
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <CategoryItem icon={<Gamepad2 className="h-5 w-5" />} title="게임 문의" desc="게임 관련 문제나 궁금한 점" onClick={() => setSelected("게임 문의")} />
           <CategoryItem icon={<RefreshCw className="h-5 w-5" />} title="환불 문의" desc="환불 요청 및 결제 관련 문의" onClick={() => setSelected("환불 문의")} />
-          <CategoryItem icon={<User className="h-5 w-5" />} title="1:1 문의" desc="개인적인 문의나 계정 관련 문제" onClick={() => setSelected("1:1 문의")} />
+          <CategoryItem icon={<User className="h-5 w-5" />} title=" 문의" desc="개인적인 문의나 계정 관련 문제" onClick={() => setSelected("1:1 문의")} />
           <CategoryItem icon={<MoreHorizontal className="h-5 w-5" />} title="기타 문의" desc="기타 서비스 관련 문의" onClick={() => setSelected("기타 문의")} />
         </CardContent>
       </Card>

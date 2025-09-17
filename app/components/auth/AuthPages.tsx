@@ -5,9 +5,10 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
-import { Mail, Lock, Search, LogIn, UserPlus, Shield, Sparkles } from "lucide-react";
+import { Mail, Lock, Search, LogIn, UserPlus, Shield, Sparkles, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import * as React from "react";
 import GradientText from "@/components/ui/GradientText";
 
 function Row({ children }: { children: React.ReactNode }) {
@@ -19,13 +20,18 @@ const existingEmails = new Set(["demo@example.com", "admin@example.com"]);
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const { login, loginWithPassword } = useAuth();
+  const [loginId, setLoginId] = useState("");
   const [pwd, setPwd] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = () => {
-    if (!email.trim()) return alert("이메일을 입력해주세요.");
-    login({ email });
+  const onSubmit = async () => {
+    setError(null);
+    if (!loginId.trim()) return setError("이메일 또는 아이디를 입력하세요.");
+    if (!pwd) return setError("비밀번호를 입력하세요.");
+    const res = await loginWithPassword(loginId, pwd);
+    if (!res.ok) return setError(res.error || "로그인에 실패했습니다.");
     navigate("/");
   };
 
@@ -50,14 +56,14 @@ export function LoginPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Username</Label>
+                <Label htmlFor="login">Email or ID</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="email"
-                    placeholder="Type your username"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="login"
+                    placeholder="이메일 또는 아이디"
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -69,12 +75,15 @@ export function LoginPage() {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="pwd"
-                    type="password"
-                    placeholder="Type your password"
+                    type={showPwd ? "text" : "password"}
+                    placeholder="비밀번호"
                     value={pwd}
                     onChange={(e) => setPwd(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 pr-10"
                   />
+                  <button type="button" aria-label="toggle password" onClick={() => setShowPwd((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
                 <div className="flex justify-end items-center gap-3 text-xs">
                   <Link to="/user04" className="text-muted-foreground hover:text-primary">Forgot password?</Link>
@@ -82,6 +91,8 @@ export function LoginPage() {
                   <Link to="/signup" className="text-primary hover:underline">Sign up</Link>
                 </div>
               </div>
+
+              {error && <div className="text-xs text-destructive">{error}</div>}
 
               <Button className="w-full h-11 rounded-full" onClick={onSubmit} variant="outline">
                 <GradientText
@@ -140,6 +151,10 @@ export function SignupPage() {
   const [agree1, setAgree1] = useState(false);
   const [agree2, setAgree2] = useState(false);
   const [agree3, setAgree3] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [pwd2, setPwd2] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const { register } = useAuth();
 
   const canSubmit = useMemo(() => {
     return (
@@ -152,10 +167,10 @@ export function SignupPage() {
   }, [idChecked, emailChecked, nickname, agree1, agree2]);
 
   const checkId = () => {
-    setIdChecked(!existingIds.has(userId.trim()));
+    import("./authStore").then((m) => setIdChecked(!m.isUserIdTaken(userId.trim())));
   };
   const checkEmail = () => {
-    setEmailChecked(!existingEmails.has(email.trim().toLowerCase()));
+    import("./authStore").then((m) => setEmailChecked(!m.isEmailTaken(email.trim().toLowerCase())));
   };
 
   const helper = (v: boolean | null) => v === null ? "검사 전" : v ? "사용 가능" : "이미 사용 중";
@@ -194,9 +209,14 @@ export function SignupPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="pwd">비밀번호</Label>
-                <Input id="pwd" type="password" placeholder="영문, 숫자 포함 8자 이상" />
+                <Input id="pwd" type="password" placeholder="영문, 숫자 포함 8자 이상" value={pwd} onChange={(e) => setPwd(e.target.value)} />
               </div>
             </Row>
+
+            <div className="space-y-2">
+              <Label htmlFor="pwd2">비밀번호 확인</Label>
+              <Input id="pwd2" type="password" placeholder="비밀번호 재입력" value={pwd2} onChange={(e) => setPwd2(e.target.value)} />
+            </div>
 
             <div className="space-y-3">
               <Label>약관 동의</Label>
@@ -207,9 +227,23 @@ export function SignupPage() {
               </div>
             </div>
 
+            {error && <div className="text-xs text-destructive">{error}</div>}
+
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button className="flex-1" disabled={!canSubmit} onClick={() => navigate("/user01")}>가입 완료</Button>
-              <Button variant="outline" className="flex-1" onClick={() => navigate("/user01")}>로그인</Button>
+              <Button
+                className="flex-1"
+                disabled={!canSubmit}
+                onClick={async () => {
+                  setError(null);
+                  if (pwd !== pwd2) return setError("비밀번호가 일치하지 않습니다.");
+                  const res = await register({ userId, nickname, email, password: pwd });
+                  if (!res.ok) return setError(res.error || "가입에 실패했습니다.");
+                  navigate("/");
+                }}
+              >
+                가입 완료
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => navigate("/login")}>로그인</Button>
             </div>
 
             <div className="text-right text-sm">
