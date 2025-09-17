@@ -19,6 +19,7 @@ const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", c
 export function PaymentPage() {
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<{ status: string; message?: string } | null>(null);
 
   const summary = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + i.price, 0);
@@ -39,26 +40,47 @@ export function PaymentPage() {
         totalAmount: summary.total,
         currency: "KRW",
         payMethod: "CARD",
-        // 우선 테스트 유저 정보로 고정(로그인 기능 구현 후 사용자 정보로 대체 예정)
         customer: {
+          customerId: "1",
           fullName: "홍길동",
-          firstName: "길동",
-          lastName: "홍",
           email: "test@portone.io",
           phoneNumber: "010-1234-5678",
         },
       });
 
-      if (response?.code != null) {
-        // 결제 실패
-        console.log("결제 실패:", response);
-        alert(`결제에 실패했습니다: ${response.message}`);
-      } else {
-        // 결제 성공
-        console.log("결제 성공:", response);
-        // TODO: 백엔드에 결제 검증 요청 (response.paymentId 사용)
-        navigate("/orders"); // 성공 시 주문 내역 페이지로 이동
+      if (!response || response.code != null) {
+        // 결제 실패 또는 취소
+        console.log("결제 실패 또는 취소:", response);
+        alert(response?.message || "결제를 취소하셨습니다.");
+        return;
       }
+
+      // 백엔드에 결제 검증 요청
+      const completeResponse = await fetch("http://localhost:8080/api/payment/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: response.paymentId }),
+      });
+
+      if (completeResponse.ok) {
+        const paymentComplete = await completeResponse.json();
+        setPaymentStatus({ status: paymentComplete.status });
+
+        if (paymentComplete.status === 'PAID') {
+          console.log("백엔드 검증 성공:", paymentComplete);
+          navigate("/orders"); // 최종 성공 시 주문 내역 페이지로 이동
+        } else {
+          // 백엔드에서 결제 실패 처리
+          setPaymentStatus({ status: 'FAILED', message: paymentComplete.message });
+          alert(`결제 검증에 실패했습니다: ${paymentComplete.message}`);
+        }
+      } else {
+        // 백엔드 API 호출 실패
+        const errorText = await completeResponse.text();
+        setPaymentStatus({ status: 'FAILED', message: errorText });
+        alert(`결제 검증 중 오류가 발생했습니다: ${errorText}`);
+      }
+
     } catch (error) {
       console.error("결제 처리 중 에러 발생:", error);
       alert("결제 처리 중 오류가 발생했습니다.");
