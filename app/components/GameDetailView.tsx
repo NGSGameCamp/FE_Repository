@@ -138,6 +138,13 @@ export function GameDetailView() {
   };
 
   const averageRating = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "-";
+  // Compute community board slug for this game
+  const boardSlug = useMemo(() => {
+    const title = (game.title || "").toLowerCase();
+    if (title.includes("neon") || title.includes("racing")) return "neon-racing";
+    if (title.includes("cyber")) return "cyberpunk-2087";
+    return "guide-hub"; // fallback topic board
+  }, [game.title]);
 
   const originalPrice = Math.round((game.price / 0.7) / 100) * 100; // 예시: 30% 할인 기준
   const discountPercent = Math.round(100 - (game.price / originalPrice) * 100);
@@ -169,6 +176,8 @@ export function GameDetailView() {
               {game.features.map((t) => (
                 <Badge key={t} variant="outline" className="text-muted-foreground">{t}</Badge>
               ))}
+              {/* Board link */}
+              <Link to={`/community/board/${(game.title || '').toLowerCase().replace(/\s+/g,'-')}`} className="ml-2 text-primary underline-offset-2 hover:underline">게시판 보기</Link>
             </div>
           </div>
         </div>
@@ -297,7 +306,7 @@ export function GameDetailView() {
               <Button className="w-full" style={{ backgroundColor: '#10b981' }} onClick={addToCart}>장바구니에 추가</Button>
               <Button variant={following ? "secondary" : "outline"} className="w-full" onClick={toggleFollow}>{following ? "팔로잉 중" : "팔로잉"}</Button>
               <Button variant="ghost" className="w-full" asChild>
-                <Link to="/community">커뮤니티로 이동</Link>
+                <Link to={`/community/board/${boardSlug}`}>커뮤니티로 이동</Link>
               </Button>
             </CardContent>
           </Card>

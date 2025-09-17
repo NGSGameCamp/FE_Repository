@@ -3,13 +3,27 @@ import { Header } from "./components/Header";
 import { GameGrid } from "./components/GameGrid";
 import { Routes, Route, useParams, useLocation } from "react-router-dom";
 import { CommunityPage } from "./components/CommunityPage";
+import CommunityAllPage from "./components/CommunityAllPage";
+import CommunityWritePage from "./components/CommunityWritePage";
+import CommunityEditPage from "./components/CommunityEditPage";
+import CommunityPostDetailPage from "./components/CommunityPostDetailPage";
+import CommunityBoardPage from "./components/CommunityBoardPage";
 import { SupportPage } from "./components/SupportPage";
 import { CartPage } from "./components/CartPage";
 import { OrdersPage } from "./components/OrdersPage";
+import SupportInquiryNewPage from "./components/SupportInquiryNewPage";
+import SupportRefundPage from "./components/SupportRefundPage";
+import SupportSuccessPage from "./components/SupportSuccessPage";
+import SupportMyInquiriesPage from "./components/SupportMyInquiriesPage";
+import SupportInquiryDetailPage from "./components/SupportInquiryDetailPage";
+import SupportOneToOnePage from "./components/SupportOneToOnePage";
+import SupportOtherInquiryPage from "./components/SupportOtherInquiryPage";
+import SupportInquiryInfoPage from "./components/SupportInquiryInfoPage";
 import { PaymentPage } from "./components/PaymentPage";
 import { GameSearchView } from "./components/GameSearchView";
 import { GameDetailView } from "./components/GameDetailView";
 import { LoginPage, SignupPage, ScreenStub } from "./components/auth/AuthPages";
+import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 
 // Mock data for games
 const mockGames = [
@@ -149,11 +163,26 @@ export default function App() {
           element={<Home selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />}
         />
         <Route path="/community" element={<CommunityPage />} />
+        <Route path="/community/all" element={<CommunityAllPage />} />
+        <Route path="/community/write" element={<CommunityWritePage />} />
+        <Route path="/community/edit/:id" element={<CommunityEditPage />} />
+        <Route path="/community/post/:id" element={<CommunityPostDetailPage />} />
+        <Route path="/community/board/:id" element={<CommunityBoardPage />} />
         <Route path="/search" element={<GameSearchView />} />
         <Route path="/game/:id" element={<GameDetailView />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/support/new" element={<SupportInquiryNewPage />} />
+        <Route path="/support/refund" element={<SupportRefundPage />} />
+        <Route path="/support/one-to-one" element={<SupportOneToOnePage />} />
+        <Route path="/support/other" element={<SupportOtherInquiryPage />} />
+        <Route path="/support/success" element={<SupportSuccessPage />} />
+        <Route path="/support/my" element={<SupportMyInquiriesPage />} />
+        <Route path="/support/my/:id" element={<SupportInquiryDetailPage />} />
+        <Route path="/support01" element={<SupportMyInquiriesPage />} />
+        <Route path="/support01/:id" element={<SupportInquiryInfoPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/payment01" element={<PaymentPage />} />
         <Route path="/payment02-:method" element={<Payment02Stub />} />
