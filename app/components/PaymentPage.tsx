@@ -1,17 +1,17 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PortOne from "@portone/browser-sdk/v2";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Checkbox } from "./ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 type Item = { id: string; title: string; platform: string; price: number };
 
 const items: Item[] = [
-  { id: "g1", title: "Cyberpunk 2077", platform: "PC", price: 59900 },
-  { id: "g2", title: "The Witcher 3: Wild Hunt", platform: "PlayStation 5", price: 39900 },
-  { id: "g3", title: "Red Dead Redemption 2", platform: "Xbox Series X", price: 49900 },
+  { id: "g1", title: "Cyberpunk 2077", platform: "PC", price: 1000 },
+  { id: "g2", title: "The Witcher 3: Wild Hunt", platform: "PlayStation 5", price: 500 },
+  { id: "g3", title: "Red Dead Redemption 2", platform: "Xbox Series X", price: 101 },
 ];
 
 const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
@@ -19,7 +19,7 @@ const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", c
 export function PaymentPage() {
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
-  const [method, setMethod] = useState<string>("card");
+  const [paymentStatus, setPaymentStatus] = useState<{ status: string; message?: string } | null>(null);
 
   const summary = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + i.price, 0);
@@ -28,9 +28,63 @@ export function PaymentPage() {
     return { subtotal, discount, total };
   }, []);
 
-  const pay = () => {
+  const pay = async () => {
     if (!agree) return;
-    navigate(`/payment02-${method}`);
+
+    try {
+      const response = await PortOne.requestPayment({
+        storeId: "store-f183ffe0-0978-48b3-a993-b07f08f11a22",
+        channelKey: "channel-key-22367d5d-4d24-472c-84f4-7bdab9c50dbd",
+        paymentId: `PAY-${crypto.randomUUID()}`,
+        orderName: items.length > 1 ? `${items[0].title} 외 ${items.length - 1}건` : items[0].title,
+        totalAmount: summary.total,
+        currency: "KRW",
+        payMethod: "CARD",
+        customer: {
+          customerId: "1",
+          fullName: "홍길동",
+          email: "test@portone.io",
+          phoneNumber: "010-1234-5678",
+        },
+      });
+
+      if (!response || response.code != null) {
+        // 결제 실패 또는 취소
+        console.log("결제 실패 또는 취소:", response);
+        alert(response?.message || "결제를 취소하셨습니다.");
+        return;
+      }
+
+      // 백엔드에 결제 검증 요청
+      const completeResponse = await fetch("http://localhost:8080/api/payment/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: response.paymentId }),
+      });
+
+      if (completeResponse.ok) {
+        const paymentComplete = await completeResponse.json();
+        setPaymentStatus({ status: paymentComplete.status });
+
+        if (paymentComplete.status === 'PAID') {
+          console.log("백엔드 검증 성공:", paymentComplete);
+          navigate("/orders"); // 최종 성공 시 주문 내역 페이지로 이동
+        } else {
+          // 백엔드에서 결제 실패 처리
+          setPaymentStatus({ status: 'FAILED', message: paymentComplete.message });
+          alert(`결제 검증에 실패했습니다: ${paymentComplete.message}`);
+        }
+      } else {
+        // 백엔드 API 호출 실패
+        const errorText = await completeResponse.text();
+        setPaymentStatus({ status: 'FAILED', message: errorText });
+        alert(`결제 검증 중 오류가 발생했습니다: ${errorText}`);
+      }
+
+    } catch (error) {
+      console.error("결제 처리 중 에러 발생:", error);
+      alert("결제 처리 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -55,7 +109,7 @@ export function PaymentPage() {
           </CardContent>
         </Card>
 
-        {/* 결제 요약 + 수단 */}
+        {/* 결제 요약 */}
         <Card className="border-primary/20">
           <CardHeader>
             <CardTitle className="text-base">최종 결제금액</CardTitle>
@@ -77,39 +131,9 @@ export function PaymentPage() {
 
             <div className="rounded-md border border-primary/20 p-3 mt-4 text-sm">
               <label className="flex items-center gap-3">
-                <Checkbox checked={agree} onCheckedChange={(v) => setAgree(Boolean(v))} />
+                <Checkbox checked={agree} onCheckedChange={(v: boolean) => setAgree(v)} />
                 주문 내용을 확인했으며, 결제에 동의합니다.
               </label>
-            </div>
-
-            <div className="mt-5">
-              <div className="font-medium mb-2">결제 수단</div>
-              <RadioGroup value={method} onValueChange={setMethod}>
-                <label className="flex items-center justify-between rounded-md border border-primary/20 px-3 py-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="card" id="m-card" />
-                    <span>신용/체크카드</span>
-                  </div>
-                </label>
-                <label className="flex items-center justify-between rounded-md border border-primary/20 px-3 py-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="kakao" id="m-kakao" />
-                    <span>카카오페이</span>
-                  </div>
-                </label>
-                <label className="flex items-center justify-between rounded-md border border-primary/20 px-3 py-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="naver" id="m-naver" />
-                    <span>네이버페이</span>
-                  </div>
-                </label>
-                <label className="flex items-center justify-between rounded-md border border-primary/20 px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="toss" id="m-toss" />
-                    <span>토스페이</span>
-                  </div>
-                </label>
-              </RadioGroup>
             </div>
 
             <Button className="w-full mt-5" disabled={!agree} onClick={pay}>
