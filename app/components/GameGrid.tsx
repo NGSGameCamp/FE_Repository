@@ -138,20 +138,7 @@ export function GameGrid({
         </div>
       </div>
 
-      {/* Horizontal Categories Bar */}
-      <CategoriesSection
-        categories={[
-          { id: "trending", name: "트렌딩" },
-          { id: "new", name: "신작" },
-          { id: "action", name: "액션" },
-          { id: "rpg", name: "RPG" },
-          { id: "simulation", name: "시뮬레이션" },
-          { id: "racing", name: "레이싱" },
-          { id: "puzzle", name: "퍼즐" },
-          { id: "무료게임", name: "무료게임" },
-        ]}
-        onSelect={(id) => onCategoryChange?.(id)}
-      />
+      {/* Categories bar removed per request */}
 
       <GameSection
         title="🏆 인기 TOP 게임"

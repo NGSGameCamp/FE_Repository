@@ -5,8 +5,10 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
-import { Mail, Lock, Search, LogIn, UserPlus } from "lucide-react";
+import { Mail, Lock, Search, LogIn, UserPlus, Shield, Sparkles } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import GradientText from "@/components/ui/GradientText";
 
 function Row({ children }: { children: React.ReactNode }) {
   return <div className="grid gap-4 sm:grid-cols-2">{children}</div>;
@@ -17,91 +19,112 @@ const existingEmails = new Set(["demo@example.com", "admin@example.com"]);
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
 
+  const onSubmit = () => {
+    if (!email.trim()) return alert("이메일을 입력해주세요.");
+    login({ email });
+    navigate("/");
+  };
+
   const onSocial = (provider: "google" | "naver" | "kakao") => {
     alert(`${provider} 로그인은 데모로 연결됩니다.`);
-    // 실제 구현: OAuth 시작 → 콜백 처리 후 메인 이동
+    login({ email: `${provider}@demo.local`, name: provider.toUpperCase() });
     navigate("/");
   };
 
   return (
-    <div className="container mx-auto px-6 py-10">
-      <div className="mx-auto max-w-lg">
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle>로그인</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  placeholder="example@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                />
+    <div className="relative">
+      {/* Page gradient background similar to mock */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-cyan-500/40 via-blue-500/30 to-fuchsia-500/40" />
+      <div className="absolute -z-10 left-10 top-10 h-56 w-56 rotate-12 rounded-3xl bg-white/5 blur-2xl" />
+      <div className="absolute -z-10 right-20 bottom-16 h-60 w-60 -rotate-6 rounded-3xl bg-black/10 blur-2xl" />
+
+      <div className="container mx-auto px-6 min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <Card className="border-transparent bg-card/95 backdrop-blur">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl">Sign in</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Username</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    placeholder="Type your username"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pwd">비밀번호</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="pwd"
-                  type="password"
-                  placeholder="password"
-                  value={pwd}
-                  onChange={(e) => setPwd(e.target.value)}
-                  className="pl-10"
-                />
+
+              <div className="space-y-2">
+                <Label htmlFor="pwd">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="pwd"
+                    type="password"
+                    placeholder="Type your password"
+                    value={pwd}
+                    onChange={(e) => setPwd(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <div className="flex justify-end items-center gap-3 text-xs">
+                  <Link to="/user04" className="text-muted-foreground hover:text-primary">Forgot password?</Link>
+                  <span className="text-muted-foreground">|</span>
+                  <Link to="/signup" className="text-primary hover:underline">Sign up</Link>
+                </div>
               </div>
-            </div>
 
-            <div className="flex justify-center">
-              <Button className="" style={{ width: "35%" }} onClick={() => navigate("/")}>로그인</Button>
-            </div>
+              <Button className="w-full h-11 rounded-full" onClick={onSubmit} variant="outline">
+                <GradientText
+                  colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
+                  animationSpeed={3}
+                  showBorder={false}
+                  className="px-2"
+                >
+                  Sign In
+                </GradientText>
+              </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
-              아직 계정이 없으신가요? <Link className="text-primary hover:underline" to="/signup">회원가입</Link>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-100">
-              <div className="flex justify-center">
-                <Button className="" style={{ backgroundColor: "#FFFFFF", color: "#000",  width: "35%" }} onClick={() => onSocial("google")}>
-                <img alt="google" src="https://www.google.com/favicon.ico" className="h-4 w-4" />
-                &nbsp;구글 로그인
+              <div className="flex justify-center gap-4">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="group rounded-full p-0 bg-transparent hover:bg-transparent transition-transform hover:scale-105 size-10"
+                  onClick={() => onSocial("google")}
+                >
+                  <img alt="google" src="https://www.google.com/favicon.ico" className="h-6 w-6 rounded-full object-contain" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="group rounded-full p-0 bg-transparent hover:bg-transparent transition-transform hover:scale-105 size-10"
+                  onClick={() => onSocial("naver")}
+                  aria-label="네이버 로그인"
+                >
+                  <img alt="naver" src="/social-naver-round.svg" className="h-6 w-6 object-contain" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="group rounded-full p-0 bg-transparent hover:bg-transparent transition-transform hover:scale-105 size-10"
+                  onClick={() => onSocial("kakao")}
+                  aria-label="카카오 로그인"
+                >
+                  <img alt="kakao" src="/social-kakao.svg" className="h-6 w-6 rounded-full object-contain" />
                 </Button>
               </div>
-              <div className="flex justify-center">
-                <Button className="" style={{ backgroundColor: "#03C75A",  width: "35%" }} onClick={() => onSocial("naver")}>
-                  네이버 로그인
-                </Button>
-              </div>
-              <div className="flex justify-center">
-                <Button className="" style={{ backgroundColor: "#FEE500", color: "#000",  width: "35%" }} onClick={() => onSocial("kakao")}>
-                  카카오 로그인
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-sm pt-2">
-              <Link to="/user03" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"><Search className="h-4 w-4" />아이디 찾기</Link>
-              <Link to="/user04" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"><Search className="h-4 w-4" />비밀번호 찾기</Link>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <Link to="/user02" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"><UserPlus className="h-4 w-4" />sign up → user02</Link>
-              <Link to="/" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"><LogIn className="h-4 w-4" />login → Main</Link>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

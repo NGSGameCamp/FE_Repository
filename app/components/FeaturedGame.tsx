@@ -130,13 +130,13 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
             </div>
 
             {/* Floating Elements */}
-            <div className="absolute -top-4 -right-4 bg-primary/20 backdrop-blur-sm rounded-full p-4 border border-primary/30">
+            {/* <div className="absolute -top-4 -right-4 bg-primary/20 backdrop-blur-sm rounded-full p-4 border border-primary/30">
               <Star className="h-6 w-6 text-primary" />
-            </div>
+            </div> */}
             
-            <div className="absolute -bottom-4 -left-4 bg-cyan-500/20 backdrop-blur-sm rounded-full p-3 border border-cyan-500/30">
+            {/* <div className="absolute -bottom-4 -left-4 bg-cyan-500/20 backdrop-blur-sm rounded-full p-3 border border-cyan-500/30">
               <Download className="h-5 w-5 text-cyan-400" />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

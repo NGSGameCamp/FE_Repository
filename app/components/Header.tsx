@@ -1,6 +1,8 @@
 import { Button } from "./ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import GradientText from "@/components/ui/GradientText";
+import { Input } from "@/components/ui/input";
 import { 
   Users, 
   ShoppingCart,
@@ -24,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useAuth } from "./auth/AuthContext";
 
 interface HeaderProps {
   selectedCategory: string;
@@ -31,6 +34,10 @@ interface HeaderProps {
 }
 
 export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
   const categories = [
     { id: "recommended", label: "추천", icon: Flame },
     { id: "trending", label: "트렌딩", icon: Trophy },
@@ -56,8 +63,15 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
               <Gamepad2 className="h-8 w-8 text-primary" />
               <div className="absolute inset-0 h-8 w-8 bg-primary blur-lg opacity-30"></div>
             </div>
-            <h1 className="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text font-bold text-transparent">
-              NGS GAME CAMP
+            <h1 className="font-bold font-sans">
+              <GradientText
+                colors={["#40cfff", "#4079ff", "#40cfff", "#4079ff", "#40cfff"]}
+                animationSpeed={7}
+                showBorder={false}
+                className="text-lg md:text-xl"
+              >
+                NGS GAME CAMP
+              </GradientText>
             </h1>
           </Link>
 
@@ -65,8 +79,8 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
           <div className="flex-1 max-w-md mx-8">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                className="w-full rounded-lg border border-primary/30 bg-background/50 pl-10 pr-4 py-2 text-sm backdrop-blur focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              <Input
+                className="pl-10 pr-4 h-9 placeholder:text-muted-foreground"
                 placeholder="게임 검색..."
                 type="search"
               />
@@ -92,26 +106,44 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
               </Link>
             </Button>
             
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
-              <Link to="/cart" className="inline-flex items-center">
-                <ShoppingCart className="h-4 w-4 mr-2" />장바구니
-              </Link>
-            </Button>
+            {isAuthenticated && (
+              <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+                <Link to="/cart" className="inline-flex items-center">
+                  <ShoppingCart className="h-4 w-4 mr-2" />장바구니
+                </Link>
+              </Button>
+            )}
 
-            <Button asChild variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary">
-              <Link to="/login" className="inline-flex items-center">
-                <LogIn className="h-4 w-4 mr-2" />로그인
-              </Link>
-            </Button>
-            
-            <Avatar className="h-8 w-8 ring-2 ring-primary/30">
-              <AvatarImage src="" />
-              <AvatarFallback className="bg-primary/20 text-primary">게</AvatarFallback>
-            </Avatar>
+            {!isAuthenticated ? (
+              <Button asChild variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary">
+                <Link to="/login" className="inline-flex items-center">
+                  <LogIn className="h-4 w-4 mr-2" />로그인
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                }}
+              >
+                로그아웃
+              </Button>
+            )}
+            {isAuthenticated && (
+              <Avatar className="h-8 w-8 ring-2 ring-primary/30">
+                <AvatarImage src="" />
+                <AvatarFallback className="bg-primary/20 text-primary">게</AvatarFallback>
+              </Avatar>
+            )}
           </nav>
         </div>
 
-        {/* Navigation Menu */}
+        {/* Navigation Menu (Home only) */}
+        {isHome && (
         <div className="flex h-12 items-center justify-center space-x-1 border-t border-primary/10">
           {/* Quick Categories */}
           {categories.map((category) => {
@@ -172,6 +204,7 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
             무료게임
           </Button>
         </div>
+        )}
       </div>
     </header>
   );
