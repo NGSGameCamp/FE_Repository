@@ -23,7 +23,19 @@ import { PaymentPage } from "./components/PaymentPage";
 import { GameSearchView } from "./components/GameSearchView";
 import { GameDetailView } from "./components/GameDetailView";
 import { LoginPage, SignupPage, ScreenStub } from "./components/auth/AuthPages";
+import PublisherLoginPage from "./components/auth/PublisherLoginPage";
+import PublisherSignupPage from "./components/auth/PublisherSignupPage";
+import PublisherNoticeManagementPage from "./components/publisher/PublisherNoticeManagementPage";
+import PublisherNoticeDetailPage from "./components/publisher/PublisherNoticeDetailPage";
+import PublisherNoticeComposePage from "./components/publisher/PublisherNoticeComposePage";
+import PublisherDashboardPage from "./components/publisher/PublisherDashboardPage";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
+import ForgotPasswordPage from "./components/auth/ForgotPasswordPage";
+import ProfilePage from "./components/ProfilePage";
+import LibraryPage from "./components/LibraryPage";
+import UserEditPage from "./components/UserEditPage";
+import UserInfoPage from "./components/UserInfoPage";
+import UserDeletePage from "./components/UserDeletePage";
 
 // Mock data for games
 const mockGames = [
@@ -172,7 +184,19 @@ export default function App() {
         <Route path="/game/:id" element={<GameDetailView />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/publisher/login" element={<PublisherLoginPage />} />
+        <Route path="/publisher/signup" element={<PublisherSignupPage />} />
+        <Route path="/publisher/dashboard" element={<PublisherDashboardPage />} />
+        <Route path="/publisher/notices" element={<PublisherNoticeManagementPage />} />
+        <Route path="/publisher/notices/new" element={<PublisherNoticeComposePage />} />
+        <Route path="/publisher/notices/:id" element={<PublisherNoticeDetailPage />} />
+        <Route path="/publisher01-1" element={<ScreenStub id="publisher01-1" />} />
+        <Route path="/publisher03" element={<ScreenStub id="publisher03" />} />
+        <Route path="/publisher/games/new" element={<ScreenStub id="publisher-games-new" />} />
+        <Route path="/publisher/games/:id" element={<ScreenStub id="publisher-game-detail" />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/support" element={<SupportPage />} />
         <Route path="/support/new" element={<SupportInquiryNewPage />} />
         <Route path="/support/refund" element={<SupportRefundPage />} />
@@ -188,10 +212,16 @@ export default function App() {
         <Route path="/payment02-:method" element={<Payment02Stub />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/order02" element={<ScreenStub id="order02" />} />
+        <Route path="/game03" element={<ScreenStub id="game03" />} />
+        <Route path="/library" element={<LibraryPage />} />
         <Route path="/user01" element={<ScreenStub id="user01" />} />
         <Route path="/user02" element={<ScreenStub id="user02" />} />
         <Route path="/user03" element={<ScreenStub id="user03" />} />
         <Route path="/user04" element={<ScreenStub id="user04" />} />
+        <Route path="/user05" element={<UserEditPage />} />
+        <Route path="/user06" element={<UserInfoPage />} />
+        <Route path="/user06-01" element={<UserDeletePage />} />
+        <Route path="/user07" element={<UserEditPage />} />
       </Routes>
 
       {/* Background Effects */}
