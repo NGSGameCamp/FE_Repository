@@ -58,9 +58,6 @@ export default function ProfilePage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">내 프로필</h2>
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="border-primary/30"><Link to="/user06">내 정보([myinfo])</Link></Button>
-          <Button asChild variant="outline" className="border-primary/30"><Link to="/order02">주문 정보([orderinfo])</Link></Button>
-          <Button onClick={addToCart}>장바구니 담기([gocart])</Button>
         </div>
       </div>
 
@@ -74,6 +71,7 @@ export default function ProfilePage() {
             <div className="text-xs text-muted-foreground">{email}</div>
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={changeAvatar} />
             <Button size="sm" variant="outline" className="border-primary/30 mt-2" onClick={() => inputRef.current?.click()}>프로필 이미지 수정</Button>
+           <Button size="sm" variant="outline" className="border-primary/30 mt-2"><Link to="/user06">내 정보</Link></Button>
           </div>
         </CardContent>
       </Card>

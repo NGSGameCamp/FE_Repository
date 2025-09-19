@@ -296,16 +296,16 @@ export function GameDetailView() {
             <CardHeader>
               <CardTitle className="text-base">구매</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="text-sm line-through text-muted-foreground">{KRW(originalPrice)}</div>
                 <Badge className="bg-red-500/80">-{discountPercent}%</Badge>
               </div>
-              <div className="text-3xl font-extrabold text-primary">{KRW(game.price)}</div>
-              <Button className="w-full" onClick={() => navigate("/payment01")}>지금 구매</Button>
-              <Button className="w-full" style={{ backgroundColor: '#10b981' }} onClick={addToCart}>장바구니에 추가</Button>
-              <Button variant={following ? "secondary" : "outline"} className="w-full" onClick={toggleFollow}>{following ? "팔로잉 중" : "팔로잉"}</Button>
-              <Button variant="ghost" className="w-full" asChild>
+              <div className="text-2xl font-extrabold text-primary mb-2">{KRW(game.price)}</div>
+              <Button className="w-full mb-2" onClick={() => navigate("/payment01")}>지금 구매</Button>
+              <Button className="w-full mb-2" style={{ backgroundColor: '#10b981' }} onClick={addToCart}>장바구니에 추가</Button>
+              <Button variant={following ? "secondary" : "outline"} className="w-full mb-2" onClick={toggleFollow}>{following ? "팔로잉 중" : "팔로잉"}</Button>
+              <Button variant="ghost" className="w-full mb-2" asChild>
                 <Link to={`/community/board/${boardSlug}`}>커뮤니티로 이동</Link>
               </Button>
             </CardContent>
