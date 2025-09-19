@@ -14,6 +14,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   loginWithPassword: (login: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   register: (info: { userId: string; nickname: string; email: string; password: string }) => Promise<{ ok: boolean; error?: string }>;
+  updateNickname: (nickname: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -46,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   };
 
-  const value = useMemo<AuthContextValue>(() => ({ user, login, logout, isAuthenticated: !!user }), [user]);
+  // no-op placeholder removed; actual context value assembled below in `memo`.
   // augment with password-based flows using local store (demo)
   // Lazy import to keep this file lightweight in SSR
   const loginWithPassword: AuthContextValue["loginWithPassword"] = async (loginStr, password) => {
@@ -88,6 +89,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
     loginWithPassword,
     register,
+    updateNickname: async (nickname: string) => {
+      setUser((prev) => {
+        if (!prev) return prev;
+        const next = { ...prev, name: nickname };
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+        return next;
+      });
+      try {
+        const mod = await import("./authStore");
+        const key = user?.email || user?.id || "";
+        if (key) mod.updateNickname(key, nickname);
+      } catch {}
+    },
   }), [user]);
 
   return <AuthContext.Provider value={memo}>{children}</AuthContext.Provider>;
