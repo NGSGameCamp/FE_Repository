@@ -5,65 +5,106 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Trash2 } from "lucide-react";
 
-type CartItem = {
-  id: string;
-  title: string;
-  platform: string;
-  price: number; // KRW
-  image: string;
-  extra?: boolean;
-};
+interface Game {
+  id: number;          
+  name: string;        
+  env: string;         
+  price: number;
+  tag: string;         
+  isActive: boolean;   
+  createdAt: string;   
+  // image: string;    // 파일 시스템 구현 후 추가 예정
+  }
 
-const initialItems: CartItem[] = [
-  {
-    id: "g1",
-    title: "Cyberpunk 2077",
-    platform: "PC",
-    price: 59900,
-    image:
-      "https://images.unsplash.com/photo-1689443111384-1cf214df988a?auto=format&fit=crop&w=200&q=60",
-  },
-  {
-    id: "g2",
-    title: "The Witcher 3: Wild Hunt",
-    platform: "PlayStation 5",
-    price: 39900,
-    image:
-      "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=200&q=60",
-  },
-  {
-    id: "g3",
-    title: "Red Dead Redemption 2",
-    platform: "Xbox Series X",
-    price: 49900,
-    image:
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=200&q=60",
-  },
-];
+interface OrderDetails {
+  orderDetailsId: number;
+  game: Game;
+  priceSnapshot: number;
+}
+
+interface Order {
+  orderId: number;
+  userId: number;
+  orderDetails: OrderDetails[];
+  status: string;
+  merchantUid: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const formatKRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
 
 export function CartPage() {
   const navigate = useNavigate();
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const extra = JSON.parse(localStorage.getItem("cartExtraItems") || "[]");
-    return [...initialItems, ...extra];
-  });
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCart = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/orders/cart");
+      if (!response.ok) {
+        throw new Error("Failed to fetch cart data.");
+      }
+      const data: Order = await response.json();
+      setOrder(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  const items = useMemo(() => {
+    return order?.orderDetails.map(detail => ({
+      id: detail.game.id,
+      title: detail.game.name,
+      platform: "PC",
+      price: detail.priceSnapshot,
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=200&q=60",
+    })) || [];
+  }, [order]);
 
   const summary = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + i.price, 0);
-    const discount = Math.floor(subtotal * 0.1); // 데모: 10% 할인 미리보기
-    const total = Math.max(subtotal - discount, 0);
+    const discount = 0; // Discount logic can be applied here if needed
+    const total = subtotal - discount;
     return { subtotal, discount, total, count: items.length };
   }, [items]);
 
-  const removeItem = (id: string) => setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = async (gameId: number) => {
+    try {
+      const response = await fetch(`/api/orders/cart/remove/${gameId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to remove item from cart.");
+      }
+      // Refetch cart to get the latest state
+      await fetchCart();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "장바구니 아이템 삭제 실패");
+    }
+  };
 
-  // persist extras when items change
-  useEffect(() => {
-    const extras = items.filter((i) => i.extra);
-    localStorage.setItem("cartExtraItems", JSON.stringify(extras));
-  }, [items]);
+  const handleProceedToPayment = () => {
+    if (order && order.orderDetails.length > 0) {
+      navigate("/payment", { state: { orderData: order } });
+    }
+  };
+  
+  if (isLoading) {
+    return <div className="container mx-auto px-6 py-6 text-center">Loading cart...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto px-6 py-6 text-center text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="container mx-auto px-6 py-6">
@@ -115,7 +156,7 @@ export function CartPage() {
             </div>
             <div className="text-xs text-muted-foreground mt-1">{summary.count}개의 아이템</div>
 
-            <Button className="w-full mt-4" disabled={summary.count === 0} onClick={() => navigate("/payment01")}>
+            <Button className="w-full mt-4" disabled={summary.count === 0} onClick={handleProceedToPayment}>
               결제 진행
             </Button>
           </CardContent>

@@ -1,42 +1,83 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import PortOne from "@portone/browser-sdk/v2";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Checkbox } from "./ui/checkbox";
 
-type Item = { id: string; title: string; platform: string; price: number };
+interface Game {
+  id: number;          
+  name: string;        
+  env: string;         
+  price: number;
+  tag: string;         
+  isActive: boolean;   
+  createdAt: string;   
+  // image: string;    // 파일 시스템 구현 후 추가 예정
+  }
 
-const items: Item[] = [
-  { id: "g1", title: "Cyberpunk 2077", platform: "PC", price: 1000 },
-  { id: "g2", title: "The Witcher 3: Wild Hunt", platform: "PlayStation 5", price: 500 },
-  { id: "g3", title: "Red Dead Redemption 2", platform: "Xbox Series X", price: 101 },
-];
+interface OrderDetails {
+  orderDetailsId: number;
+  game: Game;
+  priceSnapshot: number;
+}
+
+interface Order {
+  orderId: number;
+  userId: number;
+  orderDetails: OrderDetails[];
+  status: string;
+  merchantUid: string;
+  createdAt: string;
+   updatedAt: string;
+}
 
 const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
 
 export function PaymentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [agree, setAgree] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<{ status: string; message?: string } | null>(null);
+  
+  // 장바구니에서 넘겨받은 데이터
+  const orderData: Order | undefined = location.state?.orderData;
+
+  // If no order data, redirect to cart
+  useEffect(() => {
+    if (!orderData) {
+      alert("주문 정보가 없습니다. 장바구니로 돌아갑니다.");
+      navigate("/cart");
+    }
+  }, [orderData, navigate]);
+
+  const items = useMemo(() => {
+    return orderData?.orderDetails.map(detail => ({
+      id: detail.game.id.toString(),
+      title: detail.game.name,
+      platform: "Mac",
+      price: detail.priceSnapshot,
+    })) || [];
+  }, [orderData]);
 
   const summary = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + i.price, 0);
-    const discount = Math.floor(subtotal * 0.1); // 데모 할인 10%
+    const discount = 0; // 우선 할인 로직은 배제
     const total = subtotal - discount;
     return { subtotal, discount, total };
-  }, []);
+  }, [items]);
 
   const pay = async () => {
-    if (!agree) return;
+    if (!agree || !orderData) return;
 
     try {
+      const orderName = items.length > 1 ? `${items[0].title} 외 ${items.length - 1}건` : items[0].title;
+
       const response = await PortOne.requestPayment({
         storeId: "store-f183ffe0-0978-48b3-a993-b07f08f11a22",
         channelKey: "channel-key-22367d5d-4d24-472c-84f4-7bdab9c50dbd",
-        paymentId: `PAY-${crypto.randomUUID()}`,
-        orderName: items.length > 1 ? `${items[0].title} 외 ${items.length - 1}건` : items[0].title,
+        paymentId: orderData.merchantUid,
+        orderName: orderName,
         totalAmount: summary.total,
         currency: "KRW",
         payMethod: "CARD",
@@ -49,35 +90,35 @@ export function PaymentPage() {
       });
 
       if (!response || response.code != null) {
-        // 결제 실패 또는 취소
-        console.log("결제 실패 또는 취소:", response);
         alert(response?.message || "결제를 취소하셨습니다.");
         return;
       }
 
-      // 백엔드에 결제 검증 요청
-      const completeResponse = await fetch("http://localhost:8080/api/payment/complete", {
+      // The paymentId from the response should match our merchantUid
+      if (response.paymentId !== orderData.merchantUid) {
+          alert("주문 정보가 일치하지 않습니다.");
+          return;
+      }
+
+      const completeResponse = await fetch("/api/payment/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId: response.paymentId }),
+        body: JSON.stringify({ 
+            paymentId: response.paymentId, 
+            orderId: orderData.orderId 
+        }),
       });
 
       if (completeResponse.ok) {
         const paymentComplete = await completeResponse.json();
-        setPaymentStatus({ status: paymentComplete.status });
-
-        if (paymentComplete.status === 'PAID') {
-          console.log("백엔드 검증 성공:", paymentComplete);
-          navigate("/orders"); // 최종 성공 시 주문 내역 페이지로 이동
+        if (paymentComplete.status === 'PAID' || paymentComplete.status === 'PAYMENT_COMPLETED') {
+          alert("결제가 성공적으로 완료되었습니다.");
+          navigate("/orders");
         } else {
-          // 백엔드에서 결제 실패 처리
-          setPaymentStatus({ status: 'FAILED', message: paymentComplete.message });
-          alert(`결제 검증에 실패했습니다: ${paymentComplete.message}`);
+          alert(`결제는 완료되었으나, 서버 검증에 실패했습니다: ${paymentComplete.message}`);
         }
       } else {
-        // 백엔드 API 호출 실패
         const errorText = await completeResponse.text();
-        setPaymentStatus({ status: 'FAILED', message: errorText });
         alert(`결제 검증 중 오류가 발생했습니다: ${errorText}`);
       }
 
@@ -86,6 +127,10 @@ export function PaymentPage() {
       alert("결제 처리 중 오류가 발생했습니다.");
     }
   };
+
+  if (!orderData) {
+    return <div className="container mx-auto px-6 py-6 text-center">Loading payment details...</div>;
+  }
 
   return (
     <div className="container mx-auto px-6 py-6">
