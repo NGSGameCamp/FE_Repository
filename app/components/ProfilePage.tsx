@@ -90,9 +90,19 @@ export default function ProfilePage() {
 
         {/* Following Boards */}
         <Card className="border-primary/20">
-          <CardHeader><CardTitle className="text-base">팔로잉 게시판</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">팔로잉 유저</CardTitle></CardHeader>
           <CardContent className="text-sm space-y-2">
-            {followingBoards.length === 0 && <div className="text-muted-foreground">팔로우한 게시판이 없습니다.</div>}
+            {followingBoards.length === 0 && <div className="text-muted-foreground">팔로우 중인 유저가 없습니다.</div>}
+            {followingBoards.map((b) => (
+              <div key={b} className="rounded-md border border-primary/20 p-2">{b}</div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-primary/20">
+          <CardHeader><CardTitle className="text-base">구독 중인 배급사</CardTitle></CardHeader>
+          <CardContent className="text-sm space-y-2">
+            {followingBoards.length === 0 && <div className="text-muted-foreground">구독 중인 배급사가 없습니다.</div>}
             {followingBoards.map((b) => (
               <div key={b} className="rounded-md border border-primary/20 p-2">{b}</div>
             ))}

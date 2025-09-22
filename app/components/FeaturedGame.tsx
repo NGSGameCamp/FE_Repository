@@ -87,7 +87,6 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
                   {tag}
                 </Badge>
               ))}
-              <Link to={`/community/board/${game.title.toLowerCase().replace(/\s+/g,'-')}`} className="text-primary underline-offset-2 hover:underline">게시판 보기</Link>
             </div>
 
             {/* Action Buttons */}
@@ -96,8 +95,7 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/20 transition-all duration-300"
               >
-                <Play className="h-5 w-5 mr-2" />
-                지금 플레이
+                상세 페이지
               </Button>
               
               <Button 
@@ -105,7 +103,7 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
                 size="lg"
                 className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-300"
               >
-                위시리스트 추가
+                팔로잉
               </Button>
             </div>
           </div>

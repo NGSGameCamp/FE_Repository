@@ -170,7 +170,7 @@ export function CommunityPage() {
               </Select>
             </div>
             <div className="flex items-end justify-end">
-              <Button variant="outline" className="border-primary/30" onClick={resetFilters}>
+              <Button variant="outline" className="border-primary/30 mb-4" onClick={resetFilters}>
                 필터 초기화
               </Button>
             </div>
@@ -185,7 +185,7 @@ export function CommunityPage() {
               value={selectedTags}
               onValueChange={(v) => setSelectedTags(v)}
               variant="outline"
-              className="flex flex-wrap gap-2"
+              className="flex flex-wrap"
             >
               {allTags.map((t) => (
                 <ToggleGroupItem key={t} value={t} className="px-3">
@@ -247,7 +247,7 @@ export function CommunityPage() {
               <CardHeader>
                 <CardTitle className="text-base">트렌딩 토픽</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 {trending.map((t) => (
                   <div key={t.id} className="flex items-start justify-between">
                     <div>

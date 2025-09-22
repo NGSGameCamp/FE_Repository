@@ -44,8 +44,7 @@ export function GameCard({ game }: GameCardProps) {
               size="sm" 
               className="w-full bg-primary hover:bg-primary/90 text-white"
             >
-              <PlayCircle className="h-4 w-4 mr-2" />
-              플레이
+              상세 페이지
             </Button>
           </div>
         </div>
