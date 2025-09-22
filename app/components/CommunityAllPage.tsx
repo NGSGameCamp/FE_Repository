@@ -53,6 +53,45 @@ export default function CommunityAllPage() {
 
   const filtered = useMemo(() => {
     // merge local posts with seeds
+// {/* Right: filters */}
+// <div className="space-y-4">
+//   <Card className="border-primary/20">
+//     <CardHeader>
+//       <CardTitle className="text-base">유형</CardTitle>
+//     </CardHeader>
+//     <CardContent className="flex flex-wrap gap-2">
+//       {allTypes.map((t) => (
+//         <Button key={t} size="sm" variant={type === t ? "default" : "outline"} className={type === t ? "" : "border-primary/30"} onClick={() => setType(t)}>{t}</Button>
+//       ))}
+//       <Button size="sm" variant="ghost" onClick={() => setType("전체")}>초기화</Button>
+//     </CardContent>
+//   </Card>
+
+//   <Card className="border-primary/20">
+//     <CardHeader>
+//       <CardTitle className="text-base">기간</CardTitle>
+//     </CardHeader>
+//     <CardContent className="flex flex-wrap gap-2">
+//       {periodOptions.map((p) => (
+//         <Button key={p} size="sm" variant={period === p ? "default" : "outline"} className={period === p ? "" : "border-primary/30"} onClick={() => setPeriod(p)}>{p}</Button>
+//       ))}
+//     </CardContent>
+//   </Card>
+
+//   <Card className="border-primary/20">
+//     <CardHeader>
+//       <CardTitle className="text-base">인기 태그</CardTitle>
+//     </CardHeader>
+//     <CardContent className="flex flex-wrap gap-2">
+//       {popularTags.map((t) => (
+//         <Button key={t} size="sm" variant={tagFilters.includes(t) ? "default" : "outline"} className={tagFilters.includes(t) ? "" : "border-primary/30"} onClick={() => toggleTag(t)}>{t}</Button>
+//       ))}
+//       {!!tagFilters.length && (
+//         <Button size="sm" variant="ghost" onClick={() => setTagFilters([])}>초기화</Button>
+//       )}
+//     </CardContent>
+//   </Card>
+// </div>
     let local: Post[] = [];
     try {
       const raw = localStorage.getItem("community:posts");
@@ -95,12 +134,12 @@ export default function CommunityAllPage() {
       {/* Left: list */}
       <div className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold">전체 글</h2>
-          <p className="text-sm text-muted-foreground">커뮤니티의 모든 게시글을 검색하고 필터링하세요.</p>
+          <h2 className="text-xl font-semibold text-white">전체 글</h2>
+          <p className="text-sm text-muted-foreground mb-4">커뮤니티의 모든 게시글을 검색하고 필터링하세요.</p>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <Input placeholder="게시글 검색 (제목, 태그, 작성자)" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-md" />
+          <Input placeholder="게시글 검색 (제목, 태그, 작성자)" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-md mb-4" />
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">표시:</span>
             {(["최신", "인기", "댓글순"] as const).map((s) => (
@@ -108,81 +147,69 @@ export default function CommunityAllPage() {
                 {s}
               </Button>
             ))}
-            <Button asChild size="sm" variant="outline" className="border-primary/30">
-              <Link to="/community/write">글 쓰기</Link>
+          <div className="flex justify-end">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="border-primary/30"
+            >
+              <Link to="/community/write">글쓰기</Link>
             </Button>
+          </div>
           </div>
         </div>
 
-        {pageItems.map((p) => (
-          <Card key={p.id} className="border-primary/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base"><Link to={`/community/post/${p.id}`} className="hover:underline text-primary">{p.title}</Link></CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground">{p.excerpt}</p>
-              <div className="flex flex-wrap gap-2">
-                {p.tags.map((t) => (
-                  <Badge key={t} variant="outline" className="text-muted-foreground">#{t}</Badge>
-                ))}
-              </div>
-              <div className="text-xs text-muted-foreground flex items-center gap-3">
-                <span>작성자 {p.author}</span>
-                <span>댓글 {p.comments}</span>
-                <span>좋아요 {p.likes}</span>
-                <span>{new Date(p.date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</span>
-              </div>
-            </CardContent>
-          </Card>
+       {pageItems.map((p) => (
+  <Card
+    key={p.id}
+    className="border-primary/20 mb-4 last:mb-0"
+  >
+    <CardHeader className="pb-2">
+      <CardTitle className="text-base">
+        <Link
+          to={`/community/post/${p.id}`}
+          className="hover:underline text-primary"
+        >
+          {p.title}
+        </Link>
+      </CardTitle>
+    </CardHeader>
+
+    <CardContent className="space-y-2">
+      <p className="text-sm text-muted-foreground">{p.excerpt}</p>
+
+      <div className="flex flex-wrap gap-2">
+        {p.tags.map((t) => (
+          <Badge key={t} variant="outline" className="text-muted-foreground">
+            #{t}
+          </Badge>
         ))}
+      </div>
+
+      <div className="text-xs text-muted-foreground flex items-center gap-3">
+        <span>작성자 {p.author}</span>
+        <span>댓글 {p.comments}</span>
+        <span>좋아요 {p.likes}</span>
+        <span>
+          {new Date(p.date).toLocaleDateString("ko-KR", {
+            month: "short",
+            day: "numeric",
+          })}
+        </span>
+      </div>
+    </CardContent>
+  </Card>
+))}
 
         {/* Pagination */}
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 text-white">
           <Button size="sm" variant="outline" className="border-primary/30" disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>이전</Button>
           <span className="text-sm">{page} / {totalPages}</span>
           <Button size="sm" variant="outline" className="border-primary/30" disabled={page === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>다음</Button>
         </div>
       </div>
 
-      {/* Right: filters */}
-      <div className="space-y-4">
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-base">유형</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {allTypes.map((t) => (
-              <Button key={t} size="sm" variant={type === t ? "default" : "outline"} className={type === t ? "" : "border-primary/30"} onClick={() => setType(t)}>{t}</Button>
-            ))}
-            <Button size="sm" variant="ghost" onClick={() => setType("전체")}>초기화</Button>
-          </CardContent>
-        </Card>
-
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-base">기간</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {periodOptions.map((p) => (
-              <Button key={p} size="sm" variant={period === p ? "default" : "outline"} className={period === p ? "" : "border-primary/30"} onClick={() => setPeriod(p)}>{p}</Button>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-base">인기 태그</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {popularTags.map((t) => (
-              <Button key={t} size="sm" variant={tagFilters.includes(t) ? "default" : "outline"} className={tagFilters.includes(t) ? "" : "border-primary/30"} onClick={() => toggleTag(t)}>{t}</Button>
-            ))}
-            {!!tagFilters.length && (
-              <Button size="sm" variant="ghost" onClick={() => setTagFilters([])}>초기화</Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

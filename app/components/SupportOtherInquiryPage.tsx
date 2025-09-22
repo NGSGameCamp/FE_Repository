@@ -78,39 +78,6 @@ export default function SupportOtherInquiryPage() {
           <p className="text-sm text-muted-foreground">게임이나 계정 외 다양한 문의사항을 접수하실 수 있습니다. 적절한 담당 부서로 전달해 드립니다.</p>
         </div>
       </div>
-      
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-base">문의 유형별 처리 안내</CardTitle>
-        </CardHeader>
-      <CardContent className="flex gap-4">
-  <div className="flex-1 rounded-lg border border-primary/20 bg-primary/5 p-4">
-    <div className="font-medium text-white">일반 문의</div>
-    <div className="text-xs text-muted-foreground mt-1">2–3 영업일 내 답변</div>
-  </div>
-  <div 
-    className="flex-1 rounded-lg border p-4" 
-    style={{ 
-      borderColor: 'rgba(16, 185, 129, 0.2)', 
-      backgroundColor: 'rgba(16, 185, 129, 0.05)' 
-    }}
-  >
-    <div className="font-medium flex items-center gap-2 text-white">비즈니스 문의</div>
-    <div className="text-xs text-muted-foreground mt-1">5–7 영업일 내 답변</div>
-  </div>
-  <div 
-    className="flex-1 rounded-lg border p-4" 
-    style={{ 
-      borderColor: 'rgba(168, 85, 247, 0.2)', 
-      backgroundColor: 'rgba(168, 85, 247, 0.05)' 
-    }}
-  >
-    <div className="font-medium text-white">기술 문의</div>
-    <div className="text-xs text-muted-foreground mt-1">1–2 영업일 내 답변</div>
-  </div>
-</CardContent>
-      </Card>
-
 
       {/* 메인/서브 유형 선택 */}
       <Card className="border-primary/20">
@@ -150,11 +117,10 @@ export default function SupportOtherInquiryPage() {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">문의 내용</CardTitle>
+            <div className="text-xs text-muted-foreground">상세 내용을 구체적으로 작성해 주세요. (최소 10자)</div>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="text-xs text-muted-foreground">상세 내용을 구체적으로 작성해 주세요. (최소 10자)</div>
+        <CardContent className="space-y-6">
           <Textarea rows={8} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="문의하실 내용을 자세히 설명해주세요" />
-          <label className="flex items-center gap-2 text-sm py-4"> <Checkbox checked={hasAttachment} onCheckedChange={(v) => setHasAttachment(Boolean(v))} /> 관련 문서나 자료가 있습니다</label>
           {error && <div className="text-xs text-destructive">{error}</div>}
           <div className="text-right">
             <Button onClick={submit} disabled={!valid}>문의 보내기</Button>

@@ -164,11 +164,11 @@ export default function SupportRefundPage() {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">환불 요청 게임 선택</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
           <div className="text-xs text-muted-foreground">
             환불을 요청하실 게임을 선택해주세요
           </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
           <Select value={game} onValueChange={setGame}>
             <SelectTrigger className="max-w-md">
               <SelectValue placeholder="환불할 게임을 선택해주세요" />
@@ -188,11 +188,12 @@ export default function SupportRefundPage() {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">환불 사유</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
           <div className="text-xs text-muted-foreground">
             환불 요청 사유를 선택해주세요
           </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          
           <Select value={reason} onValueChange={setReason}>
             <SelectTrigger className="max-w-md">
               <SelectValue placeholder="환불 사유를 선택해주세요" />
@@ -228,24 +229,13 @@ export default function SupportRefundPage() {
       {/* 추가 정보 */}
       <Card className="border-primary/20">
         <CardHeader>
-          <CardTitle className="text-base">추가 정보</CardTitle>
+          <CardTitle className="text-base">상세 설명</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
-            <div>
-              <div className="text-xs text-muted-foreground mb-1">
-                주문번호(선택)
-              </div>
-              <Input
-                placeholder="주문번호가 있다면 입력"
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-              />
-            </div>
-          </div>
+          <div className="grid gap-3 sm:grid-cols-2 max-w-2xl"></div>
           <div>
             <div className="text-xs text-muted-foreground mb-1">
-              상세 설명 (선택)
+              (선택)
             </div>
             <Textarea
               rows={6}

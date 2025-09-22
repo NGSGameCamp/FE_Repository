@@ -173,7 +173,7 @@ export default function LibraryPage() {
                       <div className="text-lg font-semibold">{selected.title}</div>
                       <div className="text-xs text-muted-foreground">{selected.genre}</div>
                     </div>
-                    <Badge className="bg-emerald-600">지금 플레이</Badge>
+                    <Badge className="bg-emerald-600"></Badge>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                     <div className="rounded-md border border-primary/20 p-3">
