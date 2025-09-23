@@ -29,60 +29,41 @@ export default function UserInfoPage() {
   }, [user?.email]);
 
   return (
-    <div className="container mx-auto px-6 py-6">
-      <div className="max-w-5xl mx-auto space-y-4">
-        <h2 className="text-xl font-semibold">회원 정보 상세</h2>
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-base">
-              Screen ID: user06 · 회원가입 시 입력한 정보 상세 확인
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* 계정 정보 */}
-              <div className="rounded-lg border border-primary/20 p-4 space-y-3">
-                <div className="text-sm font-medium text-muted-foreground">계정 정보</div>
-                <div className="rounded-md border border-primary/20 p-3">
-                  <div className="text-xs text-muted-foreground">아이디(이메일)</div>
-                  <div className="text-sm">{user?.email || "-"}</div>
-                </div>
-                <div className="rounded-md border border-primary/20 p-3">
-                  <div className="text-xs text-muted-foreground">가입일</div>
-                  <div className="text-sm">{createdAt}</div>
-                </div>
-                <div className="rounded-md border border-primary/20 p-6 bg-input/20" />
-              </div>
-
-              {/* 프로필 정보 */}
-              <div className="rounded-lg border border-primary/20 p-4 space-y-3">
-                <div className="text-sm font-medium text-muted-foreground">프로필 정보</div>
-                <div className="rounded-md border border-primary/20 p-3">
-                  <div className="text-xs text-muted-foreground">이름</div>
-                  <div className="text-sm">{user?.name || "-"}</div>
-                </div>
-                <div className="rounded-md border border-primary/20 p-3">
-                  <div className="text-xs text-muted-foreground">연락처</div>
-                  <div className="text-sm">{phone}</div>
-                </div>
-                <div className="rounded-md border border-primary/20 p-3">
-                  <div className="text-xs text-muted-foreground">생년월일</div>
-                  <div className="text-sm">{birth}</div>
-                </div>
-                <div className="rounded-md border border-primary/20 p-6 bg-input/20" />
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex gap-2">
-                <Button variant="outline" className="border-primary/30" onClick={() => nav("/user05")}>마이페이지([mypage])</Button>
-                <Button variant="outline" className="border-primary/30" onClick={() => nav("/user07")}>정보 수정([editpage])</Button>
-              </div>
-              <Button className="bg-destructive/80 hover:bg-destructive" onClick={() => nav("/user06-01")}>회원 탈퇴([godelete])</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <Card className="w-full max-w-md shadow-xl border border-primary/10 bg-card/90">
+        <CardHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
+          {/* Avatar placeholder */}
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-3xl font-bold text-primary mb-2">
+            {user?.name ? user.name[0] : "U"}
+          </div>
+          <CardTitle className="text-lg font-semibold text-center text-primary-foreground">
+            {user?.name || "-"}
+          </CardTitle>
+          <div className="text-xs text-muted-foreground text-center">Screen ID: user06</div>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-6 px-8 pb-8">
+          <div className="space-y-4">
+            <InfoRow label="이름(닉네임)" value={user?.name || "-"} />
+            <InfoRow label="아이디(이메일)" value={user?.email || "-"} />
+            <InfoRow label="연락처" value={phone} />
+            <InfoRow label="생년월일" value={birth} />
+            <InfoRow label="가입일" value={createdAt} />
+          </div>
+          <div className="flex gap-3 justify-between pt-2">
+            <Button variant="outline" className="flex-1 border-primary/30" onClick={() => nav("/user07")}>정보 수정</Button>
+            <Button className="flex-1 bg-destructive/80 hover:bg-destructive" onClick={() => nav("/user06-01")}>회원 탈퇴</Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
+// 정보 행 컴포넌트
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between border-b border-muted py-2 last:border-b-0">
+      <span className="text-xs text-muted-foreground font-medium w-32">{label}</span>
+      <span className="text-sm text-primary-foreground text-right flex-1">{value}</span>
+    </div>
+  );
+}
 }

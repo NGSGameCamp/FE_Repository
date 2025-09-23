@@ -77,7 +77,7 @@ export function GameSearchView() {
   const [period, setPeriod] = useState<string>(searchParams.get("period") || "모든 기간");
   const [price, setPrice] = useState<string>(searchParams.get("price") || "모든 가격");
   const [rating, setRating] = useState<string>(searchParams.get("rating") || "모든 평점");
-  const [sort, setSort] = useState<string>(searchParams.get("sort") || "인기순");
+  const [sort, setSort] = useState<string>(searchParams.get("sort") || "출시일");
 
   useEffect(() => {
     const params: Record<string, string> = {};
@@ -87,7 +87,7 @@ export function GameSearchView() {
     if (period !== "모든 기간") params.period = period;
     if (price !== "모든 가격") params.price = price;
     if (rating !== "모든 평점") params.rating = rating;
-    if (sort !== "인기순") params.sort = sort;
+    if (sort !== "출시일") params.sort = sort;
     setSearchParams(params, { replace: true });
   }, [genres, features, themes, period, price, rating, sort, setSearchParams]);
 
@@ -165,7 +165,7 @@ export function GameSearchView() {
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2">
             <div className="text-sm font-medium">장르</div>
-            <ToggleGroup type="multiple" value={genres} onValueChange={setGenres} variant="outline" className="flex flex-wrap gap-2">
+            <ToggleGroup type="multiple" value={genres} onValueChange={setGenres} variant="outline" className="flex flex-wrap">
               {allGenres.map((t) => (
                 <ToggleGroupItem key={t} value={t} className="px-3">{t}</ToggleGroupItem>
               ))}
@@ -173,7 +173,7 @@ export function GameSearchView() {
           </div>
           <div className="space-y-2">
             <div className="text-sm font-medium">특징</div>
-            <ToggleGroup type="multiple" value={features} onValueChange={setFeatures} variant="outline" className="flex flex-wrap gap-2">
+            <ToggleGroup type="multiple" value={features} onValueChange={setFeatures} variant="outline" className="flex flex-wrap">
               {allFeatures.map((t) => (
                 <ToggleGroupItem key={t} value={t} className="px-3">{t}</ToggleGroupItem>
               ))}
@@ -181,7 +181,7 @@ export function GameSearchView() {
           </div>
           <div className="space-y-2">
             <div className="text-sm font-medium">테마</div>
-            <ToggleGroup type="multiple" value={themes} onValueChange={setThemes} variant="outline" className="flex flex-wrap gap-2">
+            <ToggleGroup type="multiple" value={themes} onValueChange={setThemes} variant="outline" className="flex flex-wrap">
               {allThemes.map((t) => (
                 <ToggleGroupItem key={t} value={t} className="px-3">{t}</ToggleGroupItem>
               ))}
@@ -230,9 +230,9 @@ export function GameSearchView() {
             <div className="flex items-center gap-2">
               <div className="text-xs text-muted-foreground">정렬:</div>
               <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger className="w-32"><SelectValue placeholder="인기순" /></SelectTrigger>
+                <SelectTrigger className="w-32"><SelectValue placeholder="출시일" /></SelectTrigger>
                 <SelectContent>
-                  {(["인기순", "평점순", "가격낮은순", "가격높은순", "신작순"] as const).map((s) => (
+                  {(["출시일", "인기순", "평점순", "가격낮은순", "가격높은순"] as const).map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
