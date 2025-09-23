@@ -9,7 +9,7 @@ import {
   Share2, 
   PlayCircle 
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface GameCardProps {
   game: {
@@ -26,29 +26,29 @@ interface GameCardProps {
 }
 
 export function GameCard({ game }: GameCardProps) {
+  const navigate = useNavigate();
+  const handleCardClick = () => {
+    navigate(`/game/${game.id}`);
+  };
   return (
-    <Card className="group relative overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-cyan-500/5 hover:from-primary/10 hover:to-cyan-500/10 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
+    <Card
+      className="group relative overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-cyan-500/5 hover:from-primary/10 hover:to-cyan-500/10 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+      tabIndex={0}
+      role="button"
+      aria-label={`${game.title} 상세보기`}
+      onClick={handleCardClick}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
+    >
       <div className="relative aspect-video overflow-hidden">
-        <Link to={`/game/${game.id}`} aria-label={`${game.title} 상세보기`}>
-          <ImageWithFallback
-            src={game.image}
-            alt={game.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </Link>
-        
+        <ImageWithFallback
+          src={game.image}
+          alt={game.title}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="absolute bottom-4 left-4 right-4">
-            <Button 
-              size="sm" 
-              className="w-full bg-primary hover:bg-primary/90 text-white"
-            >
-              상세 페이지
-            </Button>
-          </div>
+          <div className="absolute bottom-4 left-4 right-4"></div>
         </div>
-        
         {/* Price badge */}
         <div className="absolute top-2 right-2">
           <Badge 
@@ -62,17 +62,15 @@ export function GameCard({ game }: GameCardProps) {
           </Badge>
         </div>
       </div>
-      
       <CardContent className="p-4">
         <div className="mb-2">
           <h3 className="font-medium truncate group-hover:text-primary transition-colors">
-            <Link to={`/game/${game.id}`}>{game.title}</Link>
+            {game.title}
           </h3>
           <p className="text-sm text-muted-foreground truncate">
             {game.description}
           </p>
         </div>
-        
         {/* Rating and Downloads */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -85,12 +83,12 @@ export function GameCard({ game }: GameCardProps) {
               <span className="text-sm">{game.downloads}</span>
             </div>
           </div>
-          
           <div className="flex items-center gap-1">
             <Button 
               size="sm" 
               variant="ghost" 
               className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-red-400"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               <Heart className="h-3 w-3" />
             </Button>
@@ -98,12 +96,12 @@ export function GameCard({ game }: GameCardProps) {
               size="sm" 
               variant="ghost" 
               className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               <Share2 className="h-3 w-3" />
             </Button>
           </div>
         </div>
-        
         {/* Tags */}
         <div className="flex flex-wrap gap-1">
           <Badge 
@@ -112,7 +110,7 @@ export function GameCard({ game }: GameCardProps) {
           >
             {game.genre}
           </Badge>
-          {game.tags.slice(0, 2).map((tag) => (
+          {game.tags.slice(0, 2).map((tag: string) => (
             <Badge 
               key={tag}
               variant="outline" 

@@ -61,13 +61,13 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
               <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                <span className="font-semibold">{game.rating}</span>
+                <span className="font-semibold text-white">{game.rating}</span>
                 <span className="text-sm text-muted-foreground">평점</span>
               </div>
               
               <div className="flex items-center gap-2">
                 <Download className="h-5 w-5 text-primary" />
-                <span className="font-semibold">{game.downloads}</span>
+                <span className="font-semibold text-white">{game.downloads}</span>
                 <span className="text-sm text-muted-foreground">다운로드</span>
               </div>
               

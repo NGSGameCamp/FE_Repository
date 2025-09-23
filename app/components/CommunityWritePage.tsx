@@ -77,16 +77,16 @@ export default function CommunityWritePage() {
             <div className="text-sm text-muted-foreground">제목</div>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 mt-2">
             <div className="text-sm text-muted-foreground">태그</div>
             <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="쉼표로 구분 (예: 레이드,가이드)" />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 mt-2">
             <div className="text-sm text-muted-foreground">내용</div>
             <Textarea rows={12} value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용을 작성하세요. 빈 줄로 단락이 구분됩니다." />
           </div>
           {error && <div className="text-xs text-destructive">{error}</div>}
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 mt-4">
             <Button variant="outline" className="border-primary/30" onClick={() => navigate(-1)}>취소</Button>
             <Button onClick={onSubmit}>등록</Button>
           </div>
