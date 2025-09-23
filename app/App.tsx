@@ -24,6 +24,7 @@ import { GameSearchView } from "./components/GameSearchView";
 import { GameDetailView } from "./components/GameDetailView";
 import { LoginPage, SignupPage, ScreenStub } from "./components/auth/AuthPages";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
+import { useCartStore } from "./stores/cartStore";
 
 // Mock data for games
 const mockGames = [
@@ -142,6 +143,11 @@ function Home({
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState("recommended");
   const location = useLocation();
+  const { fetchCart } = useCartStore();
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   // Ensure navigating to home resets to 추천
   useEffect(() => {
