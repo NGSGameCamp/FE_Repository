@@ -17,3 +17,47 @@
     grid-template-columns: 7fr 3fr;
   }
 }
+
+/* Button helpers */
+.btn-follow {
+  border: 1px solid rgba(255, 105, 180, 0.45);
+  color: #ff7db5;
+  background: transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-follow:hover {
+  background-color: rgba(255, 125, 181, 0.12);
+}
+
+.btn-follow-active {
+  background: #e0348b;
+  color: #ffffff;
+  border-color: #d12e81;
+}
+
+.btn-follow-active:hover {
+  background: #bf236f;
+}
+
+.btn-follow .heart-icon {
+  color: currentColor;
+}
+
+.btn-follow-active .heart-icon {
+  color: #ffd5e6;
+  fill: #ffd5e6;
+}
+
+.btn-community {
+  border: 1px solid rgba(96, 76, 255, 0.45);
+  color: #a998ff;
+  background: rgba(96, 76, 255, 0.08);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-community:hover {
+  background: rgba(128, 90, 213, 0.18);
+  color: #c5b9ff;
+  border-color: rgba(128, 90, 213, 0.6);
+}

@@ -7,7 +7,6 @@ import { Badge } from "./ui/badge";
 import { HelpCircle, Briefcase, Cpu, Users, MessageSquare, Newspaper, Scale, Puzzle, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
-import ChromaGrid from './components/ChromaGrid';
 
 type MainType = "일반 문의" | "비즈니스 문의" | "기술 문의";
 type SubType =
@@ -130,4 +129,3 @@ export default function SupportOtherInquiryPage() {
     </div>
   );
 }
-

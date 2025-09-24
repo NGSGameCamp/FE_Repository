@@ -33,10 +33,7 @@ export default function UserDeletePage() {
       <Card className="w-full max-w-md shadow-xl border border-primary/10 bg-card/90">
         <CardHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
           {/* Avatar placeholder */}
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-3xl font-bold text-primary mb-2">
-            {user?.name ? user.name[0] : "U"}
-          </div>
-          <CardTitle className="text-lg font-semibold text-center text-primary-foreground">
+          <CardTitle className="text-lg font-semibold text-center text-primary-foreground mt-4">
             {user?.name || "-"}
           </CardTitle>
           <div className="text-xs text-muted-foreground text-center">회원 탈퇴</div>

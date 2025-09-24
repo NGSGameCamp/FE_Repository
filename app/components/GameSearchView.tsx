@@ -167,7 +167,13 @@ export function GameSearchView() {
             <div className="text-sm font-medium">장르</div>
             <ToggleGroup type="multiple" value={genres} onValueChange={setGenres} variant="outline" className="flex flex-wrap">
               {allGenres.map((t) => (
-                <ToggleGroupItem key={t} value={t} className="px-3">{t}</ToggleGroupItem>
+                <ToggleGroupItem
+                  key={t}
+                  value={t}
+                  className="px-4 py-1 border border-primary/30 text-muted-foreground rounded-full flex-none whitespace-nowrap transition-colors hover:!bg-primary/10 hover:!text-primary data-[state=on]:!border-primary data-[state=on]:!bg-primary/25 data-[state=on]:!text-primary first:rounded-full last:rounded-full"
+                >
+                  {t}
+                </ToggleGroupItem>
               ))}
             </ToggleGroup>
           </div>
@@ -175,7 +181,13 @@ export function GameSearchView() {
             <div className="text-sm font-medium">특징</div>
             <ToggleGroup type="multiple" value={features} onValueChange={setFeatures} variant="outline" className="flex flex-wrap">
               {allFeatures.map((t) => (
-                <ToggleGroupItem key={t} value={t} className="px-3">{t}</ToggleGroupItem>
+                <ToggleGroupItem
+                  key={t}
+                  value={t}
+                  className="px-4 py-1 border border-primary/30 text-muted-foreground rounded-full flex-none whitespace-nowrap transition-colors hover:!bg-primary/10 hover:!text-primary data-[state=on]:!border-primary data-[state=on]:!bg-primary/25 data-[state=on]:!text-primary first:rounded-full last:rounded-full"
+                >
+                  {t}
+                </ToggleGroupItem>
               ))}
             </ToggleGroup>
           </div>
@@ -183,7 +195,13 @@ export function GameSearchView() {
             <div className="text-sm font-medium">테마</div>
             <ToggleGroup type="multiple" value={themes} onValueChange={setThemes} variant="outline" className="flex flex-wrap">
               {allThemes.map((t) => (
-                <ToggleGroupItem key={t} value={t} className="px-3">{t}</ToggleGroupItem>
+                <ToggleGroupItem
+                  key={t}
+                  value={t}
+                  className="px-4 py-1 border border-primary/30 text-muted-foreground rounded-full flex-none whitespace-nowrap transition-colors hover:!bg-primary/10 hover:!text-primary data-[state=on]:!border-primary data-[state=on]:!bg-primary/25 data-[state=on]:!text-primary first:rounded-full last:rounded-full"
+                >
+                  {t}
+                </ToggleGroupItem>
               ))}
             </ToggleGroup>
           </div>

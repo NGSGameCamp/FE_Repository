@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "./ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
@@ -65,32 +65,60 @@ export default function CommunityWritePage() {
     <div className="container mx-auto px-6 py-6 space-y-6">
       <div>
         <h2 className="text-xl font-semibold">글 쓰기</h2>
-        <p className="text-sm text-muted-foreground">로컬 저장 데모 — 등록 후 전체 글 페이지로 이동합니다.</p>
+        <p className="text-sm text-muted-foreground">
+          로컬 저장 데모 — 등록 후 전체 글 페이지로 이동합니다.
+        </p>
       </div>
 
-      <Card className="border-primary/20 mx-auto" style={{ maxWidth: 900 }}>
+      <Card className="border-primary/20 mx-auto max-w-[900px] w-full">
         <CardHeader>
           <CardTitle className="text-base">새 글 작성</CardTitle>
         </CardHeader>
+
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="text-sm text-muted-foreground">제목</div>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" />
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목을 입력하세요"
+            />
           </div>
+
           <div className="space-y-2 mt-2">
             <div className="text-sm text-muted-foreground">태그</div>
-            <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="쉼표로 구분 (예: 레이드,가이드)" />
+            <Input
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="쉼표로 구분 (예: 레이드,가이드)"
+            />
           </div>
+
           <div className="space-y-2 mt-2">
             <div className="text-sm text-muted-foreground">내용</div>
-            <Textarea rows={12} value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용을 작성하세요. 빈 줄로 단락이 구분됩니다." />
+            <Textarea
+              rows={12}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="내용을 작성하세요. 빈 줄로 단락이 구분됩니다."
+            />
           </div>
+
           {error && <div className="text-xs text-destructive">{error}</div>}
-          <div className="flex items-center justify-end gap-2 mt-4">
-            <Button variant="outline" className="border-primary/30" onClick={() => navigate(-1)}>취소</Button>
-            <Button onClick={onSubmit}>등록</Button>
-          </div>
         </CardContent>
+
+        {/* 카드 우측 정렬: 왼쪽에 flex-1 스페이서를 두고 버튼을 오른쪽으로 밀기 */}
+        <CardFooter className="flex items-center gap-2 p-6 pt-0">
+          <div className="flex-1" />
+          <Button
+            variant="outline"
+            className="border-primary/30"
+            onClick={() => navigate(-1)}
+          >
+            취소
+          </Button>
+          <Button onClick={onSubmit}>등록</Button>
+        </CardFooter>
       </Card>
     </div>
   );

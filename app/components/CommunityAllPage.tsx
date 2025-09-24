@@ -160,47 +160,44 @@ export default function CommunityAllPage() {
           </div>
         </div>
 
-       {pageItems.map((p) => (
-  <Card
-    key={p.id}
-    className="border-primary/20 mb-4 last:mb-0"
-  >
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base">
-        <Link
-          to={`/community/post/${p.id}`}
-          className="hover:underline text-primary"
-        >
-          {p.title}
-        </Link>
-      </CardTitle>
-    </CardHeader>
+        {pageItems.map((p) => (
+          <Link
+            key={p.id}
+            to={`/community/post/${p.id}`}
+            className="block group"
+            aria-label={`${p.title} 게시글로 이동`}
+          >
+            <Card className="border-primary/20 transition-colors transition-shadow hover:shadow-md group-hover:border-primary/40 group-hover:bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base group-hover:text-primary">{p.title}</CardTitle>
+              </CardHeader>
 
-    <CardContent className="space-y-2">
-      <p className="text-sm text-muted-foreground">{p.excerpt}</p>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-muted-foreground">{p.excerpt}</p>
 
-      <div className="flex flex-wrap gap-2">
-        {p.tags.map((t) => (
-          <Badge key={t} variant="outline" className="text-muted-foreground">
-            #{t}
-          </Badge>
+                <div className="flex flex-wrap gap-2">
+                  {p.tags.map((t) => (
+                    <Badge key={t} variant="outline" className="text-muted-foreground">
+                      #{t}
+                    </Badge>
+                  ))}
+                </div>
+
+                <div className="text-xs text-muted-foreground flex items-center gap-3">
+                  <span>작성자 {p.author}</span>
+                  <span>댓글 {p.comments}</span>
+                  <span>좋아요 {p.likes}</span>
+                  <span>
+                    {new Date(p.date).toLocaleDateString("ko-KR", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
-      </div>
-
-      <div className="text-xs text-muted-foreground flex items-center gap-3">
-        <span>작성자 {p.author}</span>
-        <span>댓글 {p.comments}</span>
-        <span>좋아요 {p.likes}</span>
-        <span>
-          {new Date(p.date).toLocaleDateString("ko-KR", {
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
-      </div>
-    </CardContent>
-  </Card>
-))}
 
         {/* Pagination */}
         <div className="flex items-center justify-end gap-2 text-white">

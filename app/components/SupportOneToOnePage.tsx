@@ -148,9 +148,9 @@ export default function SupportOneToOnePage() {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">문의 내용</CardTitle>
+          <div className="text-xs text-muted-foreground">문제 상황이나 요청사항을 자세히 설명해주세요. (10자 이상)</div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="text-xs text-muted-foreground">문제 상황이나 요청사항을 자세히 설명해주세요. (10자 이상)</div>
           <Textarea
             rows={8}
             value={desc}
@@ -158,7 +158,7 @@ export default function SupportOneToOnePage() {
             placeholder={`예시)\n- 로그인하면 '계정이 잠겼습니다' 메시지가 표시됩니다.\n- 본인 확인 절차와 해제 방법을 안내받고 싶습니다.`}
           />
           {error && <div className="text-xs text-destructive">{error}</div>}
-          <div className="text-right">
+          <div className="text-right mt-4">
             <Button onClick={submit} disabled={!valid}>1:1 문의 보내기</Button>
           </div>
         </CardContent>
@@ -166,4 +166,3 @@ export default function SupportOneToOnePage() {
     </div>
   );
 }
-

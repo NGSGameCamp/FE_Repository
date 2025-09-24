@@ -179,7 +179,7 @@ export function CommunityPage() {
           <Separator className="my-6" />
 
           <div className="space-y-3">
-            <div className="text-xs text-muted-foreground">태그 필터</div>
+            <div className="text-xs text-muted-foreground mt-4 mb-2">태그 필터</div>
             <ToggleGroup
               type="multiple"
               value={selectedTags}
@@ -201,34 +201,33 @@ export function CommunityPage() {
         {/* Main list */}
         <div className="space-y-6">
           {filteredPosts.map((p) => (
-            <Card
-              key={p.id}
-              className="border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-shadow transition-colors hover:bg-primary/5"
-            >
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">{p.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{p.excerpt}</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
-                    {p.game}
-                  </Badge>
-                  <Badge variant="outline">{p.topic}</Badge>
-                  {p.tags.map((t) => (
-                    <Badge key={t} variant="outline" className="text-muted-foreground">
-                      #{t}
+            <Link key={p.id} to={`/community/post/${p.id}`} className="block group" aria-label={`${p.title} 게시글로 이동`}>
+              <Card className="border-primary/30 shadow-sm transition-colors transition-shadow hover:shadow-md group-hover:border-primary/40 group-hover:bg-primary/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base group-hover:text-primary">{p.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">{p.excerpt}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                      {p.game}
                     </Badge>
-                  ))}
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-4">
-                  <span className="inline-flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" /> {p.comments}</span>
-                  <span className="inline-flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {p.likes}</span>
-                  <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {p.views.toLocaleString()}</span>
-                  <span>· {p.time}</span>
-                </div>
-              </CardContent>
-            </Card>
+                    <Badge variant="outline">{p.topic}</Badge>
+                    {p.tags.map((t) => (
+                      <Badge key={t} variant="outline" className="text-muted-foreground">
+                        #{t}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-4">
+                    <span className="inline-flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" /> {p.comments}</span>
+                    <span className="inline-flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {p.likes}</span>
+                    <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {p.views.toLocaleString()}</span>
+                    <span>· {p.time}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
 
           {filteredPosts.length === 0 && (

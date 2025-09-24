@@ -96,7 +96,7 @@ export function SupportInquiryNewPage() {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">문제가 발생한 게임 선택</CardTitle>
-            <div className="text-xs text-muted-foreground">문의하실 게임을 선택해주세요</div>
+          <div className="text-xs text-muted-foreground">문의하실 게임을 선택해주세요</div>
         </CardHeader>
         <CardContent className="space-y-1">
           <Select value={game} onValueChange={setGame}>
@@ -118,7 +118,14 @@ export function SupportInquiryNewPage() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {types.map((t) => (
-            <label key={t} className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition ${selected.includes(t) ? "border-primary bg-primary/5" : "border-primary/20 hover:border-primary/40"}`}>
+            <label
+              key={t}
+              className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition ${
+                selected.includes(t)
+                  ? "border-primary bg-primary/5"
+                  : "border-primary/20 hover:border-primary/40"
+              }`}
+            >
               <Checkbox checked={selected.includes(t)} onCheckedChange={() => toggleType(t)} />
               <span className="text-sm">{t}</span>
             </label>
@@ -129,17 +136,25 @@ export function SupportInquiryNewPage() {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">문제 상세 설명</CardTitle>
-            <div className="text-xs text-muted-foreground">문제 상황과 발생 시점, 에러 메시지 등을 자세히 작성해주세요.</div>
+          <div className="text-xs text-muted-foreground">문제 상황과 발생 시점, 에러 메시지 등을 자세히 작성해주세요.</div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={7} placeholder={`예시)
+          <Textarea
+            className="mb-4"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            rows={7}
+            placeholder={`예시)
 - 언제부터 문제가 발생했는지
 - 에러 메시지 또는 화면에 보이는 현상
 - 시도해본 해결 방법이 있다면
-`} />
+`}
+          />
 
           <div className="space-y-2">
-            <label className="text-sm font-medium ">스크린샷 첨부 (최대 5장)</label>
+            <div className="text-sm font-medium mb-2">스크린샷 첨부 (최대 5장)</div>
+
+            {/* 파일 선택 버튼 + 전체 삭제(쓰레기통) 버튼을 같은 줄에 배치 */}
             <div className="flex items-center gap-3">
               <input
                 id="file-upload"
@@ -147,7 +162,7 @@ export function SupportInquiryNewPage() {
                 accept="image/*"
                 multiple
                 onChange={onFiles}
-                className="hidden" // input은 숨김
+                className="hidden"
               />
 
               <label
@@ -157,16 +172,29 @@ export function SupportInquiryNewPage() {
                 <Upload className="h-4 w-4 mr-2" />
                 파일 선택
               </label>
+
+              {images.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setImages([])}
+                  className="inline-flex items-center justify-center rounded-md border border-input bg-background p-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  aria-label="첨부 이미지 모두 삭제"
+                  title="첨부 이미지 모두 삭제"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
+
             {!!images.length && (
               <div className="flex flex-wrap gap-3 pt-2">
                 {images.map((im) => (
-                  <div key={im.id} className="relative">
-                    <img src={im.url} alt="첨부" className="h-16 w-16 object-cover rounded-md border border-primary/20" />
-                    <button type="button" aria-label="remove" className="absolute -top-2 -right-2 rounded-full bg-background/90 border border-primary/30 p-1 text-muted-foreground hover:text-destructive" onClick={() => setImages((prev) => prev.filter((x) => x.id !== im.id))}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  <img
+                    key={im.id}
+                    src={im.url}
+                    alt="첨부"
+                    className="h-16 w-16 object-cover rounded-md border border-primary/20"
+                  />
                 ))}
               </div>
             )}
