@@ -7,9 +7,15 @@ import {
   Download, 
   Heart, 
   Share2, 
-  PlayCircle 
+  PlayCircle,
+  ShoppingCart
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "./auth/AuthContext";
+import { addGameToCart, type Game as ApiGame } from "../api/orderApi";
+import { addGameToLocalCart } from "../stores/localCartStore";
+import { useCartStore } from "../stores/cartStore";
+import { toast } from "sonner";
 
 interface GameCardProps {
   game: {
@@ -26,6 +32,44 @@ interface GameCardProps {
 }
 
 export function GameCard({ game }: GameCardProps) {
+  const { isAuthenticated } = useAuth();
+  const { fetchCart: updateGlobalCart } = useCartStore();
+
+  const handleAddToCart = async () => {
+    // 게임 가격에서 숫자만 추출
+    const priceString = game.price.replace(/[^0-9]/g, "");
+    const gamePrice = game.price === "무료" ? 0 : parseInt(priceString, 10);
+
+    if (isNaN(gamePrice)) {
+        toast.error("유효하지 않은 가격입니다.");
+        return;
+    }
+
+    const apiGame: ApiGame = {
+      id: parseInt(game.id, 10),
+      name: game.title,
+      price: gamePrice,
+    };
+
+    try {
+      if (isAuthenticated) {
+        await addGameToCart(apiGame.id);
+        toast.success(`${game.title}을(를) 장바구니에 담았습니다.`);
+      } else {
+        addGameToLocalCart(apiGame);
+        toast.success(`${game.title}을(를) 장바구니에 담았습니다.`);
+      }
+      updateGlobalCart(); // 헤더에 있는 장바구니 아이콘 업데이트
+    } catch (error: any) {
+        if (error.message && error.message.includes("already in cart")) {
+            toast.info(`${game.title}은(는) 이미 장바구니에 있습니다.`);
+        } else {
+            toast.error("장바구니에 추가하는 중 오류가 발생했습니다.");
+            console.error(error);
+        }
+    }
+  };
+
   return (
     <Card className="group relative overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-cyan-500/5 hover:from-primary/10 hover:to-cyan-500/10 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
       <div className="relative aspect-video overflow-hidden">
@@ -88,6 +132,14 @@ export function GameCard({ game }: GameCardProps) {
           </div>
           
           <div className="flex items-center gap-1">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary"
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
             <Button 
               size="sm" 
               variant="ghost" 

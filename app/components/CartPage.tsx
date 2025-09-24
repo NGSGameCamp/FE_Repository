@@ -7,24 +7,36 @@ import { Trash2, Loader2 } from "lucide-react";
 import { getCart, removeGameFromCart, type Order } from "../api/orderApi";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { useCartStore } from "../stores/cartStore";
+import { useAuth } from "./auth/AuthContext";
+import { getLocalCart, removeGameFromLocalCart } from "../stores/localCartStore";
 
 const formatKRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
 
 export function CartPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [cart, setCart] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { fetchCart } = useCartStore();
+  const { fetchCart: updateGlobalCartCount } = useCartStore();
 
   const loadCart = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      const cartData = await getCart();
-      setCart(cartData);
-      setError(null);
+      if (isAuthenticated) {
+        const cartData = await getCart();
+        setCart(cartData);
+      } else {
+        const localCart = getLocalCart();
+        setCart(localCart);
+      }
     } catch (err: any) {
-      setError(err.message || "장바구니를 불러오는 중 오류가 발생했습니다.");
+        if (err.message.includes("401")) {
+            setError("로그인이 필요합니다.");
+        } else {
+            setError(err.message || "장바구니를 불러오는 중 오류가 발생했습니다.");
+        }
     } finally {
       setIsLoading(false);
     }
@@ -32,18 +44,33 @@ export function CartPage() {
 
   useEffect(() => {
     loadCart();
-  }, []);
+  }, [isAuthenticated]);
 
   const handleRemoveItem = async (gameId: number) => {
-    try {
-      const updatedCart = await removeGameFromCart(gameId);
+    if (isAuthenticated) {
+      try {
+        const updatedCart = await removeGameFromCart(gameId);
+        setCart(updatedCart);
+        updateGlobalCartCount(); // 장바구니 전역 상태 업데이트
+      } catch (err: any) {
+        setError(err.message || "아이템 삭제 중 오류가 발생했습니다.");
+      }
+    } else {
+      const updatedCart = removeGameFromLocalCart(gameId);
       setCart(updatedCart);
-      fetchCart(); // Update global cart state
-    } catch (err: any) {
-      setError(err.message || "아이템 삭제 중 오류가 발생했습니다.");
     }
   };
 
+  const handleProceedToPayment = () => {
+    if (!isAuthenticated) {
+      alert("결제를 진행하려면 로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+    if (cart && cart.orderItems.length > 0) {
+      navigate("/payment");
+    }
+  };
 
   const orderItems = cart?.orderItems || [];
   const itemCount = orderItems.length;
@@ -123,7 +150,7 @@ export function CartPage() {
             </div>
             <div className="text-xs text-muted-foreground mt-1">{itemCount}개의 아이템</div>
 
-            <Button className="w-full mt-4" disabled={itemCount === 0} onClick={() => navigate("/payment")}>
+            <Button className="w-full mt-4" disabled={itemCount === 0} onClick={handleProceedToPayment}>
               결제 진행
             </Button>
           </CardContent>

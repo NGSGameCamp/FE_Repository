@@ -24,7 +24,6 @@ export interface OrderItem {
 }
 
 export type OrderStatus =
-  | 'CART'
   | 'PRE_ORDERED'
   | 'PENDING'
   | 'PAYMENT_COMPLETED'
@@ -63,40 +62,26 @@ async function fetchApi<T>(url: string, options: RequestInit = {}): Promise<T> {
   return response.json();
 }
 
-/**
- * 현재 사용자의 장바구니 정보를 가져옵니다. 장바구니가 없으면 새로 생성합니다.
- * @returns {Promise<Order>} 장바구니 정보
- */
+// 현재 사용자의 장바구니 정보를 가져옵니다. 장바구니가 없으면 새로 생성
 export const getCart = (): Promise<Order> => {
   return fetchApi<Order>(`${API_BASE_URL}/orders/cart`);
 };
 
-/**
- * 장바구니에 게임을 추가합니다.
- * @param {number} gameId - 추가할 게임의 ID
- * @returns {Promise<Order>} 업데이트된 장바구니 정보
- */
+// 장바구니에 게임을 추가
 export const addGameToCart = (gameId: number): Promise<Order> => {
   return fetchApi<Order>(`${API_BASE_URL}/orders/cart/add?gameId=${gameId}`, {
     method: 'POST',
   });
 };
 
-/**
- * 장바구니에서 게임을 제거합니다.
- * @param {number} gameId - 제거할 게임의 ID
- * @returns {Promise<Order>} 업데이트된 장바구니 정보
- */
+// 장바구니에서 게임을 제거
 export const removeGameFromCart = (gameId: number): Promise<Order> => {
   return fetchApi<Order>(`${API_BASE_URL}/orders/cart/remove/${gameId}`, {
     method: 'DELETE',
   });
 };
 
-/**
- * 현재 사용자의 모든 주문 내역을 가져옵니다.
- * @returns {Promise<Order[]>} 주문 내역 리스트
- */
+// 현재 사용자의 모든 주문 내역을 가져옴
 export const getMyOrders = (): Promise<Order[]> => {
   return fetchApi<Order[]>(`${API_BASE_URL}/orders`);
 };
