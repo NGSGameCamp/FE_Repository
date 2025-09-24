@@ -7,17 +7,18 @@ import { Badge } from "./ui/badge";
 import { HelpCircle, Briefcase, Cpu, Users, MessageSquare, Newspaper, Scale, Puzzle, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
+import ChromaGrid from './components/ChromaGrid';
 
 type MainType = "일반 문의" | "비즈니스 문의" | "기술 문의";
 type SubType =
-  | "건의사항"
-  | "파트너십"
-  | "언론/미디어"
-  | "기술 문의"
-  | "커뮤니티"
-  | "콘텐츠 문의"
-  | "법무/규정"
-  | "일반 문의";
+| "건의사항"
+| "파트너십"
+| "언론/미디어"
+| "기술 문의"
+| "커뮤니티"
+| "콘텐츠 문의"
+| "법무/규정"
+| "일반 문의";
 
 const subTypes: { id: SubType; desc: string; icon: JSX.Element }[] = [
   { id: "건의사항", desc: "서비스 개선 제안/요청", icon: <Lightbulb className="h-5 w-5" /> },
@@ -73,31 +74,10 @@ export default function SupportOtherInquiryPage() {
       <div className="flex items-start gap-3">
         <HelpCircle className="h-6 w-6 text-primary mt-0.5" />
         <div>
-          <h2 className="text-xl font-semibold">기타 문의</h2>
+          <h2 className="text-xl font-semibold text-white">기타 문의</h2>
           <p className="text-sm text-muted-foreground">게임이나 계정 외 다양한 문의사항을 접수하실 수 있습니다. 적절한 담당 부서로 전달해 드립니다.</p>
         </div>
       </div>
-
-      {/* 처리 안내 */}
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-base">문의 유형별 처리 안내</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-            <div className="font-medium">일반 문의</div>
-            <div className="text-xs text-muted-foreground mt-1">2–3 영업일 내 답변</div>
-          </div>
-          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
-            <div className="font-medium flex items-center gap-2">비즈니스 문의 <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">전달</Badge></div>
-            <div className="text-xs text-muted-foreground mt-1">5–7 영업일 내 답변</div>
-          </div>
-          <div className="rounded-lg border border-purple-500/30 bg-purple-500/5 p-4">
-            <div className="font-medium">기술 문의</div>
-            <div className="text-xs text-muted-foreground mt-1">1–2 영업일 내 답변</div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* 메인/서브 유형 선택 */}
       <Card className="border-primary/20">
@@ -105,40 +85,42 @@ export default function SupportOtherInquiryPage() {
           <CardTitle className="text-base">문의 유형 선택</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {(["일반 문의", "비즈니스 문의", "기술 문의"] as const).map((m) => (
-              <Button key={m} variant={main === m ? "default" : "outline"} size="sm" onClick={() => setMain(m)} className={main === m ? "" : "border-primary/30"}>
-                {m}
-              </Button>
-            ))}
+  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    {subTypes.map((c) => (
+      <label 
+        key={c.id} 
+        className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition ${
+          sub === c.id 
+            ? "border-primary bg-primary/5" 
+            : "border-primary/20 hover:border-primary/40"
+        }`}
+      >
+        <Checkbox 
+          checked={sub === c.id} 
+          onCheckedChange={() => setSub(c.id)} 
+          className="mt-0.5"
+        />
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            {c.icon}
+            <span className="text-sm font-medium">{c.id}</span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {subTypes.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setSub(c.id)}
-                className={`text-left rounded-lg border p-3 transition ${sub === c.id ? "border-primary bg-primary/5" : "border-primary/20 hover:border-primary/40"}`}
-              >
-                <div className="flex items-center gap-2">
-                  {c.icon}
-                  <div className="font-medium">{c.id}</div>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">{c.desc}</div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
+          <div className="text-xs text-muted-foreground mt-1">{c.desc}</div>
+        </div>
+      </label>
+    ))}
+  </div>
+</CardContent>
       </Card>
 
       {/* 내용 */}
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="text-base">문의 내용</CardTitle>
+            <div className="text-xs text-muted-foreground">상세 내용을 구체적으로 작성해 주세요. (최소 10자)</div>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="text-xs text-muted-foreground">상세 내용을 구체적으로 작성해 주세요. (최소 10자)</div>
+        <CardContent className="space-y-6">
           <Textarea rows={8} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="문의하실 내용을 자세히 설명해주세요" />
-          <label className="flex items-center gap-2 text-sm"><Checkbox checked={hasAttachment} onCheckedChange={(v) => setHasAttachment(Boolean(v))} /> 관련 문서나 자료가 있습니다</label>
           {error && <div className="text-xs text-destructive">{error}</div>}
           <div className="text-right">
             <Button onClick={submit} disabled={!valid}>문의 보내기</Button>

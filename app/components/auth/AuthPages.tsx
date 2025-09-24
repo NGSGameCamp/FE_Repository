@@ -86,7 +86,7 @@ export function LoginPage() {
                   </button>
                 </div>
                 <div className="flex justify-end items-center gap-3 text-xs">
-                  <Link to="/user04" className="text-muted-foreground hover:text-primary">Forgot password?</Link>
+                  <Link to="/forgot-password" className="text-muted-foreground hover:text-primary">Forgot password?</Link>
                   <span className="text-muted-foreground">|</span>
                   <Link to="/signup" className="text-primary hover:underline">Sign up</Link>
                 </div>
@@ -130,14 +130,21 @@ export function LoginPage() {
                   onClick={() => onSocial("kakao")}
                   aria-label="카카오 로그인"
                 >
-                  <img alt="kakao" src="/social-kakao.svg" className="h-6 w-6 rounded-full object-contain" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              <img alt="kakao" src="/social-kakao.svg" className="h-6 w-6 rounded-full object-contain" />
+            </Button>
+          </div>
+
+          <div className="text-center text-xs text-muted-foreground">
+            배급사 파트너이신가요?{" "}
+            <Link to="/publisher/login" className="text-primary hover:underline">
+              배급사 로그인
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
+  </div>
+</div>
   );
 }
 

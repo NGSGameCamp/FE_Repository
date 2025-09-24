@@ -18,7 +18,10 @@ import {
   Car,
   Globe,
   Puzzle,
-  ChevronDown
+  ChevronDown,
+  Building2,
+  ClipboardList,
+  LayoutDashboard
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -28,6 +31,7 @@ import {
 } from "./ui/dropdown-menu";
 import { useAuth } from "./auth/AuthContext";
 import { useCartStore } from "../stores/cartStore";
+import { useEffect, useState } from "react";
 
 interface HeaderProps {
   selectedCategory: string;
@@ -40,6 +44,17 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    try {
+      const key = user?.email ? `profile:avatar:${user.email}` : undefined;
+      const src = key ? localStorage.getItem(key) || undefined : undefined;
+      setAvatarSrc(src);
+    } catch {
+      setAvatarSrc(undefined);
+    }
+  }, [user?.email]);
   const categories = [
     { id: "recommended", label: "추천", icon: Flame },
     { id: "trending", label: "트렌딩", icon: Trophy },
@@ -92,6 +107,11 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
           {/* User Actions */}
           <nav className="flex items-center space-x-4">
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/library" className="inline-flex items-center">
+                <Gamepad2 className="h-4 w-4 mr-2" />라이브러리
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
               <Link to="/search" className="inline-flex items-center">
                 <Search className="h-4 w-4 mr-2" />검색
               </Link>
@@ -105,6 +125,24 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
               <Link to="/support" className="inline-flex items-center">
                 <HelpCircle className="h-4 w-4 mr-2" />고객센터
+              </Link>
+            </Button>
+
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/publisher/dashboard" className="inline-flex items-center">
+                <Building2 className="h-4 w-4 mr-2" />배급사 센터
+              </Link>
+            </Button>
+
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/publisher/dashboard" className="inline-flex items-center">
+                <LayoutDashboard className="h-4 w-4 mr-2" />대시보드
+              </Link>
+            </Button>
+
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Link to="/publisher/notices" className="inline-flex items-center">
+                <ClipboardList className="h-4 w-4 mr-2" />공지 관리
               </Link>
             </Button>
             
@@ -142,10 +180,12 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
               </Button>
             )}
             {isAuthenticated && (
-              <Avatar className="h-8 w-8 ring-2 ring-primary/30">
-                <AvatarImage src="" />
-                <AvatarFallback className="bg-primary/20 text-primary">게</AvatarFallback>
-              </Avatar>
+              <Link to="/profile" aria-label="내 프로필">
+                <Avatar className="h-8 w-8 ring-2 ring-primary/30">
+                  <AvatarImage src={avatarSrc || ""} />
+                  <AvatarFallback className="bg-primary/20 text-primary">게</AvatarFallback>
+                </Avatar>
+              </Link>
             )}
           </nav>
         </div>

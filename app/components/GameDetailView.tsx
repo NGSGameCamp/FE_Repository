@@ -311,7 +311,7 @@ export function GameDetailView() {
             <CardHeader>
               <CardTitle className="text-base">구매</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="text-sm line-through text-muted-foreground">{KRW(originalPrice)}</div>
                 <Badge className="bg-red-500/80">-{discountPercent}%</Badge>

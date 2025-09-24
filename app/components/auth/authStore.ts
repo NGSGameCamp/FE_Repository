@@ -108,3 +108,23 @@ export async function changePassword(identifier: string, newPassword: string): P
   saveUsers(users);
   return { ok: true };
 }
+
+// Update stored nickname for a user by email or userId (best-effort, local demo only)
+export function updateNickname(identifier: string, nickname: string): { ok: boolean } {
+  const users = loadUsers();
+  const key = identifier.trim().toLowerCase();
+  const idx = users.findIndex((u) => u.email.toLowerCase() === key || u.userId.toLowerCase() === key);
+  if (idx === -1) return { ok: true }; // no-op for non-registered sessions
+  users[idx].nickname = nickname.trim() || users[idx].nickname;
+  saveUsers(users);
+  return { ok: true };
+}
+
+// Delete user by email or userId. Demo only (localStorage persistence)
+export function deleteUser(identifier: string): { ok: boolean } {
+  const users = loadUsers();
+  const key = identifier.trim().toLowerCase();
+  const next = users.filter((u) => u.email.toLowerCase() !== key && u.userId.toLowerCase() !== key);
+  saveUsers(next);
+  return { ok: true };
+}

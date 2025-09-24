@@ -74,7 +74,7 @@ This guide codifies the visual language and component patterns in this repo so o
 - FeaturedGame (`app/components/FeaturedGame.tsx`)
   - Content: genre badges, title, description, stats (rating/downloads/price), tags, actions.
   - Media: background image with low opacity overlay and gradient mask; foreground image tile on the right (hover scale).
-  - Actions: primary “지금 플레이”, outline “위시리스트 추가”.
+  - Actions: primary “상세 페이지”, outline “팔로잉”.
   - Props: `embed` to fill parent height and remove outside margins when used in hero row.
 
 - NewGamesSection (`app/components/NewGamesSection.tsx`)
