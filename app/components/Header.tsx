@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAuth } from "./auth/AuthContext";
+import { useCartStore } from "../stores/cartStore";
 import { useEffect, useState } from "react";
 
 interface HeaderProps {
@@ -38,7 +39,8 @@ interface HeaderProps {
 }
 
 export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const { itemCount } = useCartStore();
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -147,7 +149,13 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
             {isAuthenticated && (
               <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
                 <Link to="/cart" className="inline-flex items-center">
-                  <ShoppingCart className="h-4 w-4 mr-2" />장바구니
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  장바구니
+                  {itemCount > 0 && (
+                    <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-primary rounded-full">
+                      {itemCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
             )}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PortOne from "@portone/browser-sdk/v2";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -6,86 +6,109 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Checkbox } from "./ui/checkbox";
 
-type Item = { id: string; title: string; platform: string; price: number };
+type CartItem = {
+  id: string;
+  title: string;
+  platform: string;
+  price: number;
+  quantity: number;
+};
 
-const items: Item[] = [
-  { id: "g1", title: "Cyberpunk 2077", platform: "PC", price: 1000 },
-  { id: "g2", title: "The Witcher 3: Wild Hunt", platform: "PlayStation 5", price: 500 },
-  { id: "g3", title: "Red Dead Redemption 2", platform: "Xbox Series X", price: 101 },
-];
+type OrderDetails = {
+  merchantUid: string;
+  totalPrice: number;
+  orderName: string;
+  items: CartItem[];
+  customer: {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+  };
+};
 
 const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
 
 export function PaymentPage() {
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<{ status: string; message?: string } | null>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const summary = useMemo(() => {
-    const subtotal = items.reduce((s, i) => s + i.price, 0);
-    const discount = Math.floor(subtotal * 0.1); // 데모 할인 10%
-    const total = subtotal - discount;
-    return { subtotal, discount, total };
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        // [프론트엔드 → 백엔드] 현재 장바구니(PENDING 상태의 Order) 정보를 가져오는 API 호출
+        const response = await fetch("http://localhost:8080/api/orders/pending");
+        if (!response.ok) {
+          throw new Error("주문 정보를 가져오는데 실패했습니다.");
+        }
+        const data: OrderDetails = await response.json();
+        setOrderDetails(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderDetails();
   }, []);
 
+  const summary = useMemo(() => {
+    if (!orderDetails) return { subtotal: 0, discount: 0, total: 0 };
+    const subtotal = orderDetails.items.reduce((s, i) => s + i.price * i.quantity, 0);
+    // 일단은 할인이 totalPrice에 반영되어 오므로, subtotal - totalPrice로 계산
+    const discount = subtotal - orderDetails.totalPrice;
+    return { subtotal, discount, total: orderDetails.totalPrice };
+  }, [orderDetails]);
+
   const pay = async () => {
-    if (!agree) return;
+    if (!agree || !orderDetails) return;
+
+    const { merchantUid, orderName, totalPrice, customer } = orderDetails;
 
     try {
+      // [프론트엔드] 백엔드로부터 받은 merchantUid와 totalPrice를 사용해서 PortOne 결제창을 띄움
       const response = await PortOne.requestPayment({
-        storeId: "store-f183ffe0-0978-48b3-a993-b07f08f11a22",
-        channelKey: "channel-key-22367d5d-4d24-472c-84f4-7bdab9c50dbd",
-        paymentId: `PAY-${crypto.randomUUID()}`,
-        orderName: items.length > 1 ? `${items[0].title} 외 ${items.length - 1}건` : items[0].title,
-        totalAmount: summary.total,
+        storeId: "store-f183ffe0-0978-48b3-a993-b07f08f11a22", // 스토어 아이디
+        channelKey: "channel-key-22367d5d-4d24-472c-84f4-7bdab9c50dbd", // 채널 키
+        paymentId: merchantUid,
+        orderName: orderName,
+        totalAmount: totalPrice,
         currency: "KRW",
         payMethod: "CARD",
-        customer: {
-          customerId: "1",
-          fullName: "홍길동",
-          email: "test@portone.io",
-          phoneNumber: "010-1234-5678",
-        },
+        customer: customer,
       });
 
-      if (!response || response.code != null) {
+      if (response?.code != null) {
         // 결제 실패 또는 취소
         console.log("결제 실패 또는 취소:", response);
-        alert(response?.message || "결제를 취소하셨습니다.");
+        alert(response.message || "결제를 취소하셨습니다.");
         return;
       }
 
-      // 백엔드에 결제 검증 요청
-      const completeResponse = await fetch("http://localhost:8080/api/payment/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId: response.paymentId }),
-      });
-
-      if (completeResponse.ok) {
-        const paymentComplete = await completeResponse.json();
-        setPaymentStatus({ status: paymentComplete.status });
-
-        if (paymentComplete.status === 'PAID') {
-          console.log("백엔드 검증 성공:", paymentComplete);
-          navigate("/orders"); // 최종 성공 시 주문 내역 페이지로 이동
-        } else {
-          // 백엔드에서 결제 실패 처리
-          setPaymentStatus({ status: 'FAILED', message: paymentComplete.message });
-          alert(`결제 검증에 실패했습니다: ${paymentComplete.message}`);
-        }
-      } else {
-        // 백엔드 API 호출 실패
-        const errorText = await completeResponse.text();
-        setPaymentStatus({ status: 'FAILED', message: errorText });
-        alert(`결제 검증 중 오류가 발생했습니다: ${errorText}`);
-      }
+      // 결제 성공 시, 해당 주문 상세보기 페이지로 리디렉션
+      console.log("PortOne 결제 성공:", response);
+      navigate("/orders"); // 최종 성공 시 주문 내역 페이지로 이동(일단은 하드코딩된 페이지로 이동)
 
     } catch (error) {
       console.error("결제 처리 중 에러 발생:", error);
       alert("결제 처리 중 오류가 발생했습니다.");
     }
   };
+
+  if (loading) {
+    return <div className="container mx-auto px-6 py-6">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto px-6 py-6">오류: {error}</div>;
+  }
+
+  if (!orderDetails) {
+    return <div className="container mx-auto px-6 py-6">주문 정보가 없습니다.</div>;
+  }
 
   return (
     <div className="container mx-auto px-6 py-6">
@@ -97,13 +120,13 @@ export function PaymentPage() {
             <CardTitle className="text-base">주문 상품</CardTitle>
           </CardHeader>
           <CardContent className="p-0 divide-y divide-primary/10">
-            {items.map((it) => (
+            {orderDetails.items.map((it) => (
               <div key={it.id} className="flex items-center justify-between p-4">
                 <div>
-                  <div className="font-medium">{it.title}</div>
+                  <div className="font-medium">{it.title} ({it.quantity}개)</div>
                   <div className="text-xs text-muted-foreground">{it.platform}</div>
                 </div>
-                <div className="text-sm font-medium">{KRW(it.price)}</div>
+                <div className="text-sm font-medium">{KRW(it.price * it.quantity)}</div>
               </div>
             ))}
           </CardContent>

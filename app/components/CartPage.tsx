@@ -1,69 +1,102 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { Trash2 } from "lucide-react";
-
-type CartItem = {
-  id: string;
-  title: string;
-  platform: string;
-  price: number; // KRW
-  image: string;
-  extra?: boolean;
-};
-
-const initialItems: CartItem[] = [
-  {
-    id: "g1",
-    title: "Cyberpunk 2077",
-    platform: "PC",
-    price: 59900,
-    image:
-      "https://images.unsplash.com/photo-1689443111384-1cf214df988a?auto=format&fit=crop&w=200&q=60",
-  },
-  {
-    id: "g2",
-    title: "The Witcher 3: Wild Hunt",
-    platform: "PlayStation 5",
-    price: 39900,
-    image:
-      "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=200&q=60",
-  },
-  {
-    id: "g3",
-    title: "Red Dead Redemption 2",
-    platform: "Xbox Series X",
-    price: 49900,
-    image:
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=200&q=60",
-  },
-];
+import { Trash2, Loader2 } from "lucide-react";
+import { getCart, removeGameFromCart, type Order } from "../api/orderApi";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { useCartStore } from "../stores/cartStore";
+import { useAuth } from "./auth/AuthContext";
+import { getLocalCart, removeGameFromLocalCart } from "../stores/localCartStore";
 
 const formatKRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
 
 export function CartPage() {
   const navigate = useNavigate();
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const extra = JSON.parse(localStorage.getItem("cartExtraItems") || "[]");
-    return [...initialItems, ...extra];
-  });
+  const { isAuthenticated } = useAuth();
+  const [cart, setCart] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { fetchCart: updateGlobalCartCount } = useCartStore();
 
-  const summary = useMemo(() => {
-    const subtotal = items.reduce((s, i) => s + i.price, 0);
-    const discount = Math.floor(subtotal * 0.1); // 데모: 10% 할인 미리보기
-    const total = Math.max(subtotal - discount, 0);
-    return { subtotal, discount, total, count: items.length };
-  }, [items]);
+  const loadCart = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (isAuthenticated) {
+        const cartData = await getCart();
+        setCart(cartData);
+      } else {
+        const localCart = getLocalCart();
+        setCart(localCart);
+      }
+    } catch (err: any) {
+        if (err.message.includes("401")) {
+            setError("로그인이 필요합니다.");
+        } else {
+            setError(err.message || "장바구니를 불러오는 중 오류가 발생했습니다.");
+        }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const removeItem = (id: string) => setItems((prev) => prev.filter((i) => i.id !== id));
-
-  // persist extras when items change
   useEffect(() => {
-    const extras = items.filter((i) => i.extra);
-    localStorage.setItem("cartExtraItems", JSON.stringify(extras));
-  }, [items]);
+    loadCart();
+  }, [isAuthenticated]);
+
+  const handleRemoveItem = async (gameId: number) => {
+    if (isAuthenticated) {
+      try {
+        const updatedCart = await removeGameFromCart(gameId);
+        setCart(updatedCart);
+        updateGlobalCartCount(); // 장바구니 전역 상태 업데이트
+      } catch (err: any) {
+        setError(err.message || "아이템 삭제 중 오류가 발생했습니다.");
+      }
+    } else {
+      const updatedCart = removeGameFromLocalCart(gameId);
+      setCart(updatedCart);
+    }
+  };
+
+  const handleProceedToPayment = () => {
+    if (!isAuthenticated) {
+      alert("결제를 진행하려면 로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+    if (cart && cart.orderItems.length > 0) {
+      navigate("/payment");
+    }
+  };
+
+  const orderItems = cart?.orderItems || [];
+  const itemCount = orderItems.length;
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price, 0);
+  // NOTE: 할인 로직은 백엔드와 협의 후 적용해야 합니다. 임시로 0으로 설정합니다.
+  const discount = 0;
+  const total = subtotal - discount;
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-6 py-6 flex justify-center items-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-6">
+        <Alert variant="destructive">
+          <AlertTitle>오류</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-6">
@@ -72,23 +105,25 @@ export function CartPage() {
         {/* List */}
         <Card className="lg:col-span-2 border-primary/20">
           <CardHeader>
-            <CardTitle className="text-base">담긴 게임 ({items.length})</CardTitle>
+            <CardTitle className="text-base">담긴 게임 ({itemCount})</CardTitle>
           </CardHeader>
           <CardContent className="divide-y divide-primary/10 p-0">
-            {items.map((it) => (
+            {orderItems.map((it) => (
               <div key={it.id} className="flex items-center gap-4 p-4">
-                <img src={it.image} alt={it.title} className="h-14 w-24 rounded-md object-cover border border-primary/20" />
+                {/* TODO: Game entity에 이미지 URL이 필요합니다. */}
+                <img src={`https://via.placeholder.com/96x56.png?text=${it.game.name}`} alt={it.game.name} className="h-14 w-24 rounded-md object-cover border border-primary/20" />
                 <div className="flex-1">
-                  <div className="font-medium">{it.title}</div>
-                  <div className="text-xs text-muted-foreground">{it.platform}</div>
+                  <div className="font-medium">{it.game.name}</div>
+                  {/* TODO: Game entity에 플랫폼 정보가 필요합니다. */}
+                  <div className="text-xs text-muted-foreground">PC</div>
                 </div>
                 <div className="text-sm font-medium mr-4">{formatKRW(it.price)}</div>
-                <Button variant="ghost" size="icon" aria-label="remove" onClick={() => removeItem(it.id)}>
+                <Button variant="ghost" size="icon" aria-label="remove" onClick={() => handleRemoveItem(it.game.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            {items.length === 0 && (
+            {itemCount === 0 && (
               <div className="p-8 text-center text-sm text-muted-foreground">장바구니가 비었습니다.</div>
             )}
           </CardContent>
@@ -102,20 +137,20 @@ export function CartPage() {
           <CardContent>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">정상 가격</span>
-              <span>{formatKRW(summary.subtotal)}</span>
+              <span>{formatKRW(subtotal)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">할인</span>
-              <span>- {formatKRW(summary.discount)}</span>
+              <span>- {formatKRW(discount)}</span>
             </div>
             <Separator className="my-3" />
             <div className="flex items-center justify-between text-base font-semibold">
               <span>총 합계</span>
-              <span className="text-primary">{formatKRW(summary.total)}</span>
+              <span className="text-primary">{formatKRW(total)}</span>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">{summary.count}개의 아이템</div>
+            <div className="text-xs text-muted-foreground mt-1">{itemCount}개의 아이템</div>
 
-            <Button className="w-full mt-4" disabled={summary.count === 0} onClick={() => navigate("/payment01")}>
+            <Button className="w-full mt-4" disabled={itemCount === 0} onClick={handleProceedToPayment}>
               결제 진행
             </Button>
           </CardContent>
