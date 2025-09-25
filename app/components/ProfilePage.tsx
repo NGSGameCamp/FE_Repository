@@ -145,24 +145,27 @@ export default function ProfilePage() {
             ))}
           </CardContent>
         </Card>
+
         <Card className="border-primary/20">
-          <CardHeader><CardTitle className="text-base">보유 게임</CardTitle></CardHeader>
-          <CardContent className="text-sm space-y-2">
-            {ownedGames.length === 0 && <div className="text-muted-foreground">보유한 게임이 없습니다.</div>}
-            {ownedGames.map((g) => (
-              <div key={g} className="rounded-md border border-primary/20 p-2">{g}</div>
-            ))}
-          </CardContent>
-        </Card>
-        <Card className="border-primary/20">
-          <CardHeader><CardTitle className="text-base">나의 문의</CardTitle></CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">나의 문의</CardTitle>
+            {!!myInquiries.length && (
+              <Link to="/support/my" className="text-xs text-primary hover:underline">
+                전체 보기 →
+              </Link>
+            )}
+          </CardHeader>
           <CardContent className="text-sm space-y-2">
             {myInquiries.length === 0 && <div className="text-muted-foreground">문의 내역이 없습니다.</div>}
             {myInquiries.map((inq) => (
-              <div key={inq.id} className="rounded-md border border-primary/20 p-2">
-                <div className="font-medium">{inq.title}</div>
+              <Link
+                key={inq.id}
+                to={`/support/my/${inq.id}`}
+                className="block rounded-md border border-primary/20 p-2 hover:border-primary/40 hover:bg-primary/5 transition"
+              >
+                <div className="font-medium truncate">{inq.title}</div>
                 <div className="text-xs text-muted-foreground">{inq.kind} · {new Date(inq.createdAt).toLocaleDateString("ko-KR")}</div>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

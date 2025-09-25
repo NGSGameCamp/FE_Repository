@@ -3,7 +3,6 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 import { Star, ShoppingCart, CreditCard, Users, Heart } from "lucide-react";
@@ -156,6 +155,49 @@ export function GameDetailView() {
   const originalPrice = Math.round((game.price / 0.7) / 100) * 100; // 예시: 30% 할인 기준
   const discountPercent = Math.round(100 - (game.price / originalPrice) * 100);
 
+  const StarRatingSelector = ({
+    value,
+    onChange,
+  }: {
+    value: number;
+    onChange: (next: number) => void;
+  }) => {
+    const handleKey = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault();
+        onChange(Math.min(5, value + 1));
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault();
+        onChange(Math.max(1, value - 1));
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-1" role="radiogroup" aria-label="별점 선택">
+        {[1, 2, 3, 4, 5].map((score) => {
+          const active = score <= value;
+          return (
+            <button
+              key={score}
+              type="button"
+              onClick={() => onChange(score)}
+              onKeyDown={handleKey}
+              aria-pressed={active}
+              className="p-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+            >
+              <Star
+                className={`h-5 w-5 ${
+                  active ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
+                }`}
+              />
+              <span className="sr-only">{`${score}점`}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto px-6 py-6 space-y-8">
       {/* Hero Banner */}
@@ -280,25 +322,21 @@ export function GameDetailView() {
                 <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{averageRating}</div>
               </div>
               <Separator />
-              <div className="grid gap-3 sm:grid-cols-4">
-                <div className="sm:col-span-3">
-                  <Textarea placeholder="리뷰를 입력하세요" value={newText} onChange={(e) => setNewText(e.target.value)} />
-                </div>
-                <div className="sm:col-span-1 space-y-2">
-                  <Input type="number" min={1} max={5} value={newRating} onChange={(e) => setNewRating(Number(e.target.value))} />
-                  <Button onClick={addReview}>등록</Button>
-                </div>
+              <Textarea placeholder="리뷰를 입력하세요" value={newText} onChange={(e) => setNewText(e.target.value)} />
+              <div className="flex items-center justify-between gap-4">
+                <StarRatingSelector value={newRating} onChange={setNewRating} />
+                <Button onClick={addReview}>등록</Button>
               </div>
               <div className="space-y-4">
                 {reviews.map((r) => (
-                  <div key={r.id} className="rounded-md border border-primary/20 p-3">
+                  <div key={r.id} className="rounded-md border border-primary/20 p-3 mb-2">
                     {editingId === r.id ? (
                       <div className="grid gap-3 sm:grid-cols-4">
                         <div className="sm:col-span-3">
                           <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} />
                         </div>
-                        <div className="sm:col-span-1 space-y-2">
-                          <Input type="number" min={1} max={5} value={editRating} onChange={(e) => setEditRating(Number(e.target.value))} />
+                        <div className="sm:col-span-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                          <StarRatingSelector value={editRating} onChange={setEditRating} />
                           <Button size="sm" onClick={applyEdit}>수정 완료</Button>
                         </div>
                       </div>

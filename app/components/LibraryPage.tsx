@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
 import { useNavigate } from "react-router-dom";
-import { Play, Heart, Settings, Download } from "lucide-react";
+import { Eye, Heart } from "lucide-react";
 
 const STORAGE_KEY = "library:games";
 
@@ -16,15 +15,35 @@ type LibraryGame = {
   installed: boolean;
   playTimeHours: number;
   lastPlayedAt: number;
+  isFavorite: boolean;
 };
 
 function fromStore(): LibraryGame[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as LibraryGame[]) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as Array<Partial<LibraryGame>>;
+    return parsed.map((game) => ({
+      ...game,
+      isFavorite: Boolean(game?.isFavorite),
+    })) as LibraryGame[];
   } catch {
     return [];
   }
+}
+
+function toStore(games: LibraryGame[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+  } catch {
+    /* ignore */
+  }
+}
+
+function sortGames(games: LibraryGame[]) {
+  const favorites = games.filter((game) => game.isFavorite);
+  const others = games.filter((game) => !game.isFavorite);
+  return [...favorites, ...others];
 }
 
 function timeAgo(ms: number) {
@@ -43,12 +62,26 @@ export default function LibraryPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadedGames = fromStore();
+    const loadedGames = sortGames(fromStore());
     setGames(loadedGames);
+    if (loadedGames.length > 0) {
+      toStore(loadedGames);
+    }
     if (loadedGames.length > 0 && !selectedId) {
       setSelectedId(loadedGames[0].id);
     }
   }, []);
+
+  const toggleFavorite = (id: string) => {
+    setGames((prev) => {
+      const updated = prev.map((game) =>
+        game.id === id ? { ...game, isFavorite: !game.isFavorite } : game
+      );
+      const ordered = sortGames(updated);
+      toStore(ordered);
+      return ordered;
+    });
+  };
 
   const selected = useMemo(
     () => games.find((g) => g.id === selectedId) || games[0],
@@ -56,62 +89,65 @@ export default function LibraryPage() {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="border-b border-primary/20 px-6 py-3">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground uppercase tracking-wide">
-            라이브러리
-          </div>
-          <div className="flex items-center gap-3">
-            <Button size="sm" variant="ghost">
-              필터
-            </Button>
-            <Button size="sm" variant="ghost">
-              정렬
-            </Button>
-            <Button size="sm" variant="ghost" className="p-2">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
+    <div className="container mx-auto px-6 py-8 space-y-6 text-white">
+      {/* Header
+      <header className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground uppercase tracking-wide">
+          라이브러리
         </div>
-      </header>
+        <div className="flex items-center gap-3">
+          <Button size="sm" variant="ghost">
+            필터
+          </Button>
+          <Button size="sm" variant="ghost">
+            정렬
+          </Button>
+          <Button size="sm" variant="ghost" className="p-2">
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
+      </header> */}
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <Card className="border border-primary/20 bg-background/85 backdrop-blur mt-4">
+        <CardContent className="p-6">
+        <div className="flex gap-6">
         {/* Left Sidebar - Game List (1/5) */}
-        <aside className="w-1/5 min-w-[240px] border-r border-primary/20 bg-background/50">
-          <div className="p-3 border-b border-primary/20">
+        <aside className="w-[400px] max-w-[400px] border border-primary/30 bg-background/70 rounded-xl">
+          <div className="p-4 border-b border-primary/20">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               내 게임 ({games.length})
             </div>
           </div>
-          <div className="overflow-y-auto h-[calc(100vh-8rem)]">
+          <div className="overflow-y-auto max-h-[65vh] p-2 space-y-2">
             {games.map((game) => {
               const active = selected?.id === game.id;
               return (
                 <button
                   key={game.id}
                   onClick={() => setSelectedId(game.id)}
-                  className={`w-full px-3 py-2 text-left flex items-center gap-3 border-l-2 transition-all ${
+                  className={`w-full px-4 py-3 text-left flex items-center gap-3 rounded-lg border transition-all ${
                     active
-                      ? "bg-primary/15 border-primary text-primary"
-                      : "border-transparent hover:bg-primary/5 hover:border-primary/30"
+                      ? "border-primary bg-primary/15 text-primary shadow-lg"
+                      : "border-primary/20 bg-background/70 hover:border-primary/40 hover:bg-primary/5"
                   }`}
                 >
                   <img
                     src={game.image}
                     alt={game.title}
-                    className="h-12 w-12 rounded object-cover"
+                    className="h-10 w-10 rounded object-cover"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate">
                       {game.title}
                     </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {game.installed ? "설치됨" : "미설치"}
-                    </div>
                   </div>
+                  {game.isFavorite ? (
+                    <Heart
+                      className="h-4 w-4 text-rose-400"
+                      fill="currentColor"
+                    />
+                  ) : null}
                 </button>
               );
             })}
@@ -119,11 +155,11 @@ export default function LibraryPage() {
         </aside>
 
         {/* Right Content - Game Details (4/5) */}
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 max-h-[65vh] overflow-y-auto pr-2">
           {selected ? (
             <div className="h-full flex flex-col">
-              {/* Game Hero Section */}
-              <div className="relative h-2/3 overflow-hidden">
+             {/* Game Hero Section */}
+                <div className="relative h-64 overflow-hidden rounded-xl">
                 <img
                   src={selected.image}
                   alt={selected.title}
@@ -152,18 +188,28 @@ export default function LibraryPage() {
                       <Button
                         size="lg"
                         className="gap-2"
-                        onClick={() => nav("/game03")}
+                        onClick={() => nav(`/game/${selected.id}`)}
                       >
-                        <Play className="h-5 w-5" />
-                        {selected.installed ? "플레이" : "설치"}
+                        <Eye className="h-5 w-5" />
+                        상세 페이지 보기
                       </Button>
-                      <Button size="lg" variant="outline" className="gap-2">
-                        <Heart className="h-5 w-5" />
+                      <Button
+                        size="lg"
+                        variant="secondary"
+                        className={`gap-2 transition-colors ${
+                          selected.isFavorite
+                            ? "border border-rose-400 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20"
+                            : ""
+                        }`}
+                        onClick={() => toggleFavorite(selected.id)}
+                      >
+                        <Heart
+                          className={`h-5 w-5 ${
+                            selected.isFavorite ? "text-rose-400" : ""
+                          }`}
+                          fill={selected.isFavorite ? "currentColor" : "none"}
+                        />
                         즐겨찾기
-                      </Button>
-                      <Button size="lg" variant="outline" className="gap-2">
-                        <Settings className="h-5 w-5" />
-                        설정
                       </Button>
                     </div>
                   </div>
@@ -214,7 +260,9 @@ export default function LibraryPage() {
             </div>
           )}
         </main>
-      </div>
+        </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

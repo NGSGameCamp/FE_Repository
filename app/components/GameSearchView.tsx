@@ -165,7 +165,7 @@ export function GameSearchView() {
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2">
             <div className="text-sm font-medium">장르</div>
-            <ToggleGroup type="multiple" value={genres} onValueChange={setGenres} variant="outline" className="flex flex-wrap">
+            <ToggleGroup type="multiple" value={genres} onValueChange={setGenres} variant="outline" className="flex flex-wrap gap-2">
               {allGenres.map((t) => (
                 <ToggleGroupItem
                   key={t}
@@ -179,7 +179,7 @@ export function GameSearchView() {
           </div>
           <div className="space-y-2">
             <div className="text-sm font-medium">특징</div>
-            <ToggleGroup type="multiple" value={features} onValueChange={setFeatures} variant="outline" className="flex flex-wrap">
+            <ToggleGroup type="multiple" value={features} onValueChange={setFeatures} variant="outline" className="flex flex-wrap gap-2">
               {allFeatures.map((t) => (
                 <ToggleGroupItem
                   key={t}
@@ -193,7 +193,7 @@ export function GameSearchView() {
           </div>
           <div className="space-y-2">
             <div className="text-sm font-medium">테마</div>
-            <ToggleGroup type="multiple" value={themes} onValueChange={setThemes} variant="outline" className="flex flex-wrap">
+            <ToggleGroup type="multiple" value={themes} onValueChange={setThemes} variant="outline" className="flex flex-wrap gap-2">
               {allThemes.map((t) => (
                 <ToggleGroupItem
                   key={t}

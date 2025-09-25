@@ -203,12 +203,10 @@ export function CommunityPage() {
           {filteredPosts.map((p) => (
             <Link key={p.id} to={`/community/post/${p.id}`} className="block group" aria-label={`${p.title} 게시글로 이동`}>
               <Card className="border-primary/30 shadow-sm transition-colors transition-shadow hover:shadow-md group-hover:border-primary/40 group-hover:bg-primary/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base group-hover:text-primary">{p.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{p.excerpt}</p>
-                  <div className="flex flex-wrap items-center gap-2">
+                <CardContent className="pt-0">
+                  <h3 className="text-base font-semibold group-hover:text-primary pt-4 pb-2">{p.title}</h3> 
+                  <p className="text-sm text-muted-foreground pb-2">{p.excerpt}</p>
+                  <div className="flex flex-wrap items-center gap-2 pb-3">
                     <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
                       {p.game}
                     </Badge>

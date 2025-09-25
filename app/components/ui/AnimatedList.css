@@ -1,0 +1,80 @@
+.animated-list-container {
+  position: relative;
+  width: 100%;
+}
+
+.animated-list-scroll {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.animated-list-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.animated-list-scroll::-webkit-scrollbar-track {
+  background: rgba(12, 10, 25, 0.6);
+}
+
+.animated-list-scroll::-webkit-scrollbar-thumb {
+  background: rgba(39, 30, 55, 0.9);
+  border-radius: 4px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.animated-list-item {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  animation: animated-list-appear 0.25s ease forwards;
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.animated-list-item--active {
+  transform: translateY(0) scale(1.01);
+}
+
+@keyframes animated-list-appear {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animated-list-item button,
+.animated-list-item a,
+.animated-list-item div {
+  width: 100%;
+}
+
+.animated-list-gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 48px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.animated-list-gradient--top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(8, 2, 19, 0.9), transparent);
+}
+
+.animated-list-gradient--bottom {
+  bottom: 0;
+  height: 64px;
+  background: linear-gradient(to top, rgba(8, 2, 19, 0.9), transparent);
+}
