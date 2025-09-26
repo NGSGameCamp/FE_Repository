@@ -38,6 +38,64 @@ export default function ProfilePage() {
     try { return JSON.parse(localStorage.getItem("followingGames") || "[]"); } catch { return []; }
   }, []);
 
+  const ownedGames: string[] = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("library:games");
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return [];
+      return parsed.map((g: any) => String(g?.title || g?.id || "알 수 없는 게임"));
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const myInquiries: { id: string; kind: string; title: string; createdAt: string }[] = useMemo(() => {
+    const result: { id: string; kind: string; title: string; createdAt: string }[] = [];
+    const me = email;
+    try {
+      const oneRaw = localStorage.getItem("support:one2one");
+      if (oneRaw) {
+        const one = JSON.parse(oneRaw);
+        if (Array.isArray(one)) {
+          one
+            .filter((item: any) => String(item?.user || "") === me)
+            .forEach((item: any) => {
+              result.push({
+                id: String(item?.id || crypto.randomUUID?.() || Date.now()),
+                kind: String(item?.kind || "1:1 문의"),
+                title: String(item?.category || item?.desc || "문의"),
+                createdAt: String(item?.createdAt || item?.date || new Date().toISOString()),
+              });
+            });
+        }
+      }
+    } catch {}
+
+    try {
+      const otherRaw = localStorage.getItem("support:other");
+      if (otherRaw) {
+        const other = JSON.parse(otherRaw);
+        if (Array.isArray(other)) {
+          other
+            .filter((item: any) => String(item?.user || "") === me)
+            .forEach((item: any) => {
+              result.push({
+                id: String(item?.id || crypto.randomUUID?.() || Date.now()),
+                kind: String(item?.kind || "기타 문의"),
+                title: String(item?.sub || item?.desc || "문의"),
+                createdAt: String(item?.createdAt || item?.date || new Date().toISOString()),
+              });
+            });
+        }
+      }
+    } catch {}
+
+    return result
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, [email]);
+
   const myPosts: any[] = useMemo(() => {
     try {
       const raw = JSON.parse(localStorage.getItem("community:posts") || "[]");
@@ -56,7 +114,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">내 프로필</h2>
+        <h2 className="text-xl font-semibold text-white">내 프로필</h2>
         <div className="flex gap-2">
         </div>
       </div>
@@ -79,11 +137,35 @@ export default function ProfilePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Owned / Following games */}
         <Card className="border-primary/20">
-          <CardHeader><CardTitle className="text-base">보유/팔로우 게임</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">팔로우 게임</CardTitle></CardHeader>
           <CardContent className="text-sm space-y-2">
             {followingGames.length === 0 && <div className="text-muted-foreground">팔로우한 게임이 없습니다.</div>}
             {followingGames.map((g) => (
               <div key={g} className="rounded-md border border-primary/20 p-2">{g}</div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-primary/20">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">나의 문의</CardTitle>
+            {!!myInquiries.length && (
+              <Link to="/support/my" className="text-xs text-primary hover:underline">
+                전체 보기 →
+              </Link>
+            )}
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
+            {myInquiries.length === 0 && <div className="text-muted-foreground">문의 내역이 없습니다.</div>}
+            {myInquiries.map((inq) => (
+              <Link
+                key={inq.id}
+                to={`/support/my/${inq.id}`}
+                className="block rounded-md border border-primary/20 p-2 hover:border-primary/40 hover:bg-primary/5 transition"
+              >
+                <div className="font-medium truncate">{inq.title}</div>
+                <div className="text-xs text-muted-foreground">{inq.kind} · {new Date(inq.createdAt).toLocaleDateString("ko-KR")}</div>
+              </Link>
             ))}
           </CardContent>
         </Card>
@@ -126,4 +208,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

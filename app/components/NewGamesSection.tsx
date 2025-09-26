@@ -29,7 +29,7 @@ export function NewGamesSection({ games, embed = false }: { games: Game[]; embed
   return (
     <Wrapper>
      {/* <StarBorder as="div" color="cyan" speed="5s" className="block w-full h-full" style={{ borderRadius: 12 }}> */}
-      <Card className="h-full rounded-xl border-transparent bg-background/80 overflow-hidden flex flex-col">
+      <Card className="h-full rounded-xl border border-primary/20 bg-background/80 overflow-hidden flex flex-col">
     <div className="p-4 border-b border-primary/10 flex items-center justify-between">
       <h3 className="font-semibold">신작 게임</h3>
       <Link

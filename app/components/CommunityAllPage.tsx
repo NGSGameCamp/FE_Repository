@@ -160,47 +160,37 @@ export default function CommunityAllPage() {
           </div>
         </div>
 
-       {pageItems.map((p) => (
-  <Card
-    key={p.id}
-    className="border-primary/20 mb-4 last:mb-0"
-  >
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base">
-        <Link
-          to={`/community/post/${p.id}`}
-          className="hover:underline text-primary"
-        >
-          {p.title}
-        </Link>
-      </CardTitle>
-    </CardHeader>
-
-    <CardContent className="space-y-2">
-      <p className="text-sm text-muted-foreground">{p.excerpt}</p>
-
-      <div className="flex flex-wrap gap-2">
-        {p.tags.map((t) => (
-          <Badge key={t} variant="outline" className="text-muted-foreground">
-            #{t}
-          </Badge>
+        {pageItems.map((p) => (
+          <Link
+            key={p.id}
+            to={`/community/post/${p.id}`}
+            className="block group"
+            aria-label={`${p.title} 게시글로 이동`}
+          >
+            <Card className="border-primary/30 shadow-sm transition-colors transition-shadow hover:shadow-md group-hover:border-primary/40 group-hover:bg-primary/5 mb-4 mt-4">
+              <CardContent className="pt-4 space-y-3">
+                <h3 className="text-base font-semibold group-hover:text-primary pb-2">{p.title}</h3>
+                <p className="text-sm text-muted-foreground pb-2">{p.excerpt}</p>
+                <div className="flex flex-wrap items-center gap-2 pb-2">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                    {p.type}
+                  </Badge>
+                  {p.tags.map((t) => (
+                    <Badge key={t} variant="outline" className="text-muted-foreground">
+                      #{t}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="text-xs text-muted-foreground flex items-center gap-4">
+                  <span className="inline-flex items-center gap-1">작성자 {p.author}</span>
+                  <span className="inline-flex items-center gap-1">댓글 {p.comments}</span>
+                  <span className="inline-flex items-center gap-1">좋아요 {p.likes}</span>
+                  <span>{new Date(p.date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
-      </div>
-
-      <div className="text-xs text-muted-foreground flex items-center gap-3">
-        <span>작성자 {p.author}</span>
-        <span>댓글 {p.comments}</span>
-        <span>좋아요 {p.likes}</span>
-        <span>
-          {new Date(p.date).toLocaleDateString("ko-KR", {
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
-      </div>
-    </CardContent>
-  </Card>
-))}
 
         {/* Pagination */}
         <div className="flex items-center justify-end gap-2 text-white">

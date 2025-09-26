@@ -1,7 +1,6 @@
 import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import GradientText from "@/components/ui/GradientText";
 import { Input } from "@/components/ui/input";
 import { 
   Users, 
@@ -75,21 +74,12 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
         {/* Main Header */}
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="relative">
-              <Gamepad2 className="h-8 w-8 text-primary" />
-              <div className="absolute inset-0 h-8 w-8 bg-primary blur-lg opacity-30"></div>
-            </div>
-            <h1 className="font-bold font-sans">
-              <GradientText
-                colors={["#40cfff", "#4079ff", "#40cfff", "#4079ff", "#40cfff"]}
-                animationSpeed={7}
-                showBorder={false}
-                className="text-lg md:text-xl"
-              >
-                NGS GAME CAMP
-              </GradientText>
-            </h1>
+          <Link to="/" className="flex items-center">
+            <img
+              src="/NGS logo.png"
+              alt="NGS New Game Studio"
+              className="h-16 w-[200px] object-contain"
+            />
           </Link>
 
           {/* Search Bar */}

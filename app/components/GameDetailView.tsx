@@ -3,11 +3,16 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Separator } from "./ui/separator";
-import { Star } from "lucide-react";
+import { Star, ShoppingCart, CreditCard, Users, Heart } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
 import { toast } from "sonner";
 import { addGameToCart } from "../api/orderApi";
 import { useCartStore } from "../stores/cartStore";
@@ -77,6 +82,7 @@ export function GameDetailView() {
   const game = useMemo(() => MOCK[gameSlug!] ?? Object.values(MOCK)[0], [gameSlug]);
   const DEFAULT_HERO = "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=60";
   const DEFAULT_MEDIA = "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60";
+  const mediaItems = game.media?.length ? game.media : [{ type: "image", url: DEFAULT_MEDIA }];
 
   // Following state
   const [following, setFollowing] = useState<boolean>(false);
@@ -164,6 +170,49 @@ export function GameDetailView() {
   const originalPrice = Math.round((game.price / 0.7) / 100) * 100; // 예시: 30% 할인 기준
   const discountPercent = Math.round(100 - (game.price / originalPrice) * 100);
 
+  const StarRatingSelector = ({
+    value,
+    onChange,
+  }: {
+    value: number;
+    onChange: (next: number) => void;
+  }) => {
+    const handleKey = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault();
+        onChange(Math.min(5, value + 1));
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault();
+        onChange(Math.max(1, value - 1));
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-1" role="radiogroup" aria-label="별점 선택">
+        {[1, 2, 3, 4, 5].map((score) => {
+          const active = score <= value;
+          return (
+            <button
+              key={score}
+              type="button"
+              onClick={() => onChange(score)}
+              onKeyDown={handleKey}
+              aria-pressed={active}
+              className="p-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+            >
+              <Star
+                className={`h-5 w-5 ${
+                  active ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
+                }`}
+              />
+              <span className="sr-only">{`${score}점`}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto px-6 py-6 space-y-8">
       {/* Hero Banner */}
@@ -199,110 +248,134 @@ export function GameDetailView() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 grid-7-3">
-        {/* Left: Tabs/content */}
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="overview">
-            <TabsList className="grid grid-cols-5 w-full">
-              <TabsTrigger value="overview">개요</TabsTrigger>
-              <TabsTrigger value="requirements">시스템 요구사항</TabsTrigger>
-              <TabsTrigger value="media">미디어</TabsTrigger>
-              <TabsTrigger value="news">뉴스/업데이트</TabsTrigger>
-              <TabsTrigger value="reviews">리뷰</TabsTrigger>
-            </TabsList>
-            <TabsContent value="overview" className="mt-4">
-              <Card className="border-primary/20"><CardContent className="pt-6 space-y-4">
-                <div className="text-sm text-muted-foreground">미래 도시를 배경으로 한 오픈월드 액션 RPG. 네온 메트로폴리스를 누비며 당신만의 전설을 만드세요.</div>
-                <ul className="list-disc pl-6 text-sm space-y-1">
-                  <li>방대한 오픈월드 탐험</li>
-                  <li>선택에 따른 분기 스토리</li>
-                  <li>다양한 사이버웨어 빌드</li>
+        {/* Left: Content */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="relative">
+            <Carousel opts={{ loop: true }} className="w-full">
+              <CarouselContent>
+                {mediaItems.map((m, i) => (
+                  <CarouselItem key={i}>
+                    <img
+                      src={m.url || DEFAULT_MEDIA}
+                      alt={`${game.title} 미디어 ${i + 1}`}
+                      className="h-96 sm:h-[28rem] md:h-[32rem] w-full rounded-2xl border border-primary/20 object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = DEFAULT_MEDIA;
+                      }}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {mediaItems.length > 1 && (
+                <>
+                  <CarouselPrevious className="hidden sm:flex bg-background/70 text-primary border-primary/30 shadow-lg absolute left-4 top-1/2 -translate-y-1/2" />
+                  <CarouselNext className="hidden sm:flex bg-background/70 text-primary border-primary/30 shadow-lg absolute right-4 top-1/2 -translate-y-1/2" />
+                </>
+              )}
+            </Carousel>
+          </div>
+
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-base">개요</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2 space-y-4">
+              <div className="text-sm text-muted-foreground">미래 도시를 배경으로 한 오픈월드 액션 RPG. 네온 메트로폴리스를 누비며 당신만의 전설을 만드세요.</div>
+              <ul className="list-disc pl-6 text-sm space-y-1">
+                <li>방대한 오픈월드 탐험</li>
+                <li>선택에 따른 분기 스토리</li>
+                <li>다양한 사이버웨어 빌드</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-base">시스템 요구사항</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2 grid sm:grid-cols-2 gap-6">
+              <div>
+                <div className="font-medium mb-2">최소 사양</div>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  {game.requirements.minimum.map((l) => (<li key={l}>{l}</li>))}
                 </ul>
-              </CardContent></Card>
-            </TabsContent>
-            <TabsContent value="requirements" className="mt-4">
-              <Card className="border-primary/20"><CardContent className="pt-6 grid sm:grid-cols-2 gap-6">
-                <div>
-                  <div className="font-medium mb-2">최소 사양</div>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    {game.requirements.minimum.map((l) => (<li key={l}>{l}</li>))}
-                  </ul>
-                </div>
-                <div>
-                  <div className="font-medium mb-2">권장 사양</div>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    {game.requirements.recommended.map((l) => (<li key={l}>{l}</li>))}
-                  </ul>
-                </div>
-              </CardContent></Card>
-            </TabsContent>
-            <TabsContent value="media" className="mt-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                {game.media.map((m, i) => (
-                  <img key={i} src={m.url || DEFAULT_MEDIA} alt="media" className="rounded-md border border-primary/20" onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_MEDIA; }} />
-                ))}
               </div>
-            </TabsContent>
-            <TabsContent value="news" className="mt-4">
-              <Card className="border-primary/20"><CardContent className="pt-6 space-y-4">
-                {game.news.map((n) => (
-                  <div key={n.id} className="flex items-center justify-between">
-                    <div className="font-medium">{n.title}</div>
-                    <div className="text-xs text-muted-foreground">{n.date}</div>
+              <div>
+                <div className="font-medium mb-2">권장 사양</div>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  {game.requirements.recommended.map((l) => (<li key={l}>{l}</li>))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-base">뉴스/업데이트</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2 space-y-4">
+              {game.news.length ? (
+                game.news.map((n) => (
+                  <div key={n.id} className="flex items-center justify-between gap-4">
+                    <div className="font-medium text-sm md:text-base">{n.title}</div>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">{n.date}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground">등록된 소식이 없습니다.</div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-base">리뷰</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">평균 평점</div>
+                <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{averageRating}</div>
+              </div>
+              <Separator />
+              <Textarea placeholder="리뷰를 입력하세요" value={newText} onChange={(e) => setNewText(e.target.value)} />
+              <div className="flex items-center justify-between gap-4">
+                <StarRatingSelector value={newRating} onChange={setNewRating} />
+                <Button onClick={addReview}>등록</Button>
+              </div>
+              <div className="space-y-4">
+                {reviews.map((r) => (
+                  <div key={r.id} className="rounded-md border border-primary/20 p-3 mb-2">
+                    {editingId === r.id ? (
+                      <div className="grid gap-3 sm:grid-cols-4">
+                        <div className="sm:col-span-3">
+                          <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} />
+                        </div>
+                        <div className="sm:col-span-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                          <StarRatingSelector value={editRating} onChange={setEditRating} />
+                          <Button size="sm" onClick={applyEdit}>수정 완료</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">{r.author}</div>
+                          <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{r.rating.toFixed(1)}</div>
+                        </div>
+                        <div className="text-sm mt-1 whitespace-pre-wrap">{r.text}</div>
+                        <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+                          <span>{r.date}</span>
+                          <Button size="sm" variant="outline" onClick={() => startEdit(r)}>수정</Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
-              </CardContent></Card>
-            </TabsContent>
-            <TabsContent value="reviews" className="mt-4">
-              <Card className="border-primary/20"><CardContent className="pt-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">평균 평점</div>
-                  <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{averageRating}</div>
-                </div>
-                <Separator />
-                <div className="grid gap-3 sm:grid-cols-4">
-                  <div className="sm:col-span-3">
-                    <Textarea placeholder="리뷰를 입력하세요" value={newText} onChange={(e) => setNewText(e.target.value)} />
-                  </div>
-                  <div className="sm:col-span-1 space-y-2">
-                    <Input type="number" min={1} max={5} value={newRating} onChange={(e) => setNewRating(Number(e.target.value))} />
-                    <Button onClick={addReview}>등록</Button>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {reviews.map((r) => (
-                    <div key={r.id} className="rounded-md border border-primary/20 p-3">
-                      {editingId === r.id ? (
-                        <div className="grid gap-3 sm:grid-cols-4">
-                          <div className="sm:col-span-3">
-                            <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} />
-                          </div>
-                          <div className="sm:col-span-1 space-y-2">
-                            <Input type="number" min={1} max={5} value={editRating} onChange={(e) => setEditRating(Number(e.target.value))} />
-                            <Button size="sm" onClick={applyEdit}>수정 완료</Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <div className="font-medium">{r.author}</div>
-                            <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{r.rating.toFixed(1)}</div>
-                          </div>
-                          <div className="text-sm mt-1 whitespace-pre-wrap">{r.text}</div>
-                          <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                            <span>{r.date}</span>
-                            <Button size="sm" variant="outline" onClick={() => startEdit(r)}>수정</Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                  {reviews.length === 0 && (
-                    <div className="text-sm text-muted-foreground">첫 리뷰를 작성해보세요.</div>
-                  )}
-                </div>
-              </CardContent></Card>
-            </TabsContent>
-          </Tabs>
+                {reviews.length === 0 && (
+                  <div className="text-sm text-muted-foreground">첫 리뷰를 작성해보세요.</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right: Buy panel */}
@@ -321,14 +394,23 @@ export function GameDetailView() {
               <Button className="w-full" style={{ backgroundColor: '#10b981' }} onClick={handleAddToCart} disabled={isAddingToCart || isAlreadyInCart}>
                 {isAddingToCart ? '추가 중...' : isAlreadyInCart ? '장바구니에 있음' : '장바구니에 추가'}
               </Button>
-              <Button variant={following ? "secondary" : "outline"} className="w-full" onClick={toggleFollow}>{following ? "팔로잉 중" : "팔로잉"}</Button>
-              <Button variant="ghost" className="w-full" asChild>
-                <Link to={`/community/board/${boardSlug}`}>커뮤니티로 이동</Link>
+              <Button
+                variant="outline"
+                className={`w-full mb-2 inline-flex items-center gap-2 btn-follow ${following ? "btn-follow-active" : ""}`}
+                onClick={toggleFollow}
+              >
+                <Heart className={`h-4 w-4 transition-transform heart-icon ${following ? "scale-110" : ""}`} />
+                {following ? "팔로잉 중" : "팔로잉"}
+              </Button>
+              <Button variant="default" className="w-full mb-2 inline-flex items-center gap-2 btn-community" asChild>
+                <Link to={`/community/board/${boardSlug}`}>
+                  <Users className="h-4 w-4" />커뮤니티로 이동
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="border-primary/20">
+          <Card className="border-primary/20 mt-4">
             <CardHeader><CardTitle className="text-base">태그</CardTitle></CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               {[...game.genres, ...game.features, ...game.themes].map((t) => (

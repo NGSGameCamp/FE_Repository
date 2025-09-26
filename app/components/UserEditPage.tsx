@@ -43,10 +43,7 @@ export default function UserEditPage() {
       <Card className="w-full max-w-md shadow-xl border border-primary/10 bg-card/90">
         <CardHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
           {/* Avatar placeholder */}
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-3xl font-bold text-primary mb-2">
-            {user?.name ? user.name[0] : "U"}
-          </div>
-          <CardTitle className="text-lg font-semibold text-center text-primary-foreground">
+          <CardTitle className="text-lg font-semibold text-center text-primary-foreground mt-4">
             {user?.name || "-"}
           </CardTitle>
           <div className="text-xs text-muted-foreground text-center">회원정보 수정</div>
@@ -67,8 +64,8 @@ export default function UserEditPage() {
             </EditRow>
           </div>
           <div className="flex gap-3 justify-between pt-2">
-            <Button className="flex-1" onClick={save}>정보수정</Button>
             <Button variant="outline" className="flex-1 border-primary/30" onClick={() => nav("/user06")}>취소</Button>
+            <Button className="flex-1" onClick={save}>정보수정</Button>
             <Button variant="outline" className="flex-1 border-primary/30" onClick={() => nav("/user03")}>비밀번호 변경</Button>
           </div>
         </CardContent>

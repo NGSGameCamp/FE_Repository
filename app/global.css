@@ -2,7 +2,7 @@
 
 :root {
   --font-size: 16px;
-  --background: #030213;
+  --background: #10151b;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
   --card-foreground: oklch(0.145 0 0);
@@ -42,7 +42,7 @@
 }
 
 .dark {
-  --background: #0a0a0f;
+  --background: #10151b;
   --foreground: oklch(0.985 0 0);
   --card: #131318;
   --card-foreground: oklch(0.985 0 0);
