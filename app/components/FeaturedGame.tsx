@@ -1,14 +1,14 @@
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Link } from "react-router-dom";
-import { Star, Download, Play } from "lucide-react";
+import { Star, MessageSquare, Play } from "lucide-react";
 
 interface Game {
   id: string;
   title: string;
   image: string;
   rating: number;
-  downloads: string;
+  reviews: string;
   genre: string;
   tags: string[];
   price: string;
@@ -66,9 +66,9 @@ export function FeaturedGame({ game, embed = false }: FeaturedGameProps) {
               </div>
               
               <div className="flex items-center gap-2">
-                <Download className="h-5 w-5 text-primary" />
-                <span className="font-semibold text-white">{game.downloads}</span>
-                <span className="text-sm text-muted-foreground">다운로드</span>
+                <MessageSquare className="h-5 w-5 text-primary" />
+                <span className="font-semibold text-white">{game.reviews}</span>
+                <span className="text-sm text-muted-foreground">리뷰</span>
               </div>
               
               <div className="text-2xl font-bold text-primary">

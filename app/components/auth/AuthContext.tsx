@@ -24,7 +24,6 @@ type AuthContextValue = {
     password: string
   ) => Promise<{ ok: boolean; error?: string }>;
   register: (info: {
-    userId: string;
     nickname: string;
     email: string;
     password: string;

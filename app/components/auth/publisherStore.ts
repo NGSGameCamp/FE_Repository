@@ -106,7 +106,14 @@ export async function loginPublisher(email: string, password: string): Promise<{
 
   const passHash = await hashPassword(password);
   if (passHash !== account.passHash) {
-    return { ok: false, error: "비밀번호가 일치하지 않습니다." };
+    const looksHashed = /^[0-9a-f]{64}$/i.test(account.passHash);
+    const legacyMatch = !looksHashed && account.passHash === password;
+    if (!legacyMatch) {
+      return { ok: false, error: "비밀번호가 일치하지 않습니다." };
+    }
+
+    account.passHash = passHash;
+    saveAccounts(accounts);
   }
 
   return { ok: true, account };

@@ -201,14 +201,12 @@ export function LoginPage() {
 
 export function SignupPage() {
   const navigate = useNavigate();
-  const [userId, setUserId] = useState("");
-  const [idChecked, setIdChecked] = useState<boolean | null>(null);
   const [nickname, setNickname] = useState("");
+  const [nicknameChecked, setNicknameChecked] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [emailChecked, setEmailChecked] = useState<boolean | null>(null);
   const [agree1, setAgree1] = useState(false);
   const [agree2, setAgree2] = useState(false);
-  const [agree3, setAgree3] = useState(false);
   const [pwd, setPwd] = useState("");
   const [pwd2, setPwd2] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -216,17 +214,22 @@ export function SignupPage() {
 
   const canSubmit = useMemo(() => {
     return (
-      idChecked === true &&
+      nicknameChecked === true &&
       emailChecked === true &&
       nickname.trim().length > 0 &&
       agree1 &&
       agree2
     );
-  }, [idChecked, emailChecked, nickname, agree1, agree2]);
+  }, [nicknameChecked, emailChecked, nickname, agree1, agree2]);
 
-  const checkId = () => {
+  const checkNickname = () => {
+    const name = nickname.trim();
+    if (!name) {
+      setNicknameChecked(false);
+      return;
+    }
     import("./authStore").then((m) =>
-      setIdChecked(!m.isUserIdTaken(userId.trim()))
+      setNicknameChecked(!m.isNicknameTaken(name))
     );
   };
   const checkEmail = () => {
@@ -246,37 +249,26 @@ export function SignupPage() {
             <CardTitle>회원가입</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Row>
-              <div className="space-y-2">
-                <Label htmlFor="userId">아이디</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="userId"
-                    placeholder="아이디"
-                    value={userId}
-                    onChange={(e) => {
-                      setUserId(e.target.value);
-                      setIdChecked(null);
-                    }}
-                  />
-                  <Button variant="outline" onClick={checkId}>
-                    중복확인
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {helper(idChecked)}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nickname">닉네임</Label>
+            <div className="space-y-2">
+              <Label htmlFor="nickname">닉네임</Label>
+              <div className="flex gap-2">
                 <Input
                   id="nickname"
                   placeholder="닉네임"
                   value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
+                  onChange={(e) => {
+                    setNickname(e.target.value);
+                    setNicknameChecked(null);
+                  }}
                 />
+                <Button variant="outline" onClick={checkNickname}>
+                  중복확인
+                </Button>
               </div>
-            </Row>
+              <p className="text-xs text-muted-foreground">
+                {helper(nicknameChecked)}
+              </p>
+            </div>
 
             <Row>
               <div className="space-y-2">
@@ -339,13 +331,6 @@ export function SignupPage() {
                   />{" "}
                   (필수) 서비스 이용 약관 동의
                 </label>
-                <label className="flex items-center gap-3 text-sm">
-                  <Checkbox
-                    checked={agree3}
-                    onCheckedChange={(v) => setAgree3(Boolean(v))}
-                  />{" "}
-                  (선택) 광고성 정보 수신 동의
-                </label>
               </div>
             </div>
 
@@ -360,7 +345,6 @@ export function SignupPage() {
                   if (pwd !== pwd2)
                     return setError("비밀번호가 일치하지 않습니다.");
                   const res = await register({
-                    userId,
                     nickname,
                     email,
                     password: pwd,

@@ -3,7 +3,6 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
 import { Alert, AlertTitle, AlertDescription } from "../ui/alert";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Check, LogOut } from "lucide-react";
@@ -27,7 +26,6 @@ export default function PublisherLoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [session, setSession] = useState<PublisherSession | null>(null);
@@ -37,11 +35,9 @@ export default function PublisherLoginPage() {
     if (stored.session) {
       setSession(stored.session);
       setEmail(stored.session.email);
-      setRemember(stored.remember);
       navigate("/publisher/dashboard", { replace: true });
       return;
     }
-    setRemember(stored.remember);
   }, [navigate]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -61,7 +57,7 @@ export default function PublisherLoginPage() {
       return;
     }
 
-    persistPublisherSession(res.account, remember);
+    persistPublisherSession(res.account, false);
     setSession({ id: res.account.id, companyName: res.account.companyName, email: res.account.email });
     setPassword("");
     navigate("/publisher/dashboard");
@@ -136,10 +132,6 @@ export default function PublisherLoginPage() {
               </div>
 
               <div className="flex items-center justify-between text-sm text-white/70">
-                <label className="flex items-center gap-2">
-                  <Checkbox id="remember" checked={remember} onCheckedChange={(v) => setRemember(!!v)} className="border-white/40 data-[state=checked]:bg-blue-500" />
-                  <span>로그인 상태 유지</span>
-                </label>
                 {session ? (
                   <button
                     type="button"

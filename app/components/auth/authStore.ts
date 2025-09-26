@@ -95,6 +95,12 @@ export function isUserIdTaken(userId: string): boolean {
   return loadUsers().some((u) => u.userId.toLowerCase() === userId.trim().toLowerCase());
 }
 
+export function isNicknameTaken(nickname: string): boolean {
+  const name = nickname.trim().toLowerCase();
+  if (!name) return false;
+  return loadUsers().some((u) => u.nickname.trim().toLowerCase() === name);
+}
+
 export async function changePassword(identifier: string, newPassword: string): Promise<{ ok: boolean; error?: string }> {
   if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(newPassword)) {
     return { ok: false, error: "비밀번호는 영문/숫자 포함 8자 이상이어야 합니다." };
