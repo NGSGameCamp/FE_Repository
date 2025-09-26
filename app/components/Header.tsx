@@ -2,11 +2,11 @@ import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Input } from "@/components/ui/input";
-import { 
-  Users, 
+import {
+  Users,
   ShoppingCart,
-  HelpCircle, 
-  LogIn, 
+  HelpCircle,
+  LogIn,
   Search,
   Gamepad2,
   Flame,
@@ -20,7 +20,7 @@ import {
   ChevronDown,
   Building2,
   ClipboardList,
-  LayoutDashboard
+  LayoutDashboard,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,7 +38,7 @@ interface HeaderProps {
 }
 
 export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { itemCount } = useCartStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,48 +96,104 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
 
           {/* User Actions */}
           <nav className="flex items-center space-x-4">
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
               <Link to="/library" className="inline-flex items-center">
-                <Gamepad2 className="h-4 w-4 mr-2" />라이브러리
+                <Gamepad2 className="h-4 w-4 mr-2" />
+                라이브러리
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
               <Link to="/search" className="inline-flex items-center">
-                <Search className="h-4 w-4 mr-2" />검색
+                <Search className="h-4 w-4 mr-2" />
+                검색
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
               <Link to="/community" className="inline-flex items-center">
-                <Users className="h-4 w-4 mr-2" />커뮤니티
+                <Users className="h-4 w-4 mr-2" />
+                커뮤니티
               </Link>
             </Button>
-            
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
               <Link to="/support" className="inline-flex items-center">
-                <HelpCircle className="h-4 w-4 mr-2" />고객센터
+                <HelpCircle className="h-4 w-4 mr-2" />
+                고객센터
               </Link>
             </Button>
 
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
-              <Link to="/publisher/dashboard" className="inline-flex items-center">
-                <Building2 className="h-4 w-4 mr-2" />배급사 센터
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
+              <Link
+                to="/publisher/dashboard"
+                className="inline-flex items-center"
+              >
+                <Building2 className="h-4 w-4 mr-2" />
+                배급사 센터
               </Link>
             </Button>
 
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
-              <Link to="/publisher/dashboard" className="inline-flex items-center">
-                <LayoutDashboard className="h-4 w-4 mr-2" />대시보드
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
+              <Link
+                to="/publisher/dashboard"
+                className="inline-flex items-center"
+              >
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                대시보드
               </Link>
             </Button>
 
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
-              <Link to="/publisher/notices" className="inline-flex items-center">
-                <ClipboardList className="h-4 w-4 mr-2" />공지 관리
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
+              <Link
+                to="/publisher/notices"
+                className="inline-flex items-center"
+              >
+                <ClipboardList className="h-4 w-4 mr-2" />
+                공지 관리
               </Link>
             </Button>
-            
+
             {isAuthenticated && (
-              <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+              >
                 <Link to="/cart" className="inline-flex items-center">
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   장바구니
@@ -151,9 +207,15 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
             )}
 
             {!isAuthenticated ? (
-              <Button asChild variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
+              >
                 <Link to="/login" className="inline-flex items-center">
-                  <LogIn className="h-4 w-4 mr-2" />Sign in
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign in
                 </Link>
               </Button>
             ) : (
@@ -173,7 +235,9 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
               <Link to="/profile" aria-label="내 프로필">
                 <Avatar className="h-8 w-8 ring-2 ring-primary/30">
                   <AvatarImage src={avatarSrc || ""} />
-                  <AvatarFallback className="bg-primary/20 text-primary">게</AvatarFallback>
+                  <AvatarFallback className="bg-primary/20 text-primary">
+                    게
+                  </AvatarFallback>
                 </Avatar>
               </Link>
             )}
@@ -182,66 +246,70 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
 
         {/* Navigation Menu (Home only) */}
         {isHome && (
-        <div className="flex h-12 items-center justify-center space-x-1 border-t border-primary/10">
-          {/* Quick Categories */}
-          {categories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <Button
-                key={category.id}
-                variant="ghost"
-                size="sm"
-                className={`gap-2 ${
-                  selectedCategory === category.id 
-                    ? "text-primary bg-primary/10" 
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/5"
-                }`}
-                onClick={() => onCategoryChange(category.id)}
-              >
-                <Icon className="h-4 w-4" />
-                {category.label}
-              </Button>
-            );
-          })}
+          <div className="flex h-12 items-center justify-center space-x-1 border-t border-primary/10">
+            {/* Quick Categories */}
+            {categories.map((category) => {
+              const Icon = category.icon;
+              return (
+                <Button
+                  key={category.id}
+                  variant="ghost"
+                  size="sm"
+                  className={`gap-2 ${
+                    selectedCategory === category.id
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                  }`}
+                  onClick={() => onCategoryChange(category.id)}
+                >
+                  <Icon className="h-4 w-4" />
+                  {category.label}
+                </Button>
+              );
+            })}
 
-          {/* Genres Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/5">
-                장르별
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              {genres.map((genre) => {
-                const Icon = genre.icon;
-                return (
-                  <DropdownMenuItem
-                    key={genre.id}
-                    onClick={() => onCategoryChange(genre.id)}
-                    className="gap-2 cursor-pointer"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {genre.label}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            {/* Genres Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                >
+                  장르별
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                {genres.map((genre) => {
+                  const Icon = genre.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={genre.id}
+                      onClick={() => onCategoryChange(genre.id)}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <Icon className="h-4 w-4" />
+                      {genre.label}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`${
-              selectedCategory === "무료게임" 
-                ? "text-primary bg-primary/10" 
-                : "text-muted-foreground hover:text-primary hover:bg-primary/5"
-            }`}
-            onClick={() => onCategoryChange("무료게임")}
-          >
-            무료게임
-          </Button>
-        </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`${
+                selectedCategory === "무료게임"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+              }`}
+              onClick={() => onCategoryChange("무료게임")}
+            >
+              무료게임
+            </Button>
+          </div>
         )}
       </div>
     </header>
