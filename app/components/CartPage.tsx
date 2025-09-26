@@ -4,13 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Trash2, Loader2 } from "lucide-react";
-import { getCart, removeGameFromCart, type Order } from "../api/orderApi";
+import { getCart, removeGameFromCart, type Order } from "../api/order/orderApi";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { useCartStore } from "../stores/cartStore";
 import { useAuth } from "./auth/AuthContext";
-import { getLocalCart, removeGameFromLocalCart } from "../stores/localCartStore";
+import {
+  getLocalCart,
+  removeGameFromLocalCart,
+} from "../stores/localCartStore";
 
-const formatKRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
+const formatKRW = (v: number) =>
+  new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(
+    v
+  );
 
 export function CartPage() {
   const navigate = useNavigate();
@@ -32,11 +38,11 @@ export function CartPage() {
         setCart(localCart);
       }
     } catch (err: any) {
-        if (err.message.includes("401")) {
-            setError("로그인이 필요합니다.");
-        } else {
-            setError(err.message || "장바구니를 불러오는 중 오류가 발생했습니다.");
-        }
+      if (err.message.includes("401")) {
+        setError("로그인이 필요합니다.");
+      } else {
+        setError(err.message || "장바구니를 불러오는 중 오류가 발생했습니다.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -111,20 +117,33 @@ export function CartPage() {
             {orderItems.map((it) => (
               <div key={it.id} className="flex items-center gap-4 p-4">
                 {/* TODO: Game entity에 이미지 URL이 필요합니다. */}
-                <img src={`https://via.placeholder.com/96x56.png?text=${it.game.name}`} alt={it.game.name} className="h-14 w-24 rounded-md object-cover border border-primary/20" />
+                <img
+                  src={`https://via.placeholder.com/96x56.png?text=${it.game.name}`}
+                  alt={it.game.name}
+                  className="h-14 w-24 rounded-md object-cover border border-primary/20"
+                />
                 <div className="flex-1">
                   <div className="font-medium">{it.game.name}</div>
                   {/* TODO: Game entity에 플랫폼 정보가 필요합니다. */}
                   <div className="text-xs text-muted-foreground">PC</div>
                 </div>
-                <div className="text-sm font-medium mr-4">{formatKRW(it.price)}</div>
-                <Button variant="ghost" size="icon" aria-label="remove" onClick={() => handleRemoveItem(it.game.id)}>
+                <div className="text-sm font-medium mr-4">
+                  {formatKRW(it.price)}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="remove"
+                  onClick={() => handleRemoveItem(it.game.id)}
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
             {itemCount === 0 && (
-              <div className="p-8 text-center text-sm text-muted-foreground">장바구니가 비었습니다.</div>
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                장바구니가 비었습니다.
+              </div>
             )}
           </CardContent>
         </Card>
@@ -148,9 +167,15 @@ export function CartPage() {
               <span>총 합계</span>
               <span className="text-primary">{formatKRW(total)}</span>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">{itemCount}개의 아이템</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {itemCount}개의 아이템
+            </div>
 
-            <Button className="w-full mt-4" disabled={itemCount === 0} onClick={handleProceedToPayment}>
+            <Button
+              className="w-full mt-4"
+              disabled={itemCount === 0}
+              onClick={handleProceedToPayment}
+            >
               결제 진행
             </Button>
           </CardContent>

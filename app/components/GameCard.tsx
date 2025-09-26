@@ -2,17 +2,17 @@ import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { 
-  Star, 
-  Download, 
-  Heart, 
-  Share2, 
+import {
+  Star,
+  Download,
+  Heart,
+  Share2,
   PlayCircle,
-  ShoppingCart
+  ShoppingCart,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
-import { addGameToCart, type Game as ApiGame } from "../api/orderApi";
+import { addGameToCart, type Game as ApiGame } from "../api/order/orderApi";
 import { addGameToLocalCart } from "../stores/localCartStore";
 import { useCartStore } from "../stores/cartStore";
 import { toast } from "sonner";
@@ -42,8 +42,8 @@ export function GameCard({ game }: GameCardProps) {
     const gamePrice = game.price === "무료" ? 0 : parseInt(priceString, 10);
 
     if (isNaN(gamePrice)) {
-        toast.error("유효하지 않은 가격입니다.");
-        return;
+      toast.error("유효하지 않은 가격입니다.");
+      return;
     }
 
     const apiGame: ApiGame = {
@@ -62,15 +62,15 @@ export function GameCard({ game }: GameCardProps) {
       }
       updateGlobalCart(); // 헤더에 있는 장바구니 아이콘 업데이트
     } catch (error: any) {
-        if (error.message && error.message.includes("already in cart")) {
-            toast.info(`${game.title}은(는) 이미 장바구니에 있습니다.`);
-        } else {
-            toast.error("장바구니에 추가하는 중 오류가 발생했습니다.");
-            console.error(error);
-        }
+      if (error.message && error.message.includes("already in cart")) {
+        toast.info(`${game.title}은(는) 이미 장바구니에 있습니다.`);
+      } else {
+        toast.error("장바구니에 추가하는 중 오류가 발생했습니다.");
+        console.error(error);
+      }
     }
   };
-    
+
   const navigate = useNavigate();
   const handleCardClick = () => {
     navigate(`/game/${game.id}`);
@@ -82,7 +82,9 @@ export function GameCard({ game }: GameCardProps) {
       role="button"
       aria-label={`${game.title} 상세보기`}
       onClick={handleCardClick}
-      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === "Enter" || e.key === " ") handleCardClick();
+      }}
     >
       <div className="relative aspect-video overflow-hidden">
         <ImageWithFallback
@@ -96,11 +98,12 @@ export function GameCard({ game }: GameCardProps) {
         </div>
         {/* Price badge */}
         <div className="absolute top-2 right-2">
-          <Badge 
+          <Badge
             variant={game.price === "무료" ? "secondary" : "outline"}
-            className={game.price === "무료" 
-              ? "bg-green-500/20 text-green-400 border-green-500/30" 
-              : "bg-primary/20 text-primary border-primary/30"
+            className={
+              game.price === "무료"
+                ? "bg-green-500/20 text-green-400 border-green-500/30"
+                : "bg-primary/20 text-primary border-primary/30"
             }
           >
             {game.price}
@@ -129,25 +132,25 @@ export function GameCard({ game }: GameCardProps) {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button 
-              size="sm" 
-              variant="ghost" 
+            <Button
+              size="sm"
+              variant="ghost"
               className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="h-4 w-4" />
             </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
+            <Button
+              size="sm"
+              variant="ghost"
               className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-red-400"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               <Heart className="h-3 w-3" />
             </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
+            <Button
+              size="sm"
+              variant="ghost"
               className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
@@ -157,16 +160,16 @@ export function GameCard({ game }: GameCardProps) {
         </div>
         {/* Tags */}
         <div className="flex flex-wrap gap-1">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="text-xs border-primary/30 text-primary"
           >
             {game.genre}
           </Badge>
           {game.tags.slice(0, 2).map((tag: string) => (
-            <Badge 
+            <Badge
               key={tag}
-              variant="outline" 
+              variant="outline"
               className="text-xs border-primary/20 text-muted-foreground"
             >
               {tag}

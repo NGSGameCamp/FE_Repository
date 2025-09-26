@@ -1,5 +1,5 @@
-import { getCookie, setCookie } from '../utils/cookies';
-import type { Order, OrderItem, Game } from '../api/orderApi';
+import { getCookie, setCookie } from "../utils/cookies";
+import type { Order, OrderItem, Game } from "../api/order/orderApi";
 
 const LOCAL_CART_COOKIE = "localCart";
 
@@ -8,7 +8,7 @@ function createEmptyCart(): Order {
     id: 0, // 0 indicates it's a local cart, not from DB
     userId: 0,
     orderItems: [],
-    status: 'PENDING',
+    status: "PENDING",
     totalPrice: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -37,7 +37,7 @@ export function addGameToLocalCart(game: Game): Order {
   const cart = getLocalCart();
 
   // Check if item already exists
-  const itemExists = cart.orderItems.some(item => item.game.id === game.id);
+  const itemExists = cart.orderItems.some((item) => item.game.id === game.id);
   if (itemExists) {
     // Maybe show a notification that item is already in cart
     console.log("Game already in cart");
@@ -66,7 +66,9 @@ export function addGameToLocalCart(game: Game): Order {
 
 export function removeGameFromLocalCart(gameId: number): Order {
   const cart = getLocalCart();
-  const updatedItems = cart.orderItems.filter(item => item.game.id !== gameId);
+  const updatedItems = cart.orderItems.filter(
+    (item) => item.game.id !== gameId
+  );
   const newTotalPrice = updatedItems.reduce((sum, item) => sum + item.price, 0);
 
   const updatedCart: Order = {

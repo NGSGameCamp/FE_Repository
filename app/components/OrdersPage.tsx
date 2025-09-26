@@ -6,10 +6,17 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { Loader2 } from "lucide-react";
-import { getMyOrders, type Order, type OrderStatus } from "../api/orderApi";
+import {
+  getMyOrders,
+  type Order,
+  type OrderStatus,
+} from "../api/order/orderApi";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
-const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
+const KRW = (v: number) =>
+  new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(
+    v
+  );
 
 const statusMap: Record<OrderStatus, string> = {
   CART: "장바구니",
@@ -25,10 +32,15 @@ const statusMap: Record<OrderStatus, string> = {
 
 // 필터 그룹 정의
 const statusGroups = {
-  "전체": Object.keys(statusMap) as OrderStatus[],
+  전체: Object.keys(statusMap) as OrderStatus[],
   "결제 완료": ["PAYMENT_COMPLETED", "PURCHASED_CONFIRMED"] as OrderStatus[],
   "진행 중": ["PRE_ORDERED", "PENDING"] as OrderStatus[],
-  "환불/취소": ["REFUND_REQUESTED", "PARTIALLY_REFUNDED", "FULLY_REFUNDED", "PAYMENT_FAILED"] as OrderStatus[],
+  "환불/취소": [
+    "REFUND_REQUESTED",
+    "PARTIALLY_REFUNDED",
+    "FULLY_REFUNDED",
+    "PAYMENT_FAILED",
+  ] as OrderStatus[],
 };
 
 type StatusFilterGroup = keyof typeof statusGroups;
@@ -48,7 +60,9 @@ export function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [period, setPeriod] = useState<"전체 기간" | "30일" | "3개월">("전체 기간");
+  const [period, setPeriod] = useState<"전체 기간" | "30일" | "3개월">(
+    "전체 기간"
+  );
   const [statusGroup, setStatusGroup] = useState<StatusFilterGroup>("전체");
   const [orderQuery, setOrderQuery] = useState("");
 
@@ -57,7 +71,7 @@ export function OrdersPage() {
       try {
         setIsLoading(true);
         const fetchedOrders = await getMyOrders();
-        setOrders(fetchedOrders.filter(o => o.status !== 'CART'));
+        setOrders(fetchedOrders.filter((o) => o.status !== "CART"));
         setError(null);
       } catch (err: any) {
         setError(err.message || "주문 내역을 불러오는 중 오류가 발생했습니다.");
@@ -79,22 +93,36 @@ export function OrdersPage() {
     return list;
   }, [orders, period, statusGroup, orderQuery]);
 
-  const getStatusBadgeVariant = (status: OrderStatus): { variant: "secondary" | "outline" | "destructive", className: string } => {
+  const getStatusBadgeVariant = (
+    status: OrderStatus
+  ): {
+    variant: "secondary" | "outline" | "destructive";
+    className: string;
+  } => {
     switch (status) {
-      case 'PAYMENT_COMPLETED':
-      case 'PURCHASED_CONFIRMED':
-        return { variant: 'secondary', className: "bg-green-500/20 text-green-400 border-green-500/30" };
-      case 'PRE_ORDERED':
-      case 'PENDING':
-        return { variant: 'outline', className: "text-yellow-400 border-yellow-500/30" };
-      case 'REFUND_REQUESTED':
-      case 'PARTIALLY_REFUNDED':
-        return { variant: 'outline', className: "text-orange-400 border-orange-500/30" };
-      case 'FULLY_REFUNDED':
-      case 'PAYMENT_FAILED':
-        return { variant: 'destructive', className: "" };
+      case "PAYMENT_COMPLETED":
+      case "PURCHASED_CONFIRMED":
+        return {
+          variant: "secondary",
+          className: "bg-green-500/20 text-green-400 border-green-500/30",
+        };
+      case "PRE_ORDERED":
+      case "PENDING":
+        return {
+          variant: "outline",
+          className: "text-yellow-400 border-yellow-500/30",
+        };
+      case "REFUND_REQUESTED":
+      case "PARTIALLY_REFUNDED":
+        return {
+          variant: "outline",
+          className: "text-orange-400 border-orange-500/30",
+        };
+      case "FULLY_REFUNDED":
+      case "PAYMENT_FAILED":
+        return { variant: "destructive", className: "" };
       default:
-        return { variant: 'outline', className: "" };
+        return { variant: "outline", className: "" };
     }
   };
 
@@ -122,7 +150,9 @@ export function OrdersPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold">주문 내역</h2>
-          <div className="text-sm text-muted-foreground">총 {filtered.length}건 (전체 {orders.length}건)</div>
+          <div className="text-sm text-muted-foreground">
+            총 {filtered.length}건 (전체 {orders.length}건)
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Input
@@ -139,14 +169,27 @@ export function OrdersPage() {
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm text-muted-foreground">기간:</span>
             {(["전체 기간", "30일", "3개월"] as const).map((p) => (
-              <Button key={p} size="sm" variant={period === p ? "default" : "outline"} onClick={() => setPeriod(p)}>
+              <Button
+                key={p}
+                size="sm"
+                variant={period === p ? "default" : "outline"}
+                onClick={() => setPeriod(p)}
+              >
                 {p}
               </Button>
             ))}
-            <Separator orientation="vertical" className="mx-2 hidden sm:block" />
+            <Separator
+              orientation="vertical"
+              className="mx-2 hidden sm:block"
+            />
             <span className="text-sm text-muted-foreground">상태:</span>
             {(Object.keys(statusGroups) as StatusFilterGroup[]).map((s) => (
-              <Button key={s} size="sm" variant={statusGroup === s ? "default" : "outline"} onClick={() => setStatusGroup(s)}>
+              <Button
+                key={s}
+                size="sm"
+                variant={statusGroup === s ? "default" : "outline"}
+                onClick={() => setStatusGroup(s)}
+              >
                 {s}
               </Button>
             ))}
@@ -162,12 +205,20 @@ export function OrdersPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <button className="text-primary hover:underline" onClick={() => setOrderQuery(String(o.id))}>
+                    <button
+                      className="text-primary hover:underline"
+                      onClick={() => setOrderQuery(String(o.id))}
+                    >
                       주문번호: #{o.id}
                     </button>
-                    <div className="text-xs text-muted-foreground mt-1">{new Date(o.createdAt).toLocaleDateString("ko-KR")}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {new Date(o.createdAt).toLocaleDateString("ko-KR")}
+                    </div>
                   </div>
-                  <Badge variant={badgeStyle.variant} className={badgeStyle.className}>
+                  <Badge
+                    variant={badgeStyle.variant}
+                    className={badgeStyle.className}
+                  >
                     {statusMap[o.status]}
                   </Badge>
                 </div>
@@ -176,14 +227,25 @@ export function OrdersPage() {
                 <Separator className="mb-3" />
                 <div className="space-y-3">
                   {o.orderItems.map((it) => (
-                    <div key={it.id} className="flex items-center justify-between rounded-md px-2 py-2 hover:bg-primary/5">
+                    <div
+                      key={it.id}
+                      className="flex items-center justify-between rounded-md px-2 py-2 hover:bg-primary/5"
+                    >
                       <div>
                         <div className="font-medium">{it.game.name}</div>
-                        <div className="text-xs text-muted-foreground">디지털 다운로드 | 수량: {it.quantity}</div>
+                        <div className="text-xs text-muted-foreground">
+                          디지털 다운로드 | 수량: {it.quantity}
+                        </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <div className="text-primary font-medium">{KRW(it.price)}</div>
-                        <Button size="sm" variant="outline" onClick={() => navigate(`/orders/${o.id}`)}>
+                        <div className="text-primary font-medium">
+                          {KRW(it.price)}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/orders/${o.id}`)}
+                        >
                           상세
                         </Button>
                       </div>
@@ -191,14 +253,21 @@ export function OrdersPage() {
                   ))}
                 </div>
                 <Separator className="my-3" />
-                <div className="text-right text-sm">주문 합계: <span className="text-primary font-semibold">{KRW(o.totalPrice)}</span></div>
+                <div className="text-right text-sm">
+                  주문 합계:{" "}
+                  <span className="text-primary font-semibold">
+                    {KRW(o.totalPrice)}
+                  </span>
+                </div>
               </CardContent>
             </Card>
           );
         })}
         {filtered.length === 0 && (
           <Card className="border-primary/20">
-            <CardContent className="py-10 text-center text-sm text-muted-foreground">조건에 맞는 주문 내역이 없습니다.</CardContent>
+            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+              조건에 맞는 주문 내역이 없습니다.
+            </CardContent>
           </Card>
         )}
       </div>

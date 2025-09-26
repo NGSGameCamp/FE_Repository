@@ -14,7 +14,7 @@ import {
   CarouselPrevious,
 } from "./ui/carousel";
 import { toast } from "sonner";
-import { addGameToCart } from "../api/orderApi";
+import { addGameToCart } from "../api/order/orderApi";
 import { useCartStore } from "../stores/cartStore";
 
 type GameDetail = {
@@ -33,7 +33,10 @@ type GameDetail = {
   news: { id: string; title: string; date: string }[];
 };
 
-const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(v);
+const KRW = (v: number) =>
+  new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(
+    v
+  );
 
 const MOCK: Record<string, GameDetail> = {
   "cyber-knights-2077": {
@@ -46,7 +49,8 @@ const MOCK: Record<string, GameDetail> = {
     genres: ["RPG"],
     features: ["오픈월드", "스토리 중심"],
     themes: ["사이버펑크"],
-    image: "https://images.unsplash.com/photo-1689443111384-1cf214df988a?auto=format&fit=crop&w=1000&q=60",
+    image:
+      "https://images.unsplash.com/photo-1689443111384-1cf214df988a?auto=format&fit=crop&w=1000&q=60",
     requirements: {
       minimum: [
         "OS: Windows 10",
@@ -64,8 +68,14 @@ const MOCK: Record<string, GameDetail> = {
       ],
     },
     media: [
-      { type: "image", url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=60" },
-      { type: "image", url: "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60" },
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=60",
+      },
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60",
+      },
     ],
     news: [
       { id: "n1", title: "패치 1.2 업데이트 노트", date: "2025-01-10" },
@@ -74,26 +84,44 @@ const MOCK: Record<string, GameDetail> = {
   },
 };
 
-type Review = { id: string; author: string; rating: number; text: string; date: string };
+type Review = {
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+};
 
 export function GameDetailView() {
   const { id: gameSlug = "cyber-knights-2077" } = useParams();
   const navigate = useNavigate();
-  const game = useMemo(() => MOCK[gameSlug!] ?? Object.values(MOCK)[0], [gameSlug]);
-  const DEFAULT_HERO = "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=60";
-  const DEFAULT_MEDIA = "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60";
-  const mediaItems = game.media?.length ? game.media : [{ type: "image", url: DEFAULT_MEDIA }];
+  const game = useMemo(
+    () => MOCK[gameSlug!] ?? Object.values(MOCK)[0],
+    [gameSlug]
+  );
+  const DEFAULT_HERO =
+    "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=60";
+  const DEFAULT_MEDIA =
+    "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60";
+  const mediaItems = game.media?.length
+    ? game.media
+    : [{ type: "image", url: DEFAULT_MEDIA }];
 
   // Following state
   const [following, setFollowing] = useState<boolean>(false);
   useEffect(() => {
-    const f = JSON.parse(localStorage.getItem("followingGames") || "[]") as number[];
+    const f = JSON.parse(
+      localStorage.getItem("followingGames") || "[]"
+    ) as number[];
     setFollowing(f.includes(game.id));
   }, [game.id]);
 
   const toggleFollow = () => {
-    const f = new Set<number>(JSON.parse(localStorage.getItem("followingGames") || "[]"));
-    if (f.has(game.id)) f.delete(game.id); else f.add(game.id);
+    const f = new Set<number>(
+      JSON.parse(localStorage.getItem("followingGames") || "[]")
+    );
+    if (f.has(game.id)) f.delete(game.id);
+    else f.add(game.id);
     localStorage.setItem("followingGames", JSON.stringify(Array.from(f)));
     setFollowing(f.has(game.id));
   };
@@ -139,7 +167,13 @@ export function GameDetailView() {
 
   const addReview = () => {
     if (!newText.trim()) return;
-    const r: Review = { id: String(Date.now()), author: "게스트", rating: newRating, text: newText.trim(), date: new Date().toISOString().slice(0, 10) };
+    const r: Review = {
+      id: String(Date.now()),
+      author: "게스트",
+      rating: newRating,
+      text: newText.trim(),
+      date: new Date().toISOString().slice(0, 10),
+    };
     saveReviews([r, ...reviews]);
     setNewText("");
     setNewRating(5);
@@ -153,21 +187,26 @@ export function GameDetailView() {
 
   const applyEdit = () => {
     if (!editingId) return;
-    const updated = reviews.map((r) => (r.id === editingId ? { ...r, text: editText, rating: editRating } : r));
+    const updated = reviews.map((r) =>
+      r.id === editingId ? { ...r, text: editText, rating: editRating } : r
+    );
     saveReviews(updated);
     setEditingId(null);
   };
 
-  const averageRating = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "-";
+  const averageRating = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : "-";
   // Compute community board slug for this game
   const boardSlug = useMemo(() => {
     const title = (game.title || "").toLowerCase();
-    if (title.includes("neon") || title.includes("racing")) return "neon-racing";
+    if (title.includes("neon") || title.includes("racing"))
+      return "neon-racing";
     if (title.includes("cyber")) return "cyberpunk-2087";
     return "guide-hub"; // fallback topic board
   }, [game.title]);
 
-  const originalPrice = Math.round((game.price / 0.7) / 100) * 100; // 예시: 30% 할인 기준
+  const originalPrice = Math.round(game.price / 0.7 / 100) * 100; // 예시: 30% 할인 기준
   const discountPercent = Math.round(100 - (game.price / originalPrice) * 100);
 
   const StarRatingSelector = ({
@@ -188,7 +227,11 @@ export function GameDetailView() {
     };
 
     return (
-      <div className="flex items-center gap-1" role="radiogroup" aria-label="별점 선택">
+      <div
+        className="flex items-center gap-1"
+        role="radiogroup"
+        aria-label="별점 선택"
+      >
         {[1, 2, 3, 4, 5].map((score) => {
           const active = score <= value;
           return (
@@ -202,7 +245,9 @@ export function GameDetailView() {
             >
               <Star
                 className={`h-5 w-5 ${
-                  active ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
+                  active
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-muted-foreground"
                 }`}
               />
               <span className="sr-only">{`${score}점`}</span>
@@ -219,7 +264,13 @@ export function GameDetailView() {
       <div className="relative overflow-hidden rounded-2xl border border-primary/20">
         <div
           className="h-56 sm:h-64 md:h-72 w-full bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-cyan-500/30"
-          style={{ backgroundImage: `linear-gradient( to right, rgba(37,99,235,0.35), rgba(168,85,247,0.25) ), url(${game.image || DEFAULT_HERO})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{
+            backgroundImage: `linear-gradient( to right, rgba(37,99,235,0.35), rgba(168,85,247,0.25) ), url(${
+              game.image || DEFAULT_HERO
+            })`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         />
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -left-12 -top-16 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
@@ -227,7 +278,9 @@ export function GameDetailView() {
         </div>
         <div className="absolute inset-0 flex items-end">
           <div className="w-full p-6 md:p-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-md">{game.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-md">
+              {game.title}
+            </h1>
             <div className="mt-3 text-sm text-muted-foreground flex flex-wrap items-center gap-3">
               <span>개발사: {game.developer}</span>
               <span>퍼블리셔: {game.publisher}</span>
@@ -235,13 +288,32 @@ export function GameDetailView() {
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {game.genres.map((t) => (
-                <Badge key={t} variant="secondary" className="bg-primary/15 text-primary border border-primary/30">{t}</Badge>
+                <Badge
+                  key={t}
+                  variant="secondary"
+                  className="bg-primary/15 text-primary border border-primary/30"
+                >
+                  {t}
+                </Badge>
               ))}
               {game.features.map((t) => (
-                <Badge key={t} variant="outline" className="text-muted-foreground">{t}</Badge>
+                <Badge
+                  key={t}
+                  variant="outline"
+                  className="text-muted-foreground"
+                >
+                  {t}
+                </Badge>
               ))}
               {/* Board link */}
-              <Link to={`/community/board/${(game.title || '').toLowerCase().replace(/\s+/g,'-')}`} className="ml-2 text-primary underline-offset-2 hover:underline">게시판 보기</Link>
+              <Link
+                to={`/community/board/${(game.title || "")
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")}`}
+                className="ml-2 text-primary underline-offset-2 hover:underline"
+              >
+                게시판 보기
+              </Link>
             </div>
           </div>
         </div>
@@ -260,7 +332,8 @@ export function GameDetailView() {
                       alt={`${game.title} 미디어 ${i + 1}`}
                       className="h-96 sm:h-[28rem] md:h-[32rem] w-full rounded-2xl border border-primary/20 object-cover"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = DEFAULT_MEDIA;
+                        (e.currentTarget as HTMLImageElement).src =
+                          DEFAULT_MEDIA;
                       }}
                     />
                   </CarouselItem>
@@ -280,7 +353,10 @@ export function GameDetailView() {
               <CardTitle className="text-base">개요</CardTitle>
             </CardHeader>
             <CardContent className="pt-2 space-y-4">
-              <div className="text-sm text-muted-foreground">미래 도시를 배경으로 한 오픈월드 액션 RPG. 네온 메트로폴리스를 누비며 당신만의 전설을 만드세요.</div>
+              <div className="text-sm text-muted-foreground">
+                미래 도시를 배경으로 한 오픈월드 액션 RPG. 네온 메트로폴리스를
+                누비며 당신만의 전설을 만드세요.
+              </div>
               <ul className="list-disc pl-6 text-sm space-y-1">
                 <li>방대한 오픈월드 탐험</li>
                 <li>선택에 따른 분기 스토리</li>
@@ -297,13 +373,17 @@ export function GameDetailView() {
               <div>
                 <div className="font-medium mb-2">최소 사양</div>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                  {game.requirements.minimum.map((l) => (<li key={l}>{l}</li>))}
+                  {game.requirements.minimum.map((l) => (
+                    <li key={l}>{l}</li>
+                  ))}
                 </ul>
               </div>
               <div>
                 <div className="font-medium mb-2">권장 사양</div>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                  {game.requirements.recommended.map((l) => (<li key={l}>{l}</li>))}
+                  {game.requirements.recommended.map((l) => (
+                    <li key={l}>{l}</li>
+                  ))}
                 </ul>
               </div>
             </CardContent>
@@ -316,13 +396,22 @@ export function GameDetailView() {
             <CardContent className="pt-2 space-y-4">
               {game.news.length ? (
                 game.news.map((n) => (
-                  <div key={n.id} className="flex items-center justify-between gap-4">
-                    <div className="font-medium text-sm md:text-base">{n.title}</div>
-                    <div className="text-xs text-muted-foreground whitespace-nowrap">{n.date}</div>
+                  <div
+                    key={n.id}
+                    className="flex items-center justify-between gap-4"
+                  >
+                    <div className="font-medium text-sm md:text-base">
+                      {n.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {n.date}
+                    </div>
                   </div>
                 ))
               ) : (
-                <div className="text-sm text-muted-foreground">등록된 소식이 없습니다.</div>
+                <div className="text-sm text-muted-foreground">
+                  등록된 소식이 없습니다.
+                </div>
               )}
             </CardContent>
           </Card>
@@ -334,44 +423,75 @@ export function GameDetailView() {
             <CardContent className="pt-2 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">평균 평점</div>
-                <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{averageRating}</div>
+                <div className="inline-flex items-center gap-1 text-yellow-400">
+                  <Star className="h-4 w-4" />
+                  {averageRating}
+                </div>
               </div>
               <Separator />
-              <Textarea placeholder="리뷰를 입력하세요" value={newText} onChange={(e) => setNewText(e.target.value)} />
+              <Textarea
+                placeholder="리뷰를 입력하세요"
+                value={newText}
+                onChange={(e) => setNewText(e.target.value)}
+              />
               <div className="flex items-center justify-between gap-4">
                 <StarRatingSelector value={newRating} onChange={setNewRating} />
                 <Button onClick={addReview}>등록</Button>
               </div>
               <div className="space-y-4">
                 {reviews.map((r) => (
-                  <div key={r.id} className="rounded-md border border-primary/20 p-3 mb-2">
+                  <div
+                    key={r.id}
+                    className="rounded-md border border-primary/20 p-3 mb-2"
+                  >
                     {editingId === r.id ? (
                       <div className="grid gap-3 sm:grid-cols-4">
                         <div className="sm:col-span-3">
-                          <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} />
+                          <Textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                          />
                         </div>
                         <div className="sm:col-span-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                          <StarRatingSelector value={editRating} onChange={setEditRating} />
-                          <Button size="sm" onClick={applyEdit}>수정 완료</Button>
+                          <StarRatingSelector
+                            value={editRating}
+                            onChange={setEditRating}
+                          />
+                          <Button size="sm" onClick={applyEdit}>
+                            수정 완료
+                          </Button>
                         </div>
                       </div>
                     ) : (
                       <>
                         <div className="flex items-center justify-between">
                           <div className="font-medium">{r.author}</div>
-                          <div className="inline-flex items-center gap-1 text-yellow-400"><Star className="h-4 w-4" />{r.rating.toFixed(1)}</div>
+                          <div className="inline-flex items-center gap-1 text-yellow-400">
+                            <Star className="h-4 w-4" />
+                            {r.rating.toFixed(1)}
+                          </div>
                         </div>
-                        <div className="text-sm mt-1 whitespace-pre-wrap">{r.text}</div>
+                        <div className="text-sm mt-1 whitespace-pre-wrap">
+                          {r.text}
+                        </div>
                         <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
                           <span>{r.date}</span>
-                          <Button size="sm" variant="outline" onClick={() => startEdit(r)}>수정</Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => startEdit(r)}
+                          >
+                            수정
+                          </Button>
                         </div>
                       </>
                     )}
                   </div>
                 ))}
                 {reviews.length === 0 && (
-                  <div className="text-sm text-muted-foreground">첫 리뷰를 작성해보세요.</div>
+                  <div className="text-sm text-muted-foreground">
+                    첫 리뷰를 작성해보세요.
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -386,35 +506,65 @@ export function GameDetailView() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="text-sm line-through text-muted-foreground">{KRW(originalPrice)}</div>
+                <div className="text-sm line-through text-muted-foreground">
+                  {KRW(originalPrice)}
+                </div>
                 <Badge className="bg-red-500/80">-{discountPercent}%</Badge>
               </div>
-              <div className="text-3xl font-extrabold text-primary">{KRW(game.price)}</div>
-              <Button className="w-full" onClick={() => navigate("/payment")}>지금 구매</Button>
-              <Button className="w-full" style={{ backgroundColor: '#10b981' }} onClick={handleAddToCart} disabled={isAddingToCart || isAlreadyInCart}>
-                {isAddingToCart ? '추가 중...' : isAlreadyInCart ? '장바구니에 있음' : '장바구니에 추가'}
+              <div className="text-3xl font-extrabold text-primary">
+                {KRW(game.price)}
+              </div>
+              <Button className="w-full" onClick={() => navigate("/payment")}>
+                지금 구매
+              </Button>
+              <Button
+                className="w-full"
+                style={{ backgroundColor: "#10b981" }}
+                onClick={handleAddToCart}
+                disabled={isAddingToCart || isAlreadyInCart}
+              >
+                {isAddingToCart
+                  ? "추가 중..."
+                  : isAlreadyInCart
+                  ? "장바구니에 있음"
+                  : "장바구니에 추가"}
               </Button>
               <Button
                 variant="outline"
-                className={`w-full mb-2 inline-flex items-center gap-2 btn-follow ${following ? "btn-follow-active" : ""}`}
+                className={`w-full mb-2 inline-flex items-center gap-2 btn-follow ${
+                  following ? "btn-follow-active" : ""
+                }`}
                 onClick={toggleFollow}
               >
-                <Heart className={`h-4 w-4 transition-transform heart-icon ${following ? "scale-110" : ""}`} />
+                <Heart
+                  className={`h-4 w-4 transition-transform heart-icon ${
+                    following ? "scale-110" : ""
+                  }`}
+                />
                 {following ? "팔로잉 중" : "팔로잉"}
               </Button>
-              <Button variant="default" className="w-full mb-2 inline-flex items-center gap-2 btn-community" asChild>
+              <Button
+                variant="default"
+                className="w-full mb-2 inline-flex items-center gap-2 btn-community"
+                asChild
+              >
                 <Link to={`/community/board/${boardSlug}`}>
-                  <Users className="h-4 w-4" />커뮤니티로 이동
+                  <Users className="h-4 w-4" />
+                  커뮤니티로 이동
                 </Link>
               </Button>
             </CardContent>
           </Card>
 
           <Card className="border-primary/20 mt-4">
-            <CardHeader><CardTitle className="text-base">태그</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">태그</CardTitle>
+            </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               {[...game.genres, ...game.features, ...game.themes].map((t) => (
-                <Badge key={t} variant="outline">#{t}</Badge>
+                <Badge key={t} variant="outline">
+                  #{t}
+                </Badge>
               ))}
             </CardContent>
           </Card>
@@ -422,7 +572,6 @@ export function GameDetailView() {
       </div>
 
       {/* Content tabs */}
-      
     </div>
   );
 }
