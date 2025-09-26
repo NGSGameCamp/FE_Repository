@@ -30,6 +30,7 @@ import PublisherNoticeDetailPage from "./components/publisher/PublisherNoticeDet
 import PublisherNoticeComposePage from "./components/publisher/PublisherNoticeComposePage";
 import PublisherDashboardPage from "./components/publisher/PublisherDashboardPage";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
+import { useCartStore } from "./stores/cartStore";
 import ForgotPasswordPage from "./components/auth/ForgotPasswordPage";
 import ProfilePage from "./components/ProfilePage";
 import LibraryPage from "./components/LibraryPage";
@@ -154,6 +155,11 @@ function Home({
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState("recommended");
   const location = useLocation();
+  const { fetchCart } = useCartStore();
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   // Ensure navigating to home resets to 추천
   useEffect(() => {

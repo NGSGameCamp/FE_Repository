@@ -13,14 +13,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
+import { toast } from "sonner";
+import { addGameToCart } from "../api/orderApi";
+import { useCartStore } from "../stores/cartStore";
 
 type GameDetail = {
-  id: string;
+  id: number;
   title: string;
   price: number;
   developer: string;
   publisher: string;
-  released: string; // display
+  released: string;
   genres: string[];
   features: string[];
   themes: string[];
@@ -34,7 +37,7 @@ const KRW = (v: number) => new Intl.NumberFormat("ko-KR", { style: "currency", c
 
 const MOCK: Record<string, GameDetail> = {
   "cyber-knights-2077": {
-    id: "cyber-knights-2077",
+    id: 1,
     title: "Cyber Knights 2077",
     price: 45500,
     developer: "NetGame Studios",
@@ -74,9 +77,9 @@ const MOCK: Record<string, GameDetail> = {
 type Review = { id: string; author: string; rating: number; text: string; date: string };
 
 export function GameDetailView() {
-  const { id = "cyber-knights-2077" } = useParams();
+  const { id: gameSlug = "cyber-knights-2077" } = useParams();
   const navigate = useNavigate();
-  const game = useMemo(() => MOCK[id!] ?? Object.values(MOCK)[0], [id]);
+  const game = useMemo(() => MOCK[gameSlug!] ?? Object.values(MOCK)[0], [gameSlug]);
   const DEFAULT_HERO = "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=60";
   const DEFAULT_MEDIA = "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60";
   const mediaItems = game.media?.length ? game.media : [{ type: "image", url: DEFAULT_MEDIA }];
@@ -84,23 +87,35 @@ export function GameDetailView() {
   // Following state
   const [following, setFollowing] = useState<boolean>(false);
   useEffect(() => {
-    const f = JSON.parse(localStorage.getItem("followingGames") || "[]") as string[];
+    const f = JSON.parse(localStorage.getItem("followingGames") || "[]") as number[];
     setFollowing(f.includes(game.id));
   }, [game.id]);
 
   const toggleFollow = () => {
-    const f = new Set<string>(JSON.parse(localStorage.getItem("followingGames") || "[]"));
+    const f = new Set<number>(JSON.parse(localStorage.getItem("followingGames") || "[]"));
     if (f.has(game.id)) f.delete(game.id); else f.add(game.id);
     localStorage.setItem("followingGames", JSON.stringify(Array.from(f)));
     setFollowing(f.has(game.id));
   };
 
-  // Cart add
-  const addToCart = () => {
-    const extra = JSON.parse(localStorage.getItem("cartExtraItems") || "[]") as any[];
-    extra.push({ id: `extra-${game.id}`, title: game.title, platform: "디지털 다운로드", price: game.price, image: game.image || DEFAULT_HERO, extra: true });
-    localStorage.setItem("cartExtraItems", JSON.stringify(extra));
-    alert("장바구니에 추가되었습니다.");
+  const { fetchCart, gameIds } = useCartStore();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  const isAlreadyInCart = gameIds.includes(game.id);
+
+  const handleAddToCart = async () => {
+    if (isAlreadyInCart) return;
+    setIsAddingToCart(true);
+    try {
+      await addGameToCart(game.id);
+      toast.success("장바구니에 추가되었습니다.");
+      fetchCart();
+    } catch (error) {
+      toast.error("장바구니 추가에 실패했습니다.");
+      console.error(error);
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   // Reviews
@@ -374,12 +389,10 @@ export function GameDetailView() {
                 <div className="text-sm line-through text-muted-foreground">{KRW(originalPrice)}</div>
                 <Badge className="bg-red-500/80">-{discountPercent}%</Badge>
               </div>
-              <div className="text-2xl font-extrabold text-primary mb-2">{KRW(game.price)}</div>
-              <Button className="w-full mb-2 inline-flex items-center gap-2" onClick={() => navigate("/payment01")}>
-                <CreditCard className="h-4 w-4" />지금 구매
-              </Button>
-              <Button className="w-full mb-2 inline-flex items-center gap-2" style={{ backgroundColor: '#10b981' }} onClick={addToCart}>
-                <ShoppingCart className="h-4 w-4" />장바구니에 추가
+              <div className="text-3xl font-extrabold text-primary">{KRW(game.price)}</div>
+              <Button className="w-full" onClick={() => navigate("/payment")}>지금 구매</Button>
+              <Button className="w-full" style={{ backgroundColor: '#10b981' }} onClick={handleAddToCart} disabled={isAddingToCart || isAlreadyInCart}>
+                {isAddingToCart ? '추가 중...' : isAlreadyInCart ? '장바구니에 있음' : '장바구니에 추가'}
               </Button>
               <Button
                 variant="outline"

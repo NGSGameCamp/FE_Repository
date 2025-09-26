@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { ok } from "assert";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type User = {
   id: string;
@@ -12,8 +19,16 @@ type AuthContextValue = {
   login: (info: { email: string; name?: string; avatarUrl?: string }) => void;
   logout: () => void;
   isAuthenticated: boolean;
-  loginWithPassword: (login: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  register: (info: { userId: string; nickname: string; email: string; password: string }) => Promise<{ ok: boolean; error?: string }>;
+  loginWithPassword: (
+    login: string,
+    password: string
+  ) => Promise<{ ok: boolean; error?: string }>;
+  register: (info: {
+    userId: string;
+    nickname: string;
+    email: string;
+    password: string;
+  }) => Promise<{ ok: boolean; error?: string }>;
   updateNickname: (nickname: string) => Promise<void>;
 };
 
@@ -50,14 +65,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // no-op placeholder removed; actual context value assembled below in `memo`.
   // augment with password-based flows using local store (demo)
   // Lazy import to keep this file lightweight in SSR
-  const loginWithPassword: AuthContextValue["loginWithPassword"] = async (loginStr, password) => {
+  const loginWithPassword: AuthContextValue["loginWithPassword"] = async (
+    loginStr,
+    password
+  ) => {
     try {
-      const mod = await import("./authStore");
-      const res = await mod.loginWithPassword(loginStr, password);
-      if (res.ok) {
-        const u = res.user;
-        setUser({ id: u.id, name: u.nickname || u.userId, email: u.email });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: u.id, name: u.nickname || u.userId, email: u.email }));
+      const req = await fetch("http://localhost:8080/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: loginStr, pwd: password }),
+      });
+
+      const res = await req.json();
+      console.log(res);
+      if (req.ok) {
+        const token = res.accessToken;
+        setUser({ id: res.userId, name: res.nickname, email: res.email });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ token }));
         return { ok: true };
       }
       return { ok: false, error: res.error };
@@ -68,41 +94,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register: AuthContextValue["register"] = async (info) => {
     try {
-      const mod = await import("./authStore");
-      const res = await mod.registerUser(info);
-      if (res.ok) {
-        const u = res.user;
-        setUser({ id: u.id, name: u.nickname || u.userId, email: u.email });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: u.id, name: u.nickname || u.userId, email: u.email }));
-        return { ok: true };
+      const req = await fetch("http://localhost:8080/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: info.email,
+          pwd: info.password,
+          pwdCheck: info.password,
+          name: info.nickname,
+        }),
+      });
+
+      console.log(req);
+
+      if (req.ok) {
+        console.log(req);
+        const signInRes = await loginWithPassword(info.email, info.password);
+        if (signInRes.ok) return { ok: true };
       }
-      return { ok: false, error: res.error };
+      return { ok: false, error: "회원가입 중 오류가 발생했습니다." };
     } catch {
       return { ok: false, error: "회원가입 중 오류가 발생했습니다." };
     }
   };
 
-  const memo = useMemo<AuthContextValue>(() => ({
-    user,
-    login,
-    logout,
-    isAuthenticated: !!user,
-    loginWithPassword,
-    register,
-    updateNickname: async (nickname: string) => {
-      setUser((prev) => {
-        if (!prev) return prev;
-        const next = { ...prev, name: nickname };
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
-        return next;
-      });
-      try {
-        const mod = await import("./authStore");
-        const key = user?.email || user?.id || "";
-        if (key) mod.updateNickname(key, nickname);
-      } catch {}
-    },
-  }), [user]);
+  const memo = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      login,
+      logout,
+      isAuthenticated: !!user,
+      loginWithPassword,
+      register,
+      updateNickname: async (nickname: string) => {
+        setUser((prev) => {
+          if (!prev) return prev;
+          const next = { ...prev, name: nickname };
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          } catch {}
+          return next;
+        });
+        try {
+          const mod = await import("./authStore");
+          const key = user?.email || user?.id || "";
+          if (key) mod.updateNickname(key, nickname);
+        } catch {}
+      },
+    }),
+    [user]
+  );
 
   return <AuthContext.Provider value={memo}>{children}</AuthContext.Provider>;
 }
