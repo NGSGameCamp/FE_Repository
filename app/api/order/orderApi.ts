@@ -1,5 +1,5 @@
 import { API_BASE_URL, fetchApi } from "../fetchApi";
-import type { Order } from "./types";
+import type { Order, PendingOrderDetails } from "./types";
 
 // 현재 사용자의 장바구니 정보를 가져옵니다. 장바구니가 없으면 새로 생성
 export const getCart = (): Promise<Order> => {
@@ -25,4 +25,17 @@ export const getMyOrders = (): Promise<Order[]> => {
   return fetchApi<Order[]>(`${API_BASE_URL}/orders`);
 };
 
-export type { Game, Order, OrderItem, OrderStatus, ApiResponse } from "./types";
+export const getPendingOrder = (): Promise<PendingOrderDetails> => {
+  return fetchApi<PendingOrderDetails>(`${API_BASE_URL}/orders/pending`);
+};
+
+export type {
+  Game,
+  Order,
+  OrderItem,
+  OrderStatus,
+  ApiResponse,
+  PendingOrderDetails,
+  PendingOrderItem,
+  PendingOrderCustomer,
+} from "./types";

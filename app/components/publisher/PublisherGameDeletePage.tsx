@@ -1,13 +1,13 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { PublisherLayout } from "./PublisherLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Button } from "../y_ui/base/button";
-import { mockGames } from "@/data/mockGames";
 import { toast } from "sonner";
 import { formatCurrencyKRW } from "./utils/format";
+import { useGameStore } from "../../stores/gameStore";
 
 const warningPoints = [
   "플랫폼에서 게임이 비공개 처리됩니다.",
@@ -26,12 +26,21 @@ const saleStatusCycle = [
 export default function PublisherGameDeletePage() {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
+
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, games.length, gamesLoading]);
 
   const game = useMemo(
-    () => mockGames.find((item) => item.id === gameId),
-    [gameId]
+    () => games.find((item) => item.id === gameId),
+    [games, gameId]
   );
-  const index = game ? mockGames.findIndex((item) => item.id === game.id) : -1;
+  const index = game ? games.findIndex((item) => item.id === game.id) : -1;
   const normalizedIndex = index >= 0 ? index : 0;
   const parsedPrice = game ? parsePrice(game.price) : 0;
   const totalSales = 900 + normalizedIndex * 140;
@@ -40,6 +49,29 @@ export default function PublisherGameDeletePage() {
     parsedPrice > 0
       ? parsedPrice * totalSales
       : (900 + normalizedIndex * 220) * 15000;
+
+  if (!game && gamesLoading) {
+    return (
+      <PublisherLayout
+        title="게임 삭제"
+        subtitle="게임 데이터를 불러오는 중입니다."
+        heroBadge={
+          <BadgePill
+            label={
+              <span className="flex items-center gap-2">
+                <AlertTriangle className="h-3.5 w-3.5" /> Loading
+              </span>
+            }
+            tone="warning"
+          />
+        }
+      >
+        <Card className="border border-white/12 bg-publisher-card text-center text-white/70">
+          <CardContent className="py-16">로딩 중...</CardContent>
+        </Card>
+      </PublisherLayout>
+    );
+  }
 
   if (!game) {
     return (

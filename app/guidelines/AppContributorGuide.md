@@ -30,7 +30,7 @@
 - 상호작용 컴포넌트는 반드시 `React.forwardRef` 사용(이미 `Button` 적용됨).
 
 ## 데이터와 프롭스
-- 목 데이터: `App.tsx`의 `mockGames`. 필드 추가 시 소비처(`GameGrid`, `GameCard`)의 `Game` 인터페이스도 함께 확장.
+- 게임 데이터는 `useGameStore`가 `app/api/game/gameApi.ts`의 `getGames()`를 통해 불러오며, 실패 시 `app/api/game/mocks.ts`의 목 데이터를 사용합니다. 새 필드를 추가하면 `GameSummary` 타입과 소비처(`GameGrid`, `GameCard`)를 함께 갱신하세요.
 - 프롭스는 최소/명확하게, 상위(`App.tsx`)로 상태를 승격하고 핸들러(`onCategoryChange`)를 내려주세요.
 
 ## 주의사항

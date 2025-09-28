@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../y_ui/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
@@ -13,11 +13,11 @@ import {
   SelectValue,
 } from "../y_ui/form-controls/select";
 import { Badge } from "../y_ui/base/badge";
-import { mockGames } from "@/data/mockGames";
 import { NoticeCategory } from "./publisherNoticeData";
 import { toast } from "sonner";
 import { PublisherLayout } from "./PublisherLayout";
 import { PenSquare } from "lucide-react";
+import { useGameStore } from "../../stores/gameStore";
 
 const categoryLabels: Record<Exclude<NoticeCategory, "all">, string> = {
   update: "게임 업데이트",
@@ -29,19 +29,32 @@ const categoryLabels: Record<Exclude<NoticeCategory, "all">, string> = {
 
 export default function PublisherNoticeComposePage() {
   const navigate = useNavigate();
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
   const gameOptions = useMemo(
-    () => Array.from(new Set(mockGames.map((game) => game.title))).sort(),
-    []
+    () => Array.from(new Set(games.map((game) => game.title))).sort(),
+    [games]
   );
 
-  const [selectedGame, setSelectedGame] = useState<string>(
-    gameOptions[0] ?? ""
-  );
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, games.length, gamesLoading]);
+
+  const [selectedGame, setSelectedGame] = useState<string>("");
   const [category, setCategory] =
     useState<Exclude<NoticeCategory, "all">>("update");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
+
+  useEffect(() => {
+    if (!selectedGame && gameOptions.length) {
+      setSelectedGame(gameOptions[0]);
+    }
+  }, [gameOptions, selectedGame]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

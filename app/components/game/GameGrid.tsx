@@ -20,12 +20,14 @@ interface GameGridProps {
   games: Game[];
   selectedCategory: string;
   onCategoryChange?: (category: string) => void;
+  loading?: boolean;
 }
 
 export function GameGrid({
   games,
   selectedCategory,
   onCategoryChange,
+  loading,
 }: GameGridProps) {
   const getReviewCount = (value: string) => {
     const numeric = parseFloat(value.replace(/[^0-9.]/g, ""));
@@ -38,10 +40,22 @@ export function GameGrid({
     return numeric;
   };
 
+  if (!games.length) {
+    return (
+      <main className="flex-1 px-4 py-6 max-w-7xl mx-auto">
+        <div className="rounded-lg border border-primary/20 bg-background/80 p-6 text-center text-muted-foreground">
+          {loading
+            ? "게임 정보를 불러오는 중입니다..."
+            : "표시할 게임 데이터가 없습니다."}
+        </div>
+      </main>
+    );
+  }
+
   // Filter games for different sections
-  const topRatedGames = games
+  const sortedByRating = [...games].sort((a, b) => b.rating - a.rating);
+  const topRatedGames = sortedByRating
     .filter((game) => game.rating >= 4.7)
-    .sort((a, b) => b.rating - a.rating)
     .slice(0, 6);
 
   const bundleDeals = games
@@ -125,7 +139,7 @@ export function GameGrid({
   }
 
   // Get featured game (highest rated game)
-  const featuredGame = games.sort((a, b) => b.rating - a.rating)[0];
+  const featuredGame = sortedByRating[0];
 
   // Default home page with sections
   return (

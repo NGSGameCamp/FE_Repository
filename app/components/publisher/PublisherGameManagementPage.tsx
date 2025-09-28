@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../y_ui/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Input } from "../y_ui/base/input";
@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "../y_ui/overlay/dropdown-menu";
 import { useNavigate } from "react-router-dom";
-import { mockGames } from "@/data/mockGames";
 import { PublisherLayout } from "./PublisherLayout";
 import { Search, Plus, ChevronDown, Star, Gamepad } from "lucide-react";
+import { useGameStore } from "../../stores/gameStore";
+import type { GameSummary } from "../../api/game/types";
 
 const sortOptions = [
   { id: "latest", label: "최신순" },
@@ -38,29 +39,50 @@ function formatCurrency(value?: number | string) {
   return `₩${number.toLocaleString()}`;
 }
 
-const extendedGames = mockGames.map((game, index) => ({
-  ...game,
-  status:
-    index % 4 === 0
-      ? "selling"
-      : index % 4 === 1
-      ? "review"
-      : index % 4 === 2
-      ? "paused"
-      : "upcoming",
-  revenue: 20000000 + index * 6000000,
-  unitsSold: 500 + index * 120,
-  rating: Number(game.rating) || 4.5,
-  priceValue: Number(String(game.price).replace(/[^0-9]/g, "")) || 0,
-}));
+type ExtendedGame = GameSummary & {
+  status: "selling" | "review" | "paused" | "upcoming";
+  revenue: number;
+  unitsSold: number;
+  rating: number;
+  priceValue: number;
+};
 
 export default function PublisherGameManagementPage() {
   const navigate = useNavigate();
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
+  const gamesError = useGameStore((state) => state.error);
   const [query, setQuery] = useState("");
   const [status, setStatus] =
     useState<(typeof statusFilters)[number]["id"]>("all");
   const [sort, setSort] =
     useState<(typeof sortOptions)[number]["id"]>("latest");
+
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, games.length, gamesLoading]);
+
+  const extendedGames: ExtendedGame[] = useMemo(() => {
+    if (!games.length) return [];
+    return games.map((game, index) => ({
+      ...game,
+      status:
+        index % 4 === 0
+          ? "selling"
+          : index % 4 === 1
+          ? "review"
+          : index % 4 === 2
+          ? "paused"
+          : "upcoming",
+      revenue: 20000000 + index * 6000000,
+      unitsSold: 500 + index * 120,
+      rating: Number(game.rating) || 4.5,
+      priceValue: Number(String(game.price).replace(/[^0-9]/g, "")) || 0,
+    }));
+  }, [games]);
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -122,6 +144,20 @@ export default function PublisherGameManagementPage() {
       }
     >
       <section className="space-y-12">
+        {gamesLoading && (
+          <Card className="border border-white/12 bg-publisher-card text-white">
+            <CardContent className="py-6 text-center text-white/70">
+              게임 데이터를 불러오는 중입니다...
+            </CardContent>
+          </Card>
+        )}
+        {gamesError && !gamesLoading && (
+          <Card className="border border-white/12 bg-publisher-card text-white">
+            <CardContent className="py-6 text-center text-red-200">
+              {gamesError}
+            </CardContent>
+          </Card>
+        )}
         <div className="flex flex-wrap items-center gap-5 rounded-3xl border border-white/12 bg-publisher-panel px-6 py-6 shadow-[0_18px_52px_rgba(5,12,30,0.45)]">
           {statusFilters.map((filterItem) => (
             <button

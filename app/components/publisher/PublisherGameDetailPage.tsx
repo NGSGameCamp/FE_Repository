@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Gamepad,
@@ -24,8 +24,8 @@ import {
 import { Separator } from "../y_ui/base/separator";
 import { Textarea } from "../y_ui/base/textarea";
 import { toast } from "sonner";
-import { mockGames } from "@/data/mockGames";
-import type { MockGame } from "@/data/mockGames";
+import { useGameStore } from "../../stores/gameStore";
+import type { GameSummary } from "../../api/game/types";
 
 interface SystemRequirement {
   os: string;
@@ -206,7 +206,10 @@ function parseNumber(value: string | number | undefined) {
   return Number.isNaN(numeric) ? 0 : numeric;
 }
 
-function buildOverviewFromGame(game: MockGame, index: number): GameOverview {
+function buildOverviewFromGame(
+  game: GameSummary,
+  index: number
+): GameOverview {
   const normalizedIndex = index >= 0 ? index : 0;
   const saleStatus = saleStatusCycle[normalizedIndex % saleStatusCycle.length];
   const priceValue = parseNumber(game.price);
@@ -292,16 +295,43 @@ export default function PublisherGameDetailPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const [updateContent, setUpdateContent] = useState("");
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
+
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, games.length, gamesLoading]);
 
   const game = useMemo(
-    () => mockGames.find((item) => item.id === gameId),
-    [gameId]
+    () => games.find((item) => item.id === gameId),
+    [games, gameId]
   );
   const detail = useMemo(() => {
     if (!game) return undefined;
-    const index = mockGames.findIndex((item) => item.id === game.id);
-    return gameDetails[game.id] ?? buildOverviewFromGame(game, index);
-  }, [game]);
+    const index = games.findIndex((item) => item.id === game.id);
+    return gameDetails[game.id] ?? buildOverviewFromGame(game, index >= 0 ? index : 0);
+  }, [game, games]);
+
+  if (!game && gamesLoading) {
+    return (
+      <PublisherLayout
+        title="게임 상세"
+        subtitle="게임 데이터를 불러오는 중입니다."
+        heroBadge={
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-200">
+            <Activity className="h-3.5 w-3.5" /> Loading
+          </div>
+        }
+      >
+        <Card className="border border-white/12 bg-publisher-card text-center text-white/70">
+          <CardContent className="py-16">로딩 중...</CardContent>
+        </Card>
+      </PublisherLayout>
+    );
+  }
 
   if (!game || !detail) {
     return (

@@ -43,7 +43,7 @@ import LibraryPage from "./components/user/LibraryPage";
 import UserEditPage from "./components/user/UserEditPage";
 import UserInfoPage from "./components/user/UserInfoPage";
 import UserDeletePage from "./components/user/UserDeletePage";
-import { mockGames } from "./data/mockGames";
+import { useGameStore } from "./stores/gameStore";
 
 function Payment02Stub() {
   const params = useParams();
@@ -52,17 +52,22 @@ function Payment02Stub() {
 }
 
 function Home({
+  games,
+  loading,
   selectedCategory,
   setSelectedCategory,
 }: {
+  games: ReturnType<typeof useGameStore>["games"];
+  loading: boolean;
   selectedCategory: string;
   setSelectedCategory: (v: string) => void;
 }) {
   return (
     <GameGrid
-      games={mockGames}
+      games={games}
       selectedCategory={selectedCategory}
       onCategoryChange={setSelectedCategory}
+      loading={loading}
     />
   );
 }
@@ -71,10 +76,17 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState("recommended");
   const location = useLocation();
   const { fetchCart } = useCartStore();
+  const { games, fetchGames, loading: gamesLoading } = useGameStore();
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [games.length, gamesLoading, fetchGames]);
 
   // Ensure navigating to home resets to 추천
   useEffect(() => {
@@ -93,7 +105,14 @@ export default function App() {
       <Routes>
         <Route
           path="/"
-          element={<Home selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />}
+          element={
+            <Home
+              games={games}
+              loading={gamesLoading}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
+          }
         />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/community/all" element={<CommunityAllPage />} />

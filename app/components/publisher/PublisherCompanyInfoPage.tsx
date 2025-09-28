@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Input } from "../y_ui/base/input";
 import { Textarea } from "../y_ui/base/textarea";
@@ -8,21 +8,15 @@ import { PublisherLayout } from "./PublisherLayout";
 import { Badge } from "../y_ui/base/badge";
 import { toast } from "sonner";
 import { Building2, Upload } from "lucide-react";
-
-const mockCompany = {
-  name: "퍼블리셔 회사",
-  registrationNumber: "123-45-67890",
-  registeredAt: "2024-01-15",
-  description: "혁신적인 게임을 만들고 배급하는 회사입니다.",
-  website: "https://example.com",
-  contactEmail: "contact@publisher.com",
-  contactPhone: "02-1234-5678",
-  address: "서울특별시 강남구 테헤란로 123",
-  logoColor: "#2563eb",
-};
+import { getPublisherCompany } from "../../api/publisher/publisherApi";
+import { mockPublisherCompany } from "../../api/publisher/mocks";
+import type { PublisherCompany } from "../../api/publisher/types";
 
 export default function PublisherCompanyInfoPage() {
-  const [company, setCompany] = useState(mockCompany);
+  const [company, setCompany] = useState<PublisherCompany>(mockPublisherCompany);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [usingMock, setUsingMock] = useState<boolean>(true);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -30,6 +24,36 @@ export default function PublisherCompanyInfoPage() {
     () => company.name.slice(0, 1).toUpperCase(),
     [company.name]
   );
+
+  useEffect(() => {
+    let canceled = false;
+    const loadCompany = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, isMock } = await getPublisherCompany();
+        if (!canceled) {
+          setCompany(data);
+          setUsingMock(isMock);
+        }
+      } catch (err) {
+        if (!canceled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "회사 정보를 불러오는 중 오류가 발생했습니다."
+          );
+        }
+      } finally {
+        if (!canceled) setLoading(false);
+      }
+    };
+
+    loadCompany();
+    return () => {
+      canceled = true;
+    };
+  }, []);
 
   const onLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -63,9 +87,21 @@ export default function PublisherCompanyInfoPage() {
         </div>
       }
       actions={
-        <Badge className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/60">
-          마지막 수정 2024.05.11
-        </Badge>
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <Badge className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/60">
+            마지막 수정 2024.05.11
+          </Badge>
+          {usingMock && !error && (
+            <Badge className="rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-amber-100">
+              Mock 데이터 표시
+            </Badge>
+          )}
+          {error && (
+            <span className="rounded-full border border-red-400/40 bg-red-500/15 px-3 py-1 text-red-100">
+              {error}
+            </span>
+          )}
+        </div>
       }
     >
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">

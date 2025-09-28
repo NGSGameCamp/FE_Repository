@@ -30,13 +30,13 @@ import {
 } from "../y_ui/overlay/dropdown-menu";
 import { useAuth } from "../auth/AuthContext";
 import { useCartStore } from "../../stores/cartStore";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getPublisherSession,
   clearPublisherSession,
   type PublisherSession,
 } from "../auth/publisherStore";
-import { mockGames } from "@/data/mockGames";
+import { useGameStore } from "../../stores/gameStore";
 
 interface HeaderProps {
   selectedCategory: string;
@@ -53,6 +53,10 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
   const [publisherSession, setPublisherSession] =
     useState<PublisherSession | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
+  const hasCatalog = games.length > 0;
 
   useEffect(() => {
     try {
@@ -154,6 +158,48 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
       },
     ];
   }, [isPublisher]);
+
+  useEffect(() => {
+    if (!hasCatalog && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, gamesLoading, hasCatalog]);
+
+  const handleSearch = useCallback(
+    (term: string) => {
+      const normalized = term.trim().toLowerCase();
+      if (!normalized) return;
+
+      const match = games.find((game) =>
+        game.title.toLowerCase().includes(normalized)
+      );
+
+      if (match) {
+        navigate(`/game/${match.id}`);
+      } else {
+        navigate(`/search?query=${encodeURIComponent(term.trim())}`);
+      }
+    },
+    [games, navigate]
+  );
+
+  const onSubmitSearch = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      handleSearch(searchQuery);
+    },
+    [handleSearch, searchQuery]
+  );
+
+  const onKeyDownSearch = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSearch(searchQuery);
+      }
+    },
+    [handleSearch, searchQuery]
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -360,29 +406,3 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
     </header>
   );
 }
-const handleSearch = (term: string) => {
-  const normalized = term.trim().toLowerCase();
-  if (!normalized) return;
-
-  const match = mockGames.find((game) =>
-    game.title.toLowerCase().includes(normalized)
-  );
-
-  if (match) {
-    navigate(`/game/${match.id}`);
-  } else {
-    navigate(`/search?query=${encodeURIComponent(term.trim())}`);
-  }
-};
-
-const onSubmitSearch = (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  handleSearch(searchQuery);
-};
-
-const onKeyDownSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    handleSearch(searchQuery);
-  }
-};
