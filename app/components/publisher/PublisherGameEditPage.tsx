@@ -22,8 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "../y_ui/overlay/dropdown-menu";
 import { toast } from "sonner";
-import { mockGames } from "@/data/mockGames";
-import type { MockGame } from "@/data/mockGames";
+import { useGameStore } from "../../stores/gameStore";
+import type { GameSummary } from "../../api/game/types";
 
 const categories = [
   "액션",
@@ -142,8 +142,11 @@ const updateNoteTemplates = [
 ];
 const seasonLabels = ["봄", "여름", "가을", "겨울"];
 
-function generateDetailFromGame(game: MockGame): GameDetail {
-  const index = mockGames.findIndex((item) => item.id === game.id);
+function generateDetailFromGame(
+  game: GameSummary,
+  collection: GameSummary[]
+): GameDetail {
+  const index = collection.findIndex((item) => item.id === game.id);
   const normalizedIndex = index >= 0 ? index : 0;
   const priceValue = extractPrice(game.price);
   const hasDiscount = normalizedIndex % 2 === 0 && priceValue !== "0";
@@ -198,9 +201,9 @@ function extractPrice(value?: string) {
   return numeric || "0";
 }
 
-function getReviewStatusCounts() {
+function getReviewStatusCounts(games: GameSummary[]) {
   const counts = { waiting: 0, progress: 0, answered: 0 };
-  mockGames.forEach((_, index) => {
+  games.forEach((_, index) => {
     const key =
       index % 3 === 0 ? "waiting" : index % 3 === 1 ? "progress" : "answered";
     counts[key as keyof typeof counts] += 1;
@@ -211,7 +214,10 @@ function getReviewStatusCounts() {
 export default function PublisherGameEditPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
-  const counts = useMemo(getReviewStatusCounts, []);
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
+  const counts = useMemo(() => getReviewStatusCounts(games), [games]);
   const [searchTerm, setSearchTerm] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<string>(categories[0]);
@@ -234,15 +240,21 @@ export default function PublisherGameEditPage() {
     Array<{ version: string; date: string; note: string }>
   >([]);
 
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, games.length, gamesLoading]);
+
   const game = useMemo(
-    () => mockGames.find((item) => item.id === gameId),
-    [gameId]
+    () => games.find((item) => item.id === gameId),
+    [games, gameId]
   );
   const detail = useMemo(() => {
     if (!game) return fallbackDetails;
     if (game.id && defaultDetails[game.id]) return defaultDetails[game.id];
-    return generateDetailFromGame(game);
-  }, [game]);
+    return generateDetailFromGame(game, games);
+  }, [game, games]);
 
   useEffect(() => {
     if (!game) return;
@@ -273,10 +285,10 @@ export default function PublisherGameEditPage() {
   const suggestions = useMemo(() => {
     const value = searchTerm.trim().toLowerCase();
     if (!value) return [];
-    return mockGames.filter((item) =>
+    return games.filter((item) =>
       `${item.title} ${item.genre}`.toLowerCase().includes(value)
     );
-  }, [searchTerm]);
+  }, [games, searchTerm]);
 
   const addTag = () => {
     const value = tagInput.trim();
@@ -308,7 +320,7 @@ export default function PublisherGameEditPage() {
     setFeatures((prev) => prev.filter((feature) => feature !== target));
   };
 
-  const applyTemplate = (item: MockGame) => {
+  const applyTemplate = (item: GameSummary) => {
     const template = defaultDetails[item.id] ?? fallbackDetails;
     setTitle(item.title);
     setCategory(template.category || item.genre || categories[0]);
@@ -367,6 +379,24 @@ export default function PublisherGameEditPage() {
   const deleteUpdate = (index: number) => {
     setUpdates((prev) => prev.filter((_, idx) => idx !== index));
   };
+
+  if (!game && gamesLoading) {
+    return (
+      <PublisherLayout
+        title="게임 정보 수정"
+        subtitle="게임 데이터를 불러오는 중입니다."
+        heroBadge={
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-200">
+            <Sparkles className="h-3.5 w-3.5" /> Loading
+          </div>
+        }
+      >
+        <Card className="border border-white/12 bg-publisher-card text-center text-white/70">
+          <CardContent className="py-16">로딩 중...</CardContent>
+        </Card>
+      </PublisherLayout>
+    );
+  }
 
   if (!game) {
     return (

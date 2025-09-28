@@ -1,4 +1,6 @@
-export const mockGames = [
+import type { GameDetail, GameSearchItem, GameSummary } from "./types";
+
+export const mockGames: GameSummary[] = [
   {
     id: "1",
     title: "Cyberpunk 2087",
@@ -98,3 +100,133 @@ export const mockGames = [
 ];
 
 export type MockGame = (typeof mockGames)[number];
+
+export const mockSearchGames: GameSearchItem[] = [
+  {
+    id: "s1",
+    title: "Eternal Odyssey",
+    price: 65000,
+    rating: 4.8,
+    released: "2025-02-10",
+    genres: ["RPG"],
+    features: ["오픈월드", "싱글플레이어"],
+    themes: ["판타지"],
+  },
+  {
+    id: "s2",
+    title: "Dragon Age: Legends",
+    price: 42000,
+    rating: 4.6,
+    released: "2024-10-21",
+    genres: ["RPG"],
+    features: ["오픈월드", "멀티플레이어"],
+    themes: ["판타지"],
+  },
+  {
+    id: "s3",
+    title: "Kingdom Chronicles",
+    price: 55000,
+    rating: 4.7,
+    released: "2024-09-18",
+    genres: ["전략", "RPG"],
+    features: ["싱글플레이어"],
+    themes: ["중세"],
+  },
+  {
+    id: "s4",
+    title: "Mystic Realms",
+    price: 48000,
+    rating: 4.5,
+    released: "2023-12-03",
+    genres: ["RPG"],
+    features: ["스토리 중심", "싱글플레이어"],
+    themes: ["판타지"],
+  },
+  {
+    id: "s5",
+    title: "Neon Rush",
+    price: 32000,
+    rating: 4.2,
+    released: "2024-07-09",
+    genres: ["레이싱"],
+    features: ["멀티플레이어", "PvP"],
+    themes: ["사이버펑크", "현대"],
+  },
+  {
+    id: "s6",
+    title: "Puzzle Matrix+",
+    price: 19000,
+    rating: 4.1,
+    released: "2023-06-15",
+    genres: ["퍼즐"],
+    features: ["싱글플레이어"],
+    themes: ["현대"],
+  },
+  {
+    id: "s7",
+    title: "Star Colony",
+    price: 59000,
+    rating: 4.4,
+    released: "2024-11-01",
+    genres: ["시뮬레이션"],
+    features: ["오픈월드", "스토리 중심"],
+    themes: ["SF"],
+  },
+  {
+    id: "s8",
+    title: "Shadow Streets",
+    price: 46000,
+    rating: 4.3,
+    released: "2024-03-12",
+    genres: ["액션", "어드벤처"],
+    features: ["싱글플레이어"],
+    themes: ["현대"],
+  },
+];
+
+export const mockGameDetails: Record<string, GameDetail> = {
+  "cyber-knights-2077": {
+    slug: "cyber-knights-2077",
+    id: 1,
+    title: "Cyber Knights 2077",
+    price: 45500,
+    developer: "NetGame Studios",
+    publisher: "NGS Publishing",
+    released: "2024.03.15",
+    genres: ["RPG"],
+    features: ["오픈월드", "스토리 중심"],
+    themes: ["사이버펑크"],
+    image:
+      "https://images.unsplash.com/photo-1689443111384-1cf214df988a?auto=format&fit=crop&w=1000&q=60",
+    requirements: {
+      minimum: [
+        "OS: Windows 10",
+        "CPU: Intel i5-8400",
+        "RAM: 8GB",
+        "GPU: GTX 1060",
+        "Storage: 50GB",
+      ],
+      recommended: [
+        "OS: Windows 11",
+        "CPU: Intel i7-10700",
+        "RAM: 16GB",
+        "GPU: RTX 3060",
+        "Storage: SSD 50GB",
+      ],
+    },
+    media: [
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=60",
+      },
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60",
+      },
+    ],
+    news: [
+      { id: "n1", title: "패치 1.2 업데이트 노트", date: "2025-01-10" },
+      { id: "n2", title: "스크린샷 콘테스트 결과 발표", date: "2024-12-02" },
+    ],
+  },
+};

@@ -40,3 +40,25 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+export interface PendingOrderItem {
+  id: string;
+  title: string;
+  platform: string;
+  price: number;
+  quantity: number;
+}
+
+export interface PendingOrderCustomer {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+}
+
+export interface PendingOrderDetails {
+  merchantUid: string;
+  totalPrice: number;
+  orderName: string;
+  items: PendingOrderItem[];
+  customer: PendingOrderCustomer;
+}

@@ -4,139 +4,62 @@ import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Badge } from "../y_ui/base/badge";
 import { Button } from "../y_ui/base/button";
 import { Separator } from "../y_ui/base/separator";
-
-type Board = {
-  id: string;
-  name: string;
-  type: "game" | "topic";
-  tags: string[];
-  rating?: number; // game only
-  info?: string; // game only
-  publisher?: { name: string; banner: string };
-  hero?: string; // hero background
-  genres?: string[]; // game only
-  released?: string; // game only
-  ratingCount?: number; // game only
-  concurrent?: string; // e.g., 동시 접속자
-};
-
-const boards: Board[] = [
-  {
-    id: "cyberpunk-2087",
-    name: "Cyberpunk 2087",
-    type: "game",
-    tags: ["레이드", "가이드", "패치"],
-    genres: ["액션 RPG", "레이드", "협동", "PvE"],
-    rating: 4.7,
-    ratingCount: 12304,
-    concurrent: "동시 접속자 23,421",
-    released: "2024.11.05",
-    info: "미래 도시에서 펼쳐지는 사이버펑크 액션 RPG",
-    publisher: {
-      name: "Nexus Games",
-      banner: "사이버펑크 2087 최신 패치 1.2 배포!",
-    },
-    hero: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=60",
-  },
-  {
-    id: "neon-racing",
-    name: "Neon Racing",
-    type: "game",
-    tags: ["스샷", "커뮤니티", "하이라이트"],
-    genres: ["아케이드", "레이싱"],
-    rating: 4.4,
-    ratingCount: 8021,
-    concurrent: "동시 접속자 9,102",
-    released: "2024.05.01",
-    info: "네온 도시를 질주하는 고속 레이싱 게임",
-    publisher: { name: "RGB Studio", banner: "네온 시티 챔피언십 시즌 4 개최" },
-    hero: "https://images.unsplash.com/photo-1567027757540-7b572280fa22?auto=format&fit=crop&w=1600&q=60",
-  },
-  {
-    id: "guide-hub",
-    name: "가이드 허브",
-    type: "topic",
-    tags: ["뉴비", "성장", "엔드게임"],
-  },
-];
-
-type Post = {
-  id: string;
-  title: string;
-  excerpt: string;
-  tags: string[];
-  author: string;
-  date: string;
-  comments: number;
-  likes: number;
-};
-const mockPosts: Record<string, Post[]> = {
-  "cyberpunk-2087": [
-    {
-      id: "p1",
-      title: "레이드 공략 업데이트",
-      excerpt: "최신 패치 기준 공략 갱신…",
-      tags: ["레이드"],
-      author: "RaiderKim",
-      date: new Date().toISOString(),
-      comments: 18,
-      likes: 90,
-    },
-    {
-      id: "p2",
-      title: "엔드게임 성장 루트",
-      excerpt: "자원 수급과 세팅 우선순위…",
-      tags: ["가이드"],
-      author: "이수현",
-      date: new Date(Date.now() - 86400000).toISOString(),
-      comments: 7,
-      likes: 45,
-    },
-  ],
-  "neon-racing": [
-    {
-      id: "p3",
-      title: "네온 트랙 하이라이트",
-      excerpt: "지난 주 스크린샷 모음",
-      tags: ["스샷"],
-      author: "Jin Park",
-      date: new Date().toISOString(),
-      comments: 6,
-      likes: 33,
-    },
-  ],
-  "guide-hub": [
-    {
-      id: "p4",
-      title: "뉴비 종합 가이드",
-      excerpt: "처음 시작부터 엔드게임까지…",
-      tags: ["뉴비", "가이드"],
-      author: "Helper",
-      date: new Date().toISOString(),
-      comments: 12,
-      likes: 88,
-    },
-  ],
-};
-
-const mockMedia: Record<string, string[]> = {
-  "cyberpunk-2087": [
-    "https://images.unsplash.com/photo-1689443111384-1cf214df988a?w=600&q=60",
-    "https://images.unsplash.com/photo-1697256936504-7c9177a74fc5?w=600&q=60",
-  ],
-  "neon-racing": [
-    "https://images.unsplash.com/photo-1567027757540-7b572280fa22?w=600&q=60",
-  ],
-  "guide-hub": [],
-};
+import {
+  getCommunityBoardDetail,
+} from "../../api/community/communityApi";
+import type {
+  CommunityBoard,
+  CommunityBoardDetail,
+  CommunityPost,
+} from "../../api/community/types";
 
 export default function CommunityBoardPage() {
   const params = useParams();
   const boardId = params.id || "";
-  const board = useMemo(() => boards.find((b) => b.id === boardId), [boardId]);
-
+  const [detail, setDetail] = useState<CommunityBoardDetail | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [usingMock, setUsingMock] = useState<boolean>(false);
   const [tab, setTab] = useState<"posts" | "media">("posts");
   const [followed, setFollowed] = useState(false);
+
+  useEffect(() => {
+    let canceled = false;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, isMock } = await getCommunityBoardDetail(boardId);
+        if (!canceled) {
+          setDetail(data);
+          setUsingMock(isMock);
+        }
+      } catch (err) {
+        if (!canceled) {
+          setDetail(null);
+          setError(
+            err instanceof Error
+              ? err.message
+              : "게시판 정보를 불러오는 중 오류가 발생했습니다."
+          );
+        }
+      } finally {
+        if (!canceled) setLoading(false);
+      }
+    };
+
+    if (boardId) {
+      load();
+    }
+
+    return () => {
+      canceled = true;
+    };
+  }, [boardId]);
+
+  const board = detail?.board ?? null;
+  const posts = detail?.posts ?? [];
+  const media = detail?.media ?? [];
 
   useEffect(() => {
     try {
@@ -147,6 +70,7 @@ export default function CommunityBoardPage() {
   }, [boardId]);
 
   const toggleFollow = () => {
+    if (!boardId) return;
     try {
       const raw = localStorage.getItem("community:follows");
       const arr: string[] = raw ? JSON.parse(raw) : [];
@@ -161,20 +85,28 @@ export default function CommunityBoardPage() {
     } catch {}
   };
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-10">
+        <Card className="border-primary/20">
+          <CardContent className="py-10 text-center">로딩 중...</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!board) {
     return (
       <div className="container mx-auto px-6 py-10">
         <Card className="border-primary/20">
           <CardContent className="py-10 text-center">
             존재하지 않는 게시판입니다.
+            {error && <div className="mt-4 text-sm text-destructive">{error}</div>}
           </CardContent>
         </Card>
       </div>
     );
   }
-
-  const posts = mockPosts[board.id] || [];
-  const media = mockMedia[board.id] || [];
 
   return (
     <div className="container mx-auto px-0 md:px-6 py-6 space-y-6">

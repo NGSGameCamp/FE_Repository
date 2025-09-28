@@ -5,26 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Button } from "../y_ui/base/button";
 import { Separator } from "../y_ui/base/separator";
 import { Checkbox } from "../y_ui/form-controls/checkbox";
-
-type CartItem = {
-  id: string;
-  title: string;
-  platform: string;
-  price: number;
-  quantity: number;
-};
-
-type OrderDetails = {
-  merchantUid: string;
-  totalPrice: number;
-  orderName: string;
-  items: CartItem[];
-  customer: {
-    fullName: string;
-    email: string;
-    phoneNumber: string;
-  };
-};
+import {
+  getPendingOrder,
+  type PendingOrderDetails,
+} from "../../api/order/orderApi";
 
 const KRW = (v: number) =>
   new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(
@@ -34,7 +18,9 @@ const KRW = (v: number) =>
 export function PaymentPage() {
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [orderDetails, setOrderDetails] = useState<PendingOrderDetails | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,13 +28,7 @@ export function PaymentPage() {
     const fetchOrderDetails = async () => {
       try {
         // [프론트엔드 → 백엔드] 현재 장바구니(PENDING 상태의 Order) 정보를 가져오는 API 호출
-        const response = await fetch(
-          "http://localhost:8080/api/orders/pending"
-        );
-        if (!response.ok) {
-          throw new Error("주문 정보를 가져오는데 실패했습니다.");
-        }
-        const data: OrderDetails = await response.json();
+        const data = await getPendingOrder();
         setOrderDetails(data);
       } catch (err) {
         setError(

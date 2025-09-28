@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { PublisherLayout } from "./PublisherLayout";
@@ -15,8 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "../y_ui/overlay/dropdown-menu";
 import { toast } from "sonner";
-import { mockGames } from "@/data/mockGames";
 import { Gamepad, Search, ChevronDown, Wand2 } from "lucide-react";
+import { useGameStore } from "../../stores/gameStore";
+import type { GameSummary } from "../../api/game/types";
 
 const categories = [
   "액션",
@@ -44,9 +45,9 @@ const featurePresets = [
   "지원 언어 12개",
 ];
 
-function getReviewStatusCounts() {
+function getReviewStatusCounts(games: GameSummary[]) {
   const counts = { waiting: 0, progress: 0, answered: 0 };
-  mockGames.forEach((_, index) => {
+  games.forEach((_, index) => {
     const key =
       index % 3 === 0 ? "waiting" : index % 3 === 1 ? "progress" : "answered";
     counts[key as keyof typeof counts] += 1;
@@ -56,7 +57,16 @@ function getReviewStatusCounts() {
 
 export default function PublisherGameUploadPage() {
   const navigate = useNavigate();
-  const counts = useMemo(getReviewStatusCounts, []);
+  const games = useGameStore((state) => state.games);
+  const fetchGames = useGameStore((state) => state.fetchGames);
+  const gamesLoading = useGameStore((state) => state.loading);
+  const counts = useMemo(() => getReviewStatusCounts(games), [games]);
+
+  useEffect(() => {
+    if (!games.length && !gamesLoading) {
+      fetchGames();
+    }
+  }, [fetchGames, games.length, gamesLoading]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [title, setTitle] = useState("");
@@ -79,13 +89,13 @@ export default function PublisherGameUploadPage() {
   const suggestions = useMemo(() => {
     const value = searchTerm.trim().toLowerCase();
     if (!value) return [];
-    return mockGames.filter((game) =>
+    return games.filter((game) =>
       `${game.title} ${game.genre}`.toLowerCase().includes(value)
     );
-  }, [searchTerm]);
+  }, [games, searchTerm]);
 
   const applyTemplate = (id: string) => {
-    const template = mockGames.find((game) => game.id === id);
+    const template = games.find((game) => game.id === id);
     if (!template) return;
     setTitle(template.title);
     setCategory(template.genre);

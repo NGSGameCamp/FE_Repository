@@ -16,73 +16,13 @@ import {
 import { toast } from "sonner";
 import { addGameToCart } from "../../api/order/orderApi";
 import { useCartStore } from "../../stores/cartStore";
-
-type GameDetail = {
-  id: number;
-  title: string;
-  price: number;
-  developer: string;
-  publisher: string;
-  released: string;
-  genres: string[];
-  features: string[];
-  themes: string[];
-  image?: string;
-  requirements: { minimum: string[]; recommended: string[] };
-  media: { type: "image"; url: string }[];
-  news: { id: string; title: string; date: string }[];
-};
+import { getGameDetail } from "../../api/game/gameApi";
+import type { GameDetail as GameDetailType } from "../../api/game/types";
 
 const KRW = (v: number) =>
   new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(
     v
   );
-
-const MOCK: Record<string, GameDetail> = {
-  "cyber-knights-2077": {
-    id: 1,
-    title: "Cyber Knights 2077",
-    price: 45500,
-    developer: "NetGame Studios",
-    publisher: "NGS Publishing",
-    released: "2024.03.15",
-    genres: ["RPG"],
-    features: ["오픈월드", "스토리 중심"],
-    themes: ["사이버펑크"],
-    image:
-      "https://images.unsplash.com/photo-1689443111384-1cf214df988a?auto=format&fit=crop&w=1000&q=60",
-    requirements: {
-      minimum: [
-        "OS: Windows 10",
-        "CPU: Intel i5-8400",
-        "RAM: 8GB",
-        "GPU: GTX 1060",
-        "Storage: 50GB",
-      ],
-      recommended: [
-        "OS: Windows 11",
-        "CPU: Intel i7-10700",
-        "RAM: 16GB",
-        "GPU: RTX 3060",
-        "Storage: SSD 50GB",
-      ],
-    },
-    media: [
-      {
-        type: "image",
-        url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=60",
-      },
-      {
-        type: "image",
-        url: "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60",
-      },
-    ],
-    news: [
-      { id: "n1", title: "패치 1.2 업데이트 노트", date: "2025-01-10" },
-      { id: "n2", title: "스크린샷 콘테스트 결과 발표", date: "2024-12-02" },
-    ],
-  },
-};
 
 type Review = {
   id: string;
@@ -93,60 +33,98 @@ type Review = {
 };
 
 export function GameDetailView() {
-  const { id: gameSlug = "cyber-knights-2077" } = useParams();
+  const { id: slugParam } = useParams();
+  const gameSlug = slugParam || "cyber-knights-2077";
   const navigate = useNavigate();
-  const game = useMemo(
-    () => MOCK[gameSlug!] ?? Object.values(MOCK)[0],
-    [gameSlug]
-  );
+
+  const [game, setGame] = useState<GameDetailType | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [usingMock, setUsingMock] = useState<boolean>(false);
+
+  useEffect(() => {
+    let canceled = false;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, isMock } = await getGameDetail(gameSlug);
+        if (!canceled) {
+          if (data) {
+            setGame(data);
+          } else {
+            setGame(null);
+            setError("게임 정보를 찾을 수 없습니다.");
+          }
+          setUsingMock(isMock);
+        }
+      } catch (err) {
+        if (!canceled) {
+          setGame(null);
+          setError(
+            err instanceof Error
+              ? err.message
+              : "게임 정보를 불러오는 중 오류가 발생했습니다."
+          );
+        }
+      } finally {
+        if (!canceled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      canceled = true;
+    };
+  }, [gameSlug]);
+
   const DEFAULT_HERO =
     "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=60";
   const DEFAULT_MEDIA =
     "https://images.unsplash.com/photo-1614292253061-2ab1e3ada214?auto=format&fit=crop&w=1200&q=60";
-  const mediaItems = game.media?.length
+  const mediaItems = game?.media?.length
     ? game.media
-    : [{ type: "image", url: DEFAULT_MEDIA }];
+    : [{ type: "image" as const, url: DEFAULT_MEDIA }];
 
-  // Following state
   const [following, setFollowing] = useState<boolean>(false);
   useEffect(() => {
-    const f = JSON.parse(
+    if (!game) return;
+    const saved = JSON.parse(
       localStorage.getItem("followingGames") || "[]"
     ) as number[];
-    setFollowing(f.includes(game.id));
-  }, [game.id]);
+    setFollowing(saved.includes(game.id));
+  }, [game?.id]);
 
   const toggleFollow = () => {
-    const f = new Set<number>(
+    if (!game) return;
+    const saved = new Set<number>(
       JSON.parse(localStorage.getItem("followingGames") || "[]")
     );
-    if (f.has(game.id)) f.delete(game.id);
-    else f.add(game.id);
-    localStorage.setItem("followingGames", JSON.stringify(Array.from(f)));
-    setFollowing(f.has(game.id));
+    if (saved.has(game.id)) saved.delete(game.id);
+    else saved.add(game.id);
+    localStorage.setItem("followingGames", JSON.stringify(Array.from(saved)));
+    setFollowing(saved.has(game.id));
   };
 
   const { fetchCart, gameIds } = useCartStore();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-
-  const isAlreadyInCart = gameIds.includes(game.id);
+  const isAlreadyInCart = game ? gameIds.includes(game.id) : false;
 
   const handleAddToCart = async () => {
-    if (isAlreadyInCart) return;
+    if (!game || isAlreadyInCart) return;
     setIsAddingToCart(true);
     try {
       await addGameToCart(game.id);
       toast.success("장바구니에 추가되었습니다.");
       fetchCart();
-    } catch (error) {
+    } catch (err) {
       toast.error("장바구니 추가에 실패했습니다.");
-      console.error(error);
+      console.error(err);
     } finally {
       setIsAddingToCart(false);
     }
   };
 
-  // Reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newText, setNewText] = useState("");
   const [newRating, setNewRating] = useState(5);
@@ -155,34 +133,37 @@ export function GameDetailView() {
   const [editRating, setEditRating] = useState(5);
 
   useEffect(() => {
+    if (!game) return;
     const key = `reviews:${game.id}`;
     const loaded = JSON.parse(localStorage.getItem(key) || "[]");
     setReviews(loaded);
-  }, [game.id]);
+  }, [game?.id]);
 
   const saveReviews = (list: Review[]) => {
+    if (!game) return;
+    const key = `reviews:${game.id}`;
     setReviews(list);
-    localStorage.setItem(`reviews:${game.id}`, JSON.stringify(list));
+    localStorage.setItem(key, JSON.stringify(list));
   };
 
   const addReview = () => {
-    if (!newText.trim()) return;
-    const r: Review = {
+    if (!game || !newText.trim()) return;
+    const review: Review = {
       id: String(Date.now()),
       author: "게스트",
       rating: newRating,
       text: newText.trim(),
       date: new Date().toISOString().slice(0, 10),
     };
-    saveReviews([r, ...reviews]);
+    saveReviews([review, ...reviews]);
     setNewText("");
     setNewRating(5);
   };
 
-  const startEdit = (r: Review) => {
-    setEditingId(r.id);
-    setEditText(r.text);
-    setEditRating(r.rating);
+  const startEdit = (review: Review) => {
+    setEditingId(review.id);
+    setEditText(review.text);
+    setEditRating(review.rating);
   };
 
   const applyEdit = () => {
@@ -195,19 +176,23 @@ export function GameDetailView() {
   };
 
   const averageRating = reviews.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : "-";
-  // Compute community board slug for this game
+
   const boardSlug = useMemo(() => {
-    const title = (game.title || "").toLowerCase();
+    const title = (game?.title || "").toLowerCase();
     if (title.includes("neon") || title.includes("racing"))
       return "neon-racing";
     if (title.includes("cyber")) return "cyberpunk-2087";
-    return "guide-hub"; // fallback topic board
-  }, [game.title]);
+    return "guide-hub";
+  }, [game?.title]);
 
-  const originalPrice = Math.round(game.price / 0.7 / 100) * 100; // 예시: 30% 할인 기준
-  const discountPercent = Math.round(100 - (game.price / originalPrice) * 100);
+  const originalPrice = game
+    ? Math.max(0, Math.round((game.price / 0.7) / 100) * 100)
+    : 0;
+  const discountPercent = game && originalPrice
+    ? Math.round(100 - (game.price / originalPrice) * 100)
+    : 0;
 
   const StarRatingSelector = ({
     value,
@@ -238,19 +223,17 @@ export function GameDetailView() {
             <button
               key={score}
               type="button"
+              role="radio"
+              aria-checked={active}
               onClick={() => onChange(score)}
               onKeyDown={handleKey}
-              aria-pressed={active}
-              className="p-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              className={`rounded-full p-1 transition ${
+                active
+                  ? "bg-primary/20 text-primary"
+                  : "bg-muted text-muted-foreground"
+              }`}
             >
-              <Star
-                className={`h-5 w-5 ${
-                  active
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-muted-foreground"
-                }`}
-              />
-              <span className="sr-only">{`${score}점`}</span>
+              <Star className="h-4 w-4" />
             </button>
           );
         })}
@@ -258,325 +241,352 @@ export function GameDetailView() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-10">
+        <Card className="border-primary/20">
+          <CardContent className="py-10 text-center">로딩 중...</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!game) {
+    return (
+      <div className="container mx-auto px-6 py-10">
+        <Card className="border-primary/20">
+          <CardContent className="py-10 text-center">
+            {error || "게임 정보를 불러오지 못했습니다."}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-6 py-6 space-y-8">
-      {/* Hero Banner */}
+    <div className="container mx-auto px-6 py-6 space-y-6">
       <div className="relative overflow-hidden rounded-2xl border border-primary/20">
         <div
-          className="h-56 sm:h-64 md:h-72 w-full bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-cyan-500/30"
+          className="h-56 w-full bg-cover bg-center"
           style={{
-            backgroundImage: `linear-gradient( to right, rgba(37,99,235,0.35), rgba(168,85,247,0.25) ), url(${
-              game.image || DEFAULT_HERO
-            })`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundImage: `linear-gradient( to right, rgba(2,6,23,0.6), rgba(2,6,23,0.1) ), url(${game.image || DEFAULT_HERO})`,
           }}
         />
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-12 -top-16 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
-          <div className="absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-cyan-500/30 blur-3xl" />
-        </div>
         <div className="absolute inset-0 flex items-end">
-          <div className="w-full p-6 md:p-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-md">
-              {game.title}
-            </h1>
-            <div className="mt-3 text-sm text-muted-foreground flex flex-wrap items-center gap-3">
-              <span>개발사: {game.developer}</span>
-              <span>퍼블리셔: {game.publisher}</span>
-              <span>출시일: {game.released}</span>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {game.genres.map((t) => (
-                <Badge
-                  key={t}
-                  variant="secondary"
-                  className="bg-primary/15 text-primary border border-primary/30"
-                >
-                  {t}
-                </Badge>
-              ))}
-              {game.features.map((t) => (
-                <Badge
-                  key={t}
-                  variant="outline"
-                  className="text-muted-foreground"
-                >
-                  {t}
-                </Badge>
-              ))}
-              {/* Board link */}
-              <Link
-                to={`/community/board/${(game.title || "")
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}`}
-                className="ml-2 text-primary underline-offset-2 hover:underline"
-              >
-                게시판 보기
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 grid-7-3">
-        {/* Left: Content */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="relative">
-            <Carousel opts={{ loop: true }} className="w-full">
-              <CarouselContent>
-                {mediaItems.map((m, i) => (
-                  <CarouselItem key={i}>
-                    <img
-                      src={m.url || DEFAULT_MEDIA}
-                      alt={`${game.title} 미디어 ${i + 1}`}
-                      className="h-96 sm:h-[28rem] md:h-[32rem] w-full rounded-2xl border border-primary/20 object-cover"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src =
-                          DEFAULT_MEDIA;
-                      }}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {mediaItems.length > 1 && (
-                <>
-                  <CarouselPrevious className="hidden sm:flex bg-background/70 text-primary border-primary/30 shadow-lg absolute left-4 top-1/2 -translate-y-1/2" />
-                  <CarouselNext className="hidden sm:flex bg-background/70 text-primary border-primary/30 shadow-lg absolute right-4 top-1/2 -translate-y-1/2" />
-                </>
-              )}
-            </Carousel>
-          </div>
-
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">개요</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2 space-y-4">
-              <div className="text-sm text-muted-foreground">
-                미래 도시를 배경으로 한 오픈월드 액션 RPG. 네온 메트로폴리스를
-                누비며 당신만의 전설을 만드세요.
-              </div>
-              <ul className="list-disc pl-6 text-sm space-y-1">
-                <li>방대한 오픈월드 탐험</li>
-                <li>선택에 따른 분기 스토리</li>
-                <li>다양한 사이버웨어 빌드</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">시스템 요구사항</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2 grid sm:grid-cols-2 gap-6">
-              <div>
-                <div className="font-medium mb-2">최소 사양</div>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                  {game.requirements.minimum.map((l) => (
-                    <li key={l}>{l}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <div className="font-medium mb-2">권장 사양</div>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                  {game.requirements.recommended.map((l) => (
-                    <li key={l}>{l}</li>
-                  ))}
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">뉴스/업데이트</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2 space-y-4">
-              {game.news.length ? (
-                game.news.map((n) => (
-                  <div
-                    key={n.id}
-                    className="flex items-center justify-between gap-4"
-                  >
-                    <div className="font-medium text-sm md:text-base">
-                      {n.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground whitespace-nowrap">
-                      {n.date}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  등록된 소식이 없습니다.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">리뷰</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2 space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">평균 평점</div>
-                <div className="inline-flex items-center gap-1 text-yellow-400">
-                  <Star className="h-4 w-4" />
-                  {averageRating}
-                </div>
-              </div>
-              <Separator />
-              <Textarea
-                placeholder="리뷰를 입력하세요"
-                value={newText}
-                onChange={(e) => setNewText(e.target.value)}
-              />
-              <div className="flex items-center justify-between gap-4">
-                <StarRatingSelector value={newRating} onChange={setNewRating} />
-                <Button onClick={addReview}>등록</Button>
-              </div>
-              <div className="space-y-4">
-                {reviews.map((r) => (
-                  <div
-                    key={r.id}
-                    className="rounded-md border border-primary/20 p-3 mb-2"
-                  >
-                    {editingId === r.id ? (
-                      <div className="grid gap-3 sm:grid-cols-4">
-                        <div className="sm:col-span-3">
-                          <Textarea
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                          />
-                        </div>
-                        <div className="sm:col-span-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                          <StarRatingSelector
-                            value={editRating}
-                            onChange={setEditRating}
-                          />
-                          <Button size="sm" onClick={applyEdit}>
-                            수정 완료
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">{r.author}</div>
-                          <div className="inline-flex items-center gap-1 text-yellow-400">
-                            <Star className="h-4 w-4" />
-                            {r.rating.toFixed(1)}
-                          </div>
-                        </div>
-                        <div className="text-sm mt-1 whitespace-pre-wrap">
-                          {r.text}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                          <span>{r.date}</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => startEdit(r)}
-                          >
-                            수정
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-                {reviews.length === 0 && (
-                  <div className="text-sm text-muted-foreground">
-                    첫 리뷰를 작성해보세요.
-                  </div>
+          <div className="flex w-full items-end justify-between gap-4 p-6 md:p-8">
+            <div>
+              <h1 className="text-3xl font-bold md:text-4xl">{game.title}</h1>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span>발매일 {game.released}</span>
+                <span>
+                  장르: {game.genres.join(", ") || "알 수 없음"}
+                </span>
+                <span>
+                  개발: {game.developer} / 배급: {game.publisher}
+                </span>
+                {usingMock && (
+                  <Badge variant="outline" className="border-primary/30 text-xs">
+                    모의 데이터
+                  </Badge>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right: Buy panel */}
-        <div className="space-y-4 lg:sticky lg:top-20 h-fit">
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-base">구매</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="text-sm line-through text-muted-foreground">
-                  {KRW(originalPrice)}
-                </div>
-                <Badge className="bg-red-500/80">-{discountPercent}%</Badge>
-              </div>
-              <div className="text-3xl font-extrabold text-primary">
-                {KRW(game.price)}
-              </div>
+            </div>
+            <div className="flex items-center gap-3">
               <Button
-                className="w-full mb-2"
-                onClick={() => navigate("/payment")}
+                variant={following ? "default" : "outline"}
+                onClick={toggleFollow}
+                className="rounded-full"
               >
-                지금 구매
-              </Button>
-              <Button
-                className="w-full mb-2"
-                style={{ backgroundColor: "#10b981" }}
-                onClick={handleAddToCart}
-                disabled={isAddingToCart || isAlreadyInCart}
-              >
-                {isAddingToCart
-                  ? "추가 중..."
-                  : isAlreadyInCart
-                  ? "장바구니에 있음"
-                  : "장바구니에 추가"}
+                <Users className="mr-2 h-4 w-4" />
+                {following ? "팔로잉 중" : "팔로우"}
               </Button>
               <Button
                 variant="outline"
-                className={`w-full mb-2 inline-flex items-center gap-2 btn-follow ${
-                  following ? "btn-follow-active" : ""
-                }`}
-                onClick={toggleFollow}
+                className="rounded-full"
+                onClick={() => navigate(`/community/board/${boardSlug}`)}
               >
-                <Heart
-                  className={`h-4 w-4 transition-transform heart-icon ${
-                    following ? "scale-110" : ""
-                  }`}
-                />
-                {following ? "팔로잉 중" : "팔로잉"}
+                커뮤니티 이동
               </Button>
-              <Button
-                variant="default"
-                className="w-full mb-2 inline-flex items-center gap-2 btn-community"
-                asChild
-              >
-                <Link to={`/community/board/${boardSlug}`}>
-                  <Users className="h-4 w-4" />
-                  커뮤니티로 이동
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-primary/20 mt-4">
-            <CardHeader>
-              <CardTitle className="text-base">태그</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {[...game.genres, ...game.features, ...game.themes].map((t) => (
-                <Badge key={t} variant="outline">
-                  #{t}
-                </Badge>
-              ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Content tabs */}
+      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <section className="space-y-6">
+          <Card className="border border-primary/20">
+            <CardHeader>
+              <CardTitle>게임 소개</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {mediaItems.map((item, index) => (
+                    <CarouselItem key={`${item.url}-${index}`} className="relative">
+                      <img
+                        src={item.url}
+                        alt={`${game.title} 미디어 ${index + 1}`}
+                        className="h-64 w-full rounded-xl object-cover"
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground">
+                    주요 특징
+                  </h3>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {game.features.map((feature) => (
+                      <li key={feature}>• {feature}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground">
+                    테마
+                  </h3>
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {game.themes.map((theme) => (
+                      <Badge key={theme} variant="secondary">
+                        {theme}
+                      </Badge>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground">
+                    최소 사양
+                  </h3>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {game.requirements.minimum.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground">
+                    권장 사양
+                  </h3>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {game.requirements.recommended.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-primary/20">
+            <CardHeader>
+              <CardTitle>뉴스 & 업데이트</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {game.news.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-lg border border-primary/10 bg-primary/5 px-4 py-3"
+                >
+                  <div>
+                    <p className="font-medium">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">{item.date}</p>
+                  </div>
+                  <Button variant="ghost" size="sm">
+                    자세히 보기
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
+
+        <aside className="space-y-6">
+          <Card className="border border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">구매 정보</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>정상가</span>
+                <span className="line-through">
+                  {originalPrice ? KRW(originalPrice) : "-"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>할인율</span>
+                <Badge variant="secondary">-{discountPercent}%</Badge>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between text-2xl font-semibold text-primary">
+                <span>현재가</span>
+                <span>{KRW(game.price)}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  className="flex-1"
+                  onClick={handleAddToCart}
+                  disabled={isAlreadyInCart || isAddingToCart}
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  {isAlreadyInCart ? "장바구니에 있음" : "장바구니"}
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <CreditCard className="mr-2 h-4 w-4" /> 지금 구매
+                </Button>
+              </div>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => toast.info("위시리스트 기능은 준비 중입니다.")}
+              >
+                <Heart className="mr-2 h-4 w-4" /> 위시리스트에 추가
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">
+                커뮤니티 활동
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>평균 사용자 평점</span>
+                <span className="font-semibold text-primary">{averageRating}</span>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate(`/community/board/${boardSlug}`)}
+              >
+                <Users className="mr-2 h-4 w-4" /> 커뮤니티 게시판 이동
+              </Button>
+            </CardContent>
+          </Card>
+        </aside>
+      </div>
+
+      <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <Card className="border border-primary/20">
+          <CardHeader>
+            <CardTitle>리뷰 작성</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <StarRatingSelector value={newRating} onChange={setNewRating} />
+              <span className="text-sm text-muted-foreground">
+                {newRating} / 5
+              </span>
+            </div>
+            <Textarea
+              placeholder="게임 플레이 경험을 공유해주세요."
+              value={newText}
+              onChange={(event) => setNewText(event.target.value)}
+              rows={4}
+            />
+            <div className="flex justify-end">
+              <Button onClick={addReview}>리뷰 등록</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-primary/20">
+          <CardHeader>
+            <CardTitle>최근 패치 노트</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>• 1.2 업데이트 - 전투 시스템 개선 및 버그 수정</p>
+            <p>• 신규 사이드 퀘스트 3종 추가</p>
+            <p>• 레이드 매칭 시스템 안정화</p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4">
+        <Card className="border border-primary/20">
+          <CardHeader>
+            <CardTitle>커뮤니티 리뷰</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {reviews.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                아직 작성된 리뷰가 없습니다. 첫 리뷰를 남겨보세요!
+              </p>
+            )}
+            {reviews.map((review) => (
+              <div
+                key={review.id}
+                className="rounded-lg border border-primary/10 bg-primary/5 p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{review.author}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {review.date}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-primary">
+                    <Star className="h-4 w-4 fill-current" />
+                    <span>{review.rating}</span>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {review.text}
+                </p>
+                <div className="mt-3 flex justify-end gap-2 text-xs">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => startEdit(review)}
+                  >
+                    수정
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      saveReviews(reviews.filter((r) => r.id !== review.id))
+                    }
+                  >
+                    삭제
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {editingId && (
+          <Card className="border border-primary/20">
+            <CardHeader>
+              <CardTitle>리뷰 수정</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <StarRatingSelector value={editRating} onChange={setEditRating} />
+              <Textarea
+                value={editText}
+                onChange={(event) => setEditText(event.target.value)}
+                rows={4}
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setEditingId(null)}>
+                  취소
+                </Button>
+                <Button onClick={applyEdit}>저장</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </section>
     </div>
   );
 }
-
-export default GameDetailView;
