@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { getCart } from '../api/orderApi';
-import { getLocalCart } from './localCartStore';
+import { create } from "zustand";
+import { getCart } from "../api/order/orderApi";
+import { getLocalCart } from "./localCartStore";
 
 type CartStore = {
   itemCount: number;
@@ -29,7 +29,7 @@ export const useCartStore = create<CartStore>((set) => ({
         // 로그인 되어있지 않으면 로컬 스토리지에서 장바구니 정보 조회
         cart = getLocalCart();
       }
-      
+
       set({
         itemCount: cart.orderItems.length,
         gameIds: cart.orderItems.map((item) => item.game.id),

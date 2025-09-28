@@ -1,4 +1,3 @@
-import { ok } from "assert";
 import React, {
   createContext,
   useContext,
@@ -6,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { signIn, signUp } from "../../api/sign/signApi";
 
 type User = {
   id: string;
@@ -69,23 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password
   ) => {
     try {
-      const req = await fetch("http://localhost:8080/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: loginStr, pwd: password }),
-      });
+      const res = await signIn({ email: loginStr, pwd: password });
 
-      const res = await req.json();
-      console.log(res);
-      if (req.ok) {
-        const token = res.accessToken;
-        setUser({ id: res.userId, name: res.nickname, email: res.email });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ token }));
-        return { ok: true };
-      }
-      return { ok: false, error: res.error };
+      const token = res.accessToken;
+      setUser({ id: res.userId, name: res.nickname, email: res.email });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token }));
+      return { ok: true };
     } catch (e) {
       return { ok: false, error: "로그인 중 오류가 발생했습니다." };
     }
@@ -93,26 +82,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register: AuthContextValue["register"] = async (info) => {
     try {
-      const req = await fetch("http://localhost:8080/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: info.email,
-          pwd: info.password,
-          pwdCheck: info.password,
-          name: info.nickname,
-        }),
+      const res = await signUp({
+        email: info.email,
+        pwd: info.password,
+        pwdCheck: info.password,
+        name: info.nickname,
       });
 
-      console.log(req);
+      console.log(res);
 
-      if (req.ok) {
-        console.log(req);
-        const signInRes = await loginWithPassword(info.email, info.password);
-        if (signInRes.ok) return { ok: true };
-      }
+      const signInRes = await loginWithPassword(info.email, info.password);
+      if (signInRes.ok) return { ok: true };
+
       return { ok: false, error: "회원가입 중 오류가 발생했습니다." };
     } catch {
       return { ok: false, error: "회원가입 중 오류가 발생했습니다." };
