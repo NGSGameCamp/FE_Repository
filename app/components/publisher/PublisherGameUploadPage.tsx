@@ -1,31 +1,54 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { PublisherLayout } from "./PublisherLayout";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Checkbox } from "../ui/checkbox";
+import { Input } from "../y_ui/base/input";
+import { Label } from "../y_ui/base/label";
+import { Textarea } from "../y_ui/base/textarea";
+import { Button } from "../y_ui/base/button";
+import { Badge } from "../y_ui/base/badge";
+import { Checkbox } from "../y_ui/form-controls/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../y_ui/overlay/dropdown-menu";
 import { toast } from "sonner";
 import { mockGames } from "@/data/mockGames";
 import { Gamepad, Search, ChevronDown, Wand2 } from "lucide-react";
 
-const categories = ["액션", "RPG", "어드벤처", "시뮬레이션", "레이싱", "퍼즐", "슈팅"];
-const platforms = ["Windows", "macOS", "Linux", "PlayStation", "Xbox", "Nintendo Switch"];
-const featurePresets = ["멀티플레이어", "싱글플레이", "오픈월드", "크로스플레이", "시즌제", "지원 언어 12개"];
+const categories = [
+  "액션",
+  "RPG",
+  "어드벤처",
+  "시뮬레이션",
+  "레이싱",
+  "퍼즐",
+  "슈팅",
+];
+const platforms = [
+  "Windows",
+  "macOS",
+  "Linux",
+  "PlayStation",
+  "Xbox",
+  "Nintendo Switch",
+];
+const featurePresets = [
+  "멀티플레이어",
+  "싱글플레이",
+  "오픈월드",
+  "크로스플레이",
+  "시즌제",
+  "지원 언어 12개",
+];
 
 function getReviewStatusCounts() {
   const counts = { waiting: 0, progress: 0, answered: 0 };
   mockGames.forEach((_, index) => {
-    const key = index % 3 === 0 ? "waiting" : index % 3 === 1 ? "progress" : "answered";
+    const key =
+      index % 3 === 0 ? "waiting" : index % 3 === 1 ? "progress" : "answered";
     counts[key as keyof typeof counts] += 1;
   });
   return counts;
@@ -42,7 +65,9 @@ export default function PublisherGameUploadPage() {
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [platformSelection, setPlatformSelection] = useState<string[]>(["Windows"]);
+  const [platformSelection, setPlatformSelection] = useState<string[]>([
+    "Windows",
+  ]);
   const [minSpec, setMinSpec] = useState("");
   const [recSpec, setRecSpec] = useState("");
   const [discountRate, setDiscountRate] = useState("0");
@@ -55,7 +80,7 @@ export default function PublisherGameUploadPage() {
     const value = searchTerm.trim().toLowerCase();
     if (!value) return [];
     return mockGames.filter((game) =>
-      `${game.title} ${game.genre}`.toLowerCase().includes(value),
+      `${game.title} ${game.genre}`.toLowerCase().includes(value)
     );
   }, [searchTerm]);
 
@@ -78,11 +103,14 @@ export default function PublisherGameUploadPage() {
     setTagInput("");
   };
 
-  const removeTag = (tag: string) => setTags((prev) => prev.filter((item) => item !== tag));
+  const removeTag = (tag: string) =>
+    setTags((prev) => prev.filter((item) => item !== tag));
 
   const togglePlatform = (platform: string) => {
     setPlatformSelection((prev) =>
-      prev.includes(platform) ? prev.filter((item) => item !== platform) : [...prev, platform],
+      prev.includes(platform)
+        ? prev.filter((item) => item !== platform)
+        : [...prev, platform]
     );
   };
 
@@ -118,13 +146,22 @@ export default function PublisherGameUploadPage() {
       actions={
         <div className="flex flex-wrap items-center gap-3 text-xs text-white/65">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2">
-            접수대기 <Badge className="rounded-full border border-blue-400/40 bg-blue-500/15 px-2 py-0 text-[11px] text-blue-100">{counts.waiting}</Badge>
+            접수대기{" "}
+            <Badge className="rounded-full border border-blue-400/40 bg-blue-500/15 px-2 py-0 text-[11px] text-blue-100">
+              {counts.waiting}
+            </Badge>
           </span>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2">
-            처리중 <Badge className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0 text-[11px] text-amber-100">{counts.progress}</Badge>
+            처리중{" "}
+            <Badge className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0 text-[11px] text-amber-100">
+              {counts.progress}
+            </Badge>
           </span>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2">
-            답변완료 <Badge className="rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2 py-0 text-[11px] text-emerald-100">{counts.answered}</Badge>
+            답변완료{" "}
+            <Badge className="rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2 py-0 text-[11px] text-emerald-100">
+              {counts.answered}
+            </Badge>
           </span>
         </div>
       }
@@ -186,7 +223,9 @@ export default function PublisherGameUploadPage() {
                   onChange={(event) => setPrice(event.target.value)}
                   className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                 />
-                <p className="text-xs text-white/50">무료 게임의 경우 0을 입력하세요.</p>
+                <p className="text-xs text-white/50">
+                  무료 게임의 경우 0을 입력하세요.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">카테고리 *</Label>
@@ -268,7 +307,10 @@ export default function PublisherGameUploadPage() {
               <Label>지원 플랫폼 *</Label>
               <div className="flex flex-wrap gap-4">
                 {platforms.map((platform) => (
-                  <label key={platform} className="flex items-center gap-2 text-sm text-white/70">
+                  <label
+                    key={platform}
+                    className="flex items-center gap-2 text-sm text-white/70"
+                  >
                     <Checkbox
                       checked={platformSelection.includes(platform)}
                       onCheckedChange={() => togglePlatform(platform)}

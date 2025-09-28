@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
-import { Separator } from "../ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Button } from "../y_ui/base/button";
+import { Label } from "../y_ui/base/label";
+import { Checkbox } from "../y_ui/form-controls/checkbox";
+import { Separator } from "../y_ui/base/separator";
 import {
   Mail,
   Lock,
@@ -19,7 +19,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import * as React from "react";
-import GradientText from "@/components/ui/GradientText";
+import GradientText from "~/components/y_ui/motion-effects/GradientText";
 
 function Row({ children }: { children: React.ReactNode }) {
   return <div className="grid gap-4 sm:grid-cols-2">{children}</div>;

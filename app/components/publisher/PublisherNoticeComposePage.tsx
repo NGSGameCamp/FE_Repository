@@ -1,12 +1,18 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Badge } from "../ui/badge";
+import { Button } from "../y_ui/base/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Label } from "../y_ui/base/label";
+import { Textarea } from "../y_ui/base/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../y_ui/form-controls/select";
+import { Badge } from "../y_ui/base/badge";
 import { mockGames } from "@/data/mockGames";
 import { NoticeCategory } from "./publisherNoticeData";
 import { toast } from "sonner";
@@ -25,11 +31,14 @@ export default function PublisherNoticeComposePage() {
   const navigate = useNavigate();
   const gameOptions = useMemo(
     () => Array.from(new Set(mockGames.map((game) => game.title))).sort(),
-    [],
+    []
   );
 
-  const [selectedGame, setSelectedGame] = useState<string>(gameOptions[0] ?? "");
-  const [category, setCategory] = useState<Exclude<NoticeCategory, "all">>("update");
+  const [selectedGame, setSelectedGame] = useState<string>(
+    gameOptions[0] ?? ""
+  );
+  const [category, setCategory] =
+    useState<Exclude<NoticeCategory, "all">>("update");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
@@ -41,7 +50,9 @@ export default function PublisherNoticeComposePage() {
       return;
     }
 
-    toast.success("새 공지가 임시로 저장되었습니다. 실제 저장 API 연결 시 완료됩니다.");
+    toast.success(
+      "새 공지가 임시로 저장되었습니다. 실제 저장 API 연결 시 완료됩니다."
+    );
     navigate("/publisher/notices");
   };
 
@@ -56,13 +67,20 @@ export default function PublisherNoticeComposePage() {
       }
       actions={
         <div className="flex gap-3 text-xs text-white/55">
-          <span className="rounded-full border border-white/12 bg-white/5 px-3 py-2">실시간 임시 저장 미지원</span>
-          <span className="rounded-full border border-white/12 bg-white/5 px-3 py-2">작성 완료 후 검수 진행</span>
+          <span className="rounded-full border border-white/12 bg-white/5 px-3 py-2">
+            실시간 임시 저장 미지원
+          </span>
+          <span className="rounded-full border border-white/12 bg-white/5 px-3 py-2">
+            작성 완료 후 검수 진행
+          </span>
         </div>
       }
       className="max-w-5xl"
     >
-      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.8fr_1fr]">
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-6 lg:grid-cols-[1.8fr_1fr]"
+      >
         <Card className="border border-white/12 bg-publisher-card text-white shadow-[0_24px_70px_rgba(5,12,30,0.55)] lg:col-span-2">
           <CardHeader className="border-b border-white/10">
             <CardTitle className="text-lg">기본 정보</CardTitle>
@@ -71,7 +89,10 @@ export default function PublisherNoticeComposePage() {
             <div className="space-y-2">
               <Label htmlFor="game">공지 대상 게임</Label>
               <Select value={selectedGame} onValueChange={setSelectedGame}>
-                <SelectTrigger id="game" className="h-11 rounded-2xl border-white/10 bg-white/5 text-white">
+                <SelectTrigger
+                  id="game"
+                  className="h-11 rounded-2xl border-white/10 bg-white/5 text-white"
+                >
                   <SelectValue placeholder="게임을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent className="max-h-64 border-white/10 bg-publisher-card text-white">
@@ -86,12 +107,24 @@ export default function PublisherNoticeComposePage() {
 
             <div className="space-y-2">
               <Label htmlFor="category">카테고리</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as Exclude<NoticeCategory, "all">)}>
-                <SelectTrigger id="category" className="h-11 rounded-2xl border-white/10 bg-white/5 text-white">
+              <Select
+                value={category}
+                onValueChange={(value) =>
+                  setCategory(value as Exclude<NoticeCategory, "all">)
+                }
+              >
+                <SelectTrigger
+                  id="category"
+                  className="h-11 rounded-2xl border-white/10 bg-white/5 text-white"
+                >
                   <SelectValue placeholder="카테고리를 선택하세요" />
                 </SelectTrigger>
                 <SelectContent className="border-white/10 bg-publisher-card text-white">
-                  {(Object.keys(categoryLabels) as Array<Exclude<NoticeCategory, "all">>).map((id) => (
+                  {(
+                    Object.keys(categoryLabels) as Array<
+                      Exclude<NoticeCategory, "all">
+                    >
+                  ).map((id) => (
                     <SelectItem key={id} value={id} className="text-sm">
                       {categoryLabels[id]}
                     </SelectItem>
@@ -138,10 +171,16 @@ export default function PublisherNoticeComposePage() {
             />
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-white/50">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="rounded-full border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/60">
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/60"
+                >
                   작성자: 배급사 센터
                 </Badge>
-                <Badge variant="outline" className="rounded-full border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/60">
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/60"
+                >
                   자동 저장 준비 중
                 </Badge>
               </div>
@@ -158,7 +197,10 @@ export default function PublisherNoticeComposePage() {
             <CardContent className="space-y-3 text-sm text-white/60">
               <p>• 제목에는 업데이트/이벤트 구분을 표시하세요.</p>
               <p>• 동일 게임의 중복 공지 여부를 확인한 뒤 등록하세요.</p>
-              <p>• 긴급 공지는 시스템 카테고리를 선택하고 담당자에게 알림을 전송하세요.</p>
+              <p>
+                • 긴급 공지는 시스템 카테고리를 선택하고 담당자에게 알림을
+                전송하세요.
+              </p>
             </CardContent>
           </Card>
           <Card className="border border-white/12 bg-publisher-card-muted text-white shadow-[0_18px_50px_rgba(5,12,30,0.45)]">
@@ -171,7 +213,9 @@ export default function PublisherNoticeComposePage() {
                   <Badge className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/60">
                     {categoryLabels[category]}
                   </Badge>
-                  <span className="text-xs text-white/40">{selectedGame || "게임 미선택"}</span>
+                  <span className="text-xs text-white/40">
+                    {selectedGame || "게임 미선택"}
+                  </span>
                 </div>
                 <h3 className="line-clamp-2 text-base font-semibold text-white">
                   {title.trim() || "공지 제목이 표시됩니다"}
@@ -181,7 +225,9 @@ export default function PublisherNoticeComposePage() {
                 </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-xs text-white/60">
-                {content.trim() ? content.slice(0, 160) : "본문 미리보기 영역입니다."}
+                {content.trim()
+                  ? content.slice(0, 160)
+                  : "본문 미리보기 영역입니다."}
                 {content.trim().length > 160 && " …"}
               </div>
             </CardContent>

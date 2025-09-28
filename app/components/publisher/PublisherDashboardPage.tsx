@@ -1,12 +1,19 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { Input } from "../y_ui/base/input";
+import { Button } from "../y_ui/base/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Badge } from "../y_ui/base/badge";
 import { metrics, games, GameStatus } from "./publisherDashboardData";
-import { Search, Plus, ArrowUpRight, Star, Rocket, Sparkles } from "lucide-react";
-import { cn } from "../ui/utils";
+import {
+  Search,
+  Plus,
+  ArrowUpRight,
+  Star,
+  Rocket,
+  Sparkles,
+} from "lucide-react";
+import { cn } from "../y_ui/base/utils";
 import { PublisherLayout } from "./PublisherLayout";
 
 const statusFilters: { id: "all" | GameStatus; label: string }[] = [
@@ -40,7 +47,8 @@ function formatUnits(value?: number) {
 
 export default function PublisherDashboardPage() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<typeof statusFilters[number]["id"]>("all");
+  const [filter, setFilter] =
+    useState<(typeof statusFilters)[number]["id"]>("all");
   const [query, setQuery] = useState("");
 
   const filteredGames = useMemo(() => {
@@ -103,22 +111,23 @@ export default function PublisherDashboardPage() {
                 <div className="absolute -right-10 top-0 h-32 w-32 rounded-full bg-blue-500/15 blur-3xl" />
               </div>
               <CardHeader className="relative flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-white/70">{metric.label}</CardTitle>
+                <CardTitle className="text-sm font-medium text-white/70">
+                  {metric.label}
+                </CardTitle>
                 <Sparkles className="h-4 w-4 text-white/30" />
               </CardHeader>
               <CardContent className="relative space-y-4 pb-5">
-                <p className="text-2xl font-semibold text-white">{metric.value}</p>
+                <p className="text-2xl font-semibold text-white">
+                  {metric.value}
+                </p>
                 <div
                   className={cn(
                     "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium",
-                    badgeClass,
+                    badgeClass
                   )}
                 >
                   <ArrowUpRight
-                    className={cn(
-                      "h-3.5 w-3.5",
-                      isNegative && "rotate-180"
-                    )}
+                    className={cn("h-3.5 w-3.5", isNegative && "rotate-180")}
                   />
                   {deltaText}
                   <span className="text-white/60">{metric.deltaLabel}</span>
@@ -131,36 +140,38 @@ export default function PublisherDashboardPage() {
 
       <section className="space-y-5">
         <div className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/12 bg-publisher-panel px-5 py-5 shadow-[0_16px_48px_rgba(5,12,30,0.45)]">
-            {statusFilters.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setFilter(item.id)}
-                className={cn(
-                  "rounded-2xl px-5 py-2 text-sm transition",
-                  filter === item.id
-                    ? "border border-blue-400/50 bg-blue-500/20 text-blue-100 shadow-[0_10px_30px_rgba(59,130,246,0.25)]"
-                    : "border border-white/12 bg-white/0 text-white/60 hover:text-white"
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ml-auto gap-2 rounded-2xl border border-white/10 bg-white/5 text-xs text-white/70 hover:bg-white/10"
-              onClick={() => navigate("/publisher03")}
+          {statusFilters.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setFilter(item.id)}
+              className={cn(
+                "rounded-2xl px-5 py-2 text-sm transition",
+                filter === item.id
+                  ? "border border-blue-400/50 bg-blue-500/20 text-blue-100 shadow-[0_10px_30px_rgba(59,130,246,0.25)]"
+                  : "border border-white/12 bg-white/0 text-white/60 hover:text-white"
+              )}
             >
-              모두 보기
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Button>
+              {item.label}
+            </button>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto gap-2 rounded-2xl border border-white/10 bg-white/5 text-xs text-white/70 hover:bg-white/10"
+            onClick={() => navigate("/publisher03")}
+          >
+            모두 보기
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Button>
         </div>
 
         <Card className="overflow-hidden border border-white/12 bg-publisher-card text-white shadow-[0_30px_80px_rgba(5,12,30,0.55)]">
           <CardHeader className="flex flex-col gap-3 border-b border-white/10 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle className="text-lg">최근 게임 현황</CardTitle>
-              <p className="text-xs text-white/55">필터 조건에 맞는 게임들의 라이브 KPI를 확인합니다.</p>
+              <p className="text-xs text-white/55">
+                필터 조건에 맞는 게임들의 라이브 KPI를 확인합니다.
+              </p>
             </div>
             <Button
               variant="ghost"
@@ -189,8 +200,8 @@ export default function PublisherDashboardPage() {
                   key={game.id}
                   className="grid grid-cols-[1.8fr_repeat(5,minmax(0,1fr))] items-center gap-4 rounded-2xl border border-white/12 bg-publisher-card-muted px-6 py-4 text-sm text-white/85 transition hover:border-blue-400/40 hover:bg-publisher-card-hover"
                 >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-500 text-sm font-semibold text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-500 text-sm font-semibold text-white">
                       {game.title.slice(0, 2)}
                     </div>
                     <div className="space-y-0.5">
@@ -199,13 +210,24 @@ export default function PublisherDashboardPage() {
                     </div>
                   </div>
                   <div className="flex justify-center">
-                    <Badge className={cn("h-8 rounded-full px-4 text-xs font-medium", statusStyles[game.status])}>
+                    <Badge
+                      className={cn(
+                        "h-8 rounded-full px-4 text-xs font-medium",
+                        statusStyles[game.status]
+                      )}
+                    >
                       {statusLabels[game.status]}
                     </Badge>
                   </div>
-                  <div className="text-center">{formatCurrency(game.price)}</div>
-                  <div className="text-center">{formatUnits(game.unitsSold)}</div>
-                  <div className="text-center">{formatCurrency(game.revenue)}</div>
+                  <div className="text-center">
+                    {formatCurrency(game.price)}
+                  </div>
+                  <div className="text-center">
+                    {formatUnits(game.unitsSold)}
+                  </div>
+                  <div className="text-center">
+                    {formatCurrency(game.revenue)}
+                  </div>
                   <div className="flex items-center justify-center gap-1 text-white">
                     {game.rating ? (
                       <>
@@ -231,7 +253,8 @@ export default function PublisherDashboardPage() {
 
               {filteredGames.length === 0 && (
                 <div className="rounded-2xl border border-white/10 bg-publisher-panel px-6 py-10 text-center text-sm text-white/65">
-                  조건에 맞는 게임이 없습니다. 다른 검색어나 필터를 시도해 보세요.
+                  조건에 맞는 게임이 없습니다. 다른 검색어나 필터를 시도해
+                  보세요.
                 </div>
               )}
             </div>

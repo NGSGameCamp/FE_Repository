@@ -1,10 +1,20 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { fetchPublisherNotices, type NoticeCategory } from "./publisherNoticeData";
-import { AlertTriangle, Calendar, ChevronRight, Eye, Gamepad2, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Badge } from "../y_ui/base/badge";
+import { Button } from "../y_ui/base/button";
+import {
+  fetchPublisherNotices,
+  type NoticeCategory,
+} from "./publisherNoticeData";
+import {
+  AlertTriangle,
+  Calendar,
+  ChevronRight,
+  Eye,
+  Gamepad2,
+  Trash2,
+} from "lucide-react";
 import { PublisherLayout } from "./PublisherLayout";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
@@ -75,7 +85,7 @@ export default function PublisherNoticeDetailPage() {
 
   const notice = useMemo(
     () => fetchPublisherNotices().find((item) => item.id === noticeId),
-    [noticeId],
+    [noticeId]
   );
 
   const detail = useMemo(() => buildNoticeDetail(notice), [notice]);
@@ -98,7 +108,8 @@ export default function PublisherNoticeDetailPage() {
       >
         <Card className="border border-white/12 bg-publisher-card text-white shadow-[0_24px_70px_rgba(5,12,30,0.55)]">
           <CardContent className="px-8 py-14 text-center text-sm text-white/65">
-            요청하신 공지가 존재하지 않습니다. URL을 다시 확인하거나 최신 공지를 확인해 주세요.
+            요청하신 공지가 존재하지 않습니다. URL을 다시 확인하거나 최신 공지를
+            확인해 주세요.
           </CardContent>
         </Card>
       </PublisherLayout>
@@ -117,9 +128,15 @@ export default function PublisherNoticeDetailPage() {
   return (
     <PublisherLayout
       title={notice.title}
-      subtitle={`${notice.game} · ${formattedDate} · 조회수 ${notice.views.toLocaleString()}`}
+      subtitle={`${
+        notice.game
+      } · ${formattedDate} · 조회수 ${notice.views.toLocaleString()}`}
       heroBadge={
-        <Badge className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryTone[notice.category]}`}>
+        <Badge
+          className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+            categoryTone[notice.category]
+          }`}
+        >
           {categoryLabel}
         </Badge>
       }
@@ -140,7 +157,11 @@ export default function PublisherNoticeDetailPage() {
         <Card className="border border-white/12 bg-publisher-card text-white shadow-[0_22px_60px_rgba(5,12,30,0.55)]">
           <CardContent className="space-y-6 p-8">
             <div className="flex flex-wrap items-center gap-3 text-xs text-white/55">
-              <Badge className={`rounded-full border px-3 py-1 text-[11px] ${categoryTone[notice.category]}`}>
+              <Badge
+                className={`rounded-full border px-3 py-1 text-[11px] ${
+                  categoryTone[notice.category]
+                }`}
+              >
                 {categoryLabel}
               </Badge>
               <Divider />
@@ -173,7 +194,9 @@ export default function PublisherNoticeDetailPage() {
 
         <Card className="border border-blue-400/20 bg-blue-500/10 text-white shadow-[0_18px_50px_rgba(29,78,216,0.35)]">
           <CardHeader>
-            <CardTitle className="text-base">안녕하세요, 배급 파트너 여러분!</CardTitle>
+            <CardTitle className="text-base">
+              안녕하세요, 배급 파트너 여러분!
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-7 text-white/85">
             {detail.intro.split("\n").map((paragraph, index) => (
@@ -183,7 +206,10 @@ export default function PublisherNoticeDetailPage() {
         </Card>
 
         {detail.sections.map((section, index) => (
-          <Card key={section.title} className="border border-white/12 bg-publisher-panel text-white">
+          <Card
+            key={section.title}
+            className="border border-white/12 bg-publisher-panel text-white"
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-semibold text-white">
                 <span>{sectionIcons[index % sectionIcons.length]}</span>
@@ -215,7 +241,9 @@ export default function PublisherNoticeDetailPage() {
   );
 }
 
-function buildNoticeDetail(notice?: ReturnType<typeof fetchPublisherNotices>[number]) {
+function buildNoticeDetail(
+  notice?: ReturnType<typeof fetchPublisherNotices>[number]
+) {
   if (!notice) return undefined;
   const enhancement = enhancedContent[notice.id];
   if (enhancement) return enhancement;
@@ -251,7 +279,12 @@ function buildNoticeDetail(notice?: ReturnType<typeof fetchPublisherNotices>[num
     intro: introLines.length ? introLines.join("\n") : notice.summary || "",
     sections: sections.length
       ? sections
-      : [{ title: "공지 내용", items: lines.length ? lines : [notice.summary || notice.title] }],
+      : [
+          {
+            title: "공지 내용",
+            items: lines.length ? lines : [notice.summary || notice.title],
+          },
+        ],
   };
 }
 
@@ -277,7 +310,13 @@ function Divider() {
   return <span className="hidden h-3 w-px bg-white/10 sm:block" />;
 }
 
-function AlertBadge({ children, tone }: { children: ReactNode; tone: "danger" | "warning" | "info" }) {
+function AlertBadge({
+  children,
+  tone,
+}: {
+  children: ReactNode;
+  tone: "danger" | "warning" | "info";
+}) {
   const toneClasses =
     tone === "danger"
       ? "border-red-400/40 bg-red-500/15 text-red-100"
@@ -286,7 +325,9 @@ function AlertBadge({ children, tone }: { children: ReactNode; tone: "danger" | 
       : "border-blue-400/40 bg-blue-500/15 text-blue-100";
 
   return (
-    <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${toneClasses}`}>
+    <div
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${toneClasses}`}
+    >
       <AlertTriangle className="h-3.5 w-3.5" />
       {children}
     </div>

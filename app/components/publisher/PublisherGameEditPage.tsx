@@ -1,32 +1,54 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Search, Gamepad, ChevronDown, Sparkles, AlertTriangle } from "lucide-react";
+import {
+  Search,
+  Gamepad,
+  ChevronDown,
+  Sparkles,
+  AlertTriangle,
+} from "lucide-react";
 import { PublisherLayout } from "./PublisherLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Checkbox } from "../ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Label } from "../y_ui/base/label";
+import { Textarea } from "../y_ui/base/textarea";
+import { Button } from "../y_ui/base/button";
+import { Badge } from "../y_ui/base/badge";
+import { Checkbox } from "../y_ui/form-controls/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../y_ui/overlay/dropdown-menu";
 import { toast } from "sonner";
 import { mockGames } from "@/data/mockGames";
 import type { MockGame } from "@/data/mockGames";
 
-const categories = ["액션", "RPG", "어드벤처", "시뮬레이션", "레이싱", "퍼즐", "슈팅", "전략"];
+const categories = [
+  "액션",
+  "RPG",
+  "어드벤처",
+  "시뮬레이션",
+  "레이싱",
+  "퍼즐",
+  "슈팅",
+  "전략",
+];
 const saleStatuses = [
   { id: "selling", label: "판매 중" },
   { id: "paused", label: "판매 중지" },
   { id: "review", label: "검수 중" },
   { id: "upcoming", label: "출시 예정" },
 ] as const;
-const platforms = ["Windows", "macOS", "Linux", "PlayStation", "Xbox", "Nintendo Switch"];
+const platforms = [
+  "Windows",
+  "macOS",
+  "Linux",
+  "PlayStation",
+  "Xbox",
+  "Nintendo Switch",
+];
 
 type SaleStatus = (typeof saleStatuses)[number]["id"];
 
@@ -60,9 +82,21 @@ const defaultDetails: Record<string, GameDetail> = {
     platforms: ["Windows", "PlayStation", "Xbox"],
     features: ["실시간 전투", "커스텀 사이버웨어", "분기형 스토리"],
     updates: [
-      { version: "v1.2.0", date: "2024-11-28", note: "새로운 퀘스트와 버그 수정" },
-      { version: "v1.1.5", date: "2024-11-15", note: "성능 최적화 및 안정성 개선" },
-      { version: "v1.1.0", date: "2024-10-30", note: "신규 맵 추가 및 밸런스 조정" },
+      {
+        version: "v1.2.0",
+        date: "2024-11-28",
+        note: "새로운 퀘스트와 버그 수정",
+      },
+      {
+        version: "v1.1.5",
+        date: "2024-11-15",
+        note: "성능 최적화 및 안정성 개선",
+      },
+      {
+        version: "v1.1.0",
+        date: "2024-10-30",
+        note: "신규 맵 추가 및 밸런스 조정",
+      },
     ],
     featureSummary: "거대 도시에서 펼쳐지는 선택형 사이버펑크 모험",
   },
@@ -113,7 +147,9 @@ function generateDetailFromGame(game: MockGame): GameDetail {
   const normalizedIndex = index >= 0 ? index : 0;
   const priceValue = extractPrice(game.price);
   const hasDiscount = normalizedIndex % 2 === 0 && priceValue !== "0";
-  const discountRate = hasDiscount ? String(10 + ((normalizedIndex * 5) % 15)) : "0";
+  const discountRate = hasDiscount
+    ? String(10 + ((normalizedIndex * 5) % 15))
+    : "0";
   const patternMonth = (normalizedIndex % 12) + 1;
 
   return {
@@ -127,21 +163,30 @@ function generateDetailFromGame(game: MockGame): GameDetail {
       ? `2024-${String(patternMonth).padStart(2, "0")}-01`
       : "",
     discountEnd: hasDiscount
-      ? `2024-${String(((patternMonth % 12) + 1)).padStart(2, "0")}-14`
+      ? `2024-${String((patternMonth % 12) + 1).padStart(2, "0")}-14`
       : "",
-    promotionName: hasDiscount ? `${seasonLabels[normalizedIndex % seasonLabels.length]} 프로모션` : "",
+    promotionName: hasDiscount
+      ? `${seasonLabels[normalizedIndex % seasonLabels.length]} 프로모션`
+      : "",
     platforms: platformTemplates[normalizedIndex % platformTemplates.length],
     features: Array.from(
       new Set([
         ...game.tags,
         featureSeeds[normalizedIndex % featureSeeds.length],
         featureSeeds[(normalizedIndex + 2) % featureSeeds.length],
-      ]),
+      ])
     ),
     updates: Array.from({ length: 2 }, (_, idx) => ({
       version: `v1.${normalizedIndex + idx + 1}.0`,
-      date: `2024-${String(((patternMonth + idx) % 12) + 1).padStart(2, "0")}-${String(10 + idx * 6).padStart(2, "0")}`,
-      note: `${game.title} ${updateNoteTemplates[(normalizedIndex + idx) % updateNoteTemplates.length]}`,
+      date: `2024-${String(((patternMonth + idx) % 12) + 1).padStart(
+        2,
+        "0"
+      )}-${String(10 + idx * 6).padStart(2, "0")}`,
+      note: `${game.title} ${
+        updateNoteTemplates[
+          (normalizedIndex + idx) % updateNoteTemplates.length
+        ]
+      }`,
     })),
     featureSummary: `${game.genre} 장르의 핵심 경험을 강화한 주요 기능을 정리했습니다.`,
   };
@@ -156,7 +201,8 @@ function extractPrice(value?: string) {
 function getReviewStatusCounts() {
   const counts = { waiting: 0, progress: 0, answered: 0 };
   mockGames.forEach((_, index) => {
-    const key = index % 3 === 0 ? "waiting" : index % 3 === 1 ? "progress" : "answered";
+    const key =
+      index % 3 === 0 ? "waiting" : index % 3 === 1 ? "progress" : "answered";
     counts[key as keyof typeof counts] += 1;
   });
   return counts;
@@ -179,12 +225,19 @@ export default function PublisherGameEditPage() {
   const [discountEnd, setDiscountEnd] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [platformSelection, setPlatformSelection] = useState<string[]>(["Windows"]);
+  const [platformSelection, setPlatformSelection] = useState<string[]>([
+    "Windows",
+  ]);
   const [features, setFeatures] = useState<string[]>([]);
   const [featureInput, setFeatureInput] = useState("");
-  const [updates, setUpdates] = useState<Array<{ version: string; date: string; note: string }>>([]);
+  const [updates, setUpdates] = useState<
+    Array<{ version: string; date: string; note: string }>
+  >([]);
 
-  const game = useMemo(() => mockGames.find((item) => item.id === gameId), [gameId]);
+  const game = useMemo(
+    () => mockGames.find((item) => item.id === gameId),
+    [gameId]
+  );
   const detail = useMemo(() => {
     if (!game) return fallbackDetails;
     if (game.id && defaultDetails[game.id]) return defaultDetails[game.id];
@@ -206,9 +259,13 @@ export default function PublisherGameEditPage() {
     setDiscountStart(base.discountStart);
     setDiscountEnd(base.discountEnd);
     setTags(base.tags.length ? [...base.tags] : [...(game.tags || [])]);
-    setPlatformSelection(base.platforms.length ? [...base.platforms] : ["Windows"]);
+    setPlatformSelection(
+      base.platforms.length ? [...base.platforms] : ["Windows"]
+    );
     setFeatures([...base.features]);
-    setUpdates(base.updates.length ? base.updates.map((entry) => ({ ...entry })) : []);
+    setUpdates(
+      base.updates.length ? base.updates.map((entry) => ({ ...entry })) : []
+    );
     setTagInput("");
     setFeatureInput("");
   }, [game?.id, detail, game]);
@@ -217,7 +274,7 @@ export default function PublisherGameEditPage() {
     const value = searchTerm.trim().toLowerCase();
     if (!value) return [];
     return mockGames.filter((item) =>
-      `${item.title} ${item.genre}`.toLowerCase().includes(value),
+      `${item.title} ${item.genre}`.toLowerCase().includes(value)
     );
   }, [searchTerm]);
 
@@ -236,7 +293,7 @@ export default function PublisherGameEditPage() {
     setPlatformSelection((prev) =>
       prev.includes(platform)
         ? prev.filter((item) => item !== platform)
-        : [...prev, platform],
+        : [...prev, platform]
     );
   };
 
@@ -264,9 +321,15 @@ export default function PublisherGameEditPage() {
     setDiscountStart(template.discountStart);
     setDiscountEnd(template.discountEnd);
     setTags(template.tags.length ? [...template.tags] : [...(item.tags || [])]);
-    setPlatformSelection(template.platforms.length ? [...template.platforms] : ["Windows"]);
+    setPlatformSelection(
+      template.platforms.length ? [...template.platforms] : ["Windows"]
+    );
     setFeatures([...template.features]);
-    setUpdates(template.updates.length ? template.updates.map((entry) => ({ ...entry })) : []);
+    setUpdates(
+      template.updates.length
+        ? template.updates.map((entry) => ({ ...entry }))
+        : []
+    );
     setTagInput("");
     setFeatureInput("");
     toast.success(`${item.title} 정보를 불러왔습니다.`);
@@ -289,7 +352,11 @@ export default function PublisherGameEditPage() {
     ]);
   };
 
-  const updateChange = (index: number, field: "version" | "date" | "note", value: string) => {
+  const updateChange = (
+    index: number,
+    field: "version" | "date" | "note",
+    value: string
+  ) => {
     setUpdates((prev) => {
       const clone = [...prev];
       clone[index] = { ...clone[index], [field]: value };
@@ -314,7 +381,8 @@ export default function PublisherGameEditPage() {
       >
         <Card className="border border-white/12 bg-publisher-card text-center text-white/70">
           <CardContent className="py-16">
-            존재하지 않는 게임입니다. 게임 관리 페이지로 돌아가 다시 시도해 주세요.
+            존재하지 않는 게임입니다. 게임 관리 페이지로 돌아가 다시 시도해
+            주세요.
             <div className="mt-6 flex justify-center">
               <Button
                 className="h-11 rounded-2xl bg-blue-500 px-6 text-sm font-semibold text-white"
@@ -420,7 +488,9 @@ export default function PublisherGameEditPage() {
                   onChange={(event) => setPrice(event.target.value)}
                   className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                 />
-                <p className="text-xs text-white/50">무료 게임의 경우 0을 입력하세요.</p>
+                <p className="text-xs text-white/50">
+                  무료 게임의 경우 0을 입력하세요.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">카테고리 *</Label>
@@ -458,7 +528,8 @@ export default function PublisherGameEditPage() {
                       variant="ghost"
                       className="flex h-11 w-full items-center justify-between rounded-2xl border border-white/15 bg-white/5 px-4 text-sm text-white/80 hover:bg-white/10"
                     >
-                      {saleStatuses.find((item) => item.id === saleStatus)?.label ?? "선택"}
+                      {saleStatuses.find((item) => item.id === saleStatus)
+                        ?.label ?? "선택"}
                       <ChevronDown className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -527,7 +598,11 @@ export default function PublisherGameEditPage() {
                     {tag} ×
                   </Badge>
                 ))}
-                {tags.length === 0 && <p className="text-xs text-white/40">등록된 태그가 없습니다.</p>}
+                {tags.length === 0 && (
+                  <p className="text-xs text-white/40">
+                    등록된 태그가 없습니다.
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -591,7 +666,10 @@ export default function PublisherGameEditPage() {
               <Label>지원 플랫폼 *</Label>
               <div className="flex flex-wrap gap-4">
                 {platforms.map((platform) => (
-                  <label key={platform} className="flex items-center gap-2 text-sm text-white/70">
+                  <label
+                    key={platform}
+                    className="flex items-center gap-2 text-sm text-white/70"
+                  >
                     <Checkbox
                       checked={platformSelection.includes(platform)}
                       onCheckedChange={() => togglePlatform(platform)}
@@ -638,7 +716,9 @@ export default function PublisherGameEditPage() {
                   {feature} ×
                 </Badge>
               ))}
-              {features.length === 0 && <p className="text-xs text-white/40">등록된 기능이 없습니다.</p>}
+              {features.length === 0 && (
+                <p className="text-xs text-white/40">등록된 기능이 없습니다.</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -656,7 +736,11 @@ export default function PublisherGameEditPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            {updates.length === 0 && <p className="text-sm text-white/50">등록된 업데이트가 없습니다.</p>}
+            {updates.length === 0 && (
+              <p className="text-sm text-white/50">
+                등록된 업데이트가 없습니다.
+              </p>
+            )}
             {updates.map((entry, index) => (
               <div
                 key={`${entry.version}-${index}`}
@@ -668,7 +752,9 @@ export default function PublisherGameEditPage() {
                     <Input
                       id={`version-${index}`}
                       value={entry.version}
-                      onChange={(event) => updateChange(index, "version", event.target.value)}
+                      onChange={(event) =>
+                        updateChange(index, "version", event.target.value)
+                      }
                       className="h-10 rounded-xl border-white/15 bg-black/20 text-white"
                     />
                   </div>
@@ -678,7 +764,9 @@ export default function PublisherGameEditPage() {
                       id={`date-${index}`}
                       type="date"
                       value={entry.date}
-                      onChange={(event) => updateChange(index, "date", event.target.value)}
+                      onChange={(event) =>
+                        updateChange(index, "date", event.target.value)
+                      }
                       className="h-10 rounded-xl border-white/15 bg-black/20 text-white"
                     />
                   </div>
@@ -687,7 +775,9 @@ export default function PublisherGameEditPage() {
                     <Textarea
                       id={`note-${index}`}
                       value={entry.note}
-                      onChange={(event) => updateChange(index, "note", event.target.value)}
+                      onChange={(event) =>
+                        updateChange(index, "note", event.target.value)
+                      }
                       rows={2}
                       className="rounded-xl border-white/15 bg-black/20 text-sm text-white"
                     />
@@ -714,8 +804,12 @@ export default function PublisherGameEditPage() {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2 rounded-2xl border border-red-500/30 bg-red-900/20 p-4 text-sm text-red-100/90">
-              <h4 className="text-base font-semibold text-red-100">판매 중지</h4>
-              <p className="text-xs text-red-100/70">게임 판매를 일시적으로 중지합니다.</p>
+              <h4 className="text-base font-semibold text-red-100">
+                판매 중지
+              </h4>
+              <p className="text-xs text-red-100/70">
+                게임 판매를 일시적으로 중지합니다.
+              </p>
               <Button
                 type="button"
                 onClick={() => toast("판매 중지 요청이 접수되었습니다.")}
@@ -725,8 +819,12 @@ export default function PublisherGameEditPage() {
               </Button>
             </div>
             <div className="space-y-2 rounded-2xl border border-red-500/30 bg-red-900/20 p-4 text-sm text-red-100/90">
-              <h4 className="text-base font-semibold text-red-100">게임 삭제</h4>
-              <p className="text-xs text-red-100/70">게임을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+              <h4 className="text-base font-semibold text-red-100">
+                게임 삭제
+              </h4>
+              <p className="text-xs text-red-100/70">
+                게임을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.
+              </p>
               <Button
                 type="button"
                 onClick={() => navigate(`/publisher/game/${gameId}/delete`)}

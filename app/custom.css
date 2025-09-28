@@ -23,7 +23,8 @@
   border: 1px solid rgba(255, 105, 180, 0.45);
   color: #ff7db5;
   background: transparent;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-follow:hover {
@@ -53,7 +54,8 @@
   border: 1px solid rgba(96, 76, 255, 0.45);
   color: #a998ff;
   background: rgba(96, 76, 255, 0.08);
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-community:hover {
@@ -65,33 +67,6 @@
 /* Publisher theme helpers */
 
 .bg-publisher-root {
-<<<<<<< ours
-  background-color: #05070f;
-}
-
-.bg-publisher-card {
-  background-color: rgba(12, 16, 27, 0.95);
-}
-
-.bg-publisher-card-muted {
-  background-color: rgba(10, 14, 24, 0.92);
-}
-
-.bg-publisher-panel {
-  background-color: rgba(8, 12, 20, 0.9);
-}
-
-.bg-publisher-surface {
-  background-color: rgba(14, 19, 32, 0.95);
-}
-
-.bg-publisher-surface-strong {
-  background-color: rgba(9, 12, 22, 0.97);
-}
-
-.hover\:bg-publisher-card-hover:hover {
-  background-color: #121a2c !important;
-=======
   background-color: #04060c;
 }
 
@@ -117,7 +92,6 @@
 
 .hover\:bg-publisher-card-hover:hover {
   background-color: rgba(34, 46, 72, 0.95) !important;
->>>>>>> theirs
 }
 
 .text-publisher-soft {

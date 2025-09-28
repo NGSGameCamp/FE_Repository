@@ -5,17 +5,19 @@
 ## 구조 개요
 - 엔트리: `app/main.tsx`가 `App`을 마운트하고 전역 스타일을 가져옵니다.
 - 루트 UI: `app/App.tsx`가 최상위 상태(예: `selectedCategory`)를 관리하고 섹션들을 조합합니다.
-- 레이아웃/섹션: `app/components/*`
-  - `Header.tsx`: 로고, 검색, 빠른 카테고리, Radix 드롭다운.
-  - `GameGrid.tsx`: 본문(히어로 행, 카테고리 바, 섹션 목록).
-  - `FeaturedGame.tsx`, `NewGamesSection.tsx`, `CategoriesSection.tsx`, `GameSection.tsx`, `GameCard.tsx`.
-- UI 프리미티브: `app/components/ui/*`(Button, Card, Badge 등).
+- 레이아웃: `app/components/layout/*` (`Header.tsx`, `Sidebar.tsx`).
+- 게임 홈 UI: `app/components/game/*` (`GameGrid.tsx`, `FeaturedGame.tsx`, `NewGamesSection.tsx`, `CategoriesSection.tsx`, `GameSection.tsx`, `GameCard.tsx`).
+- 커뮤니티: `app/components/community/*` (`CommunityPage.tsx` 외 다중 페이지).
+- 주문/결제: `app/components/order/*` (`CartPage.tsx`, `OrdersPage.tsx`, `PaymentPage.tsx`).
+- 고객지원: `app/components/support/*`.
+- 사용자: `app/components/user/*`.
+- UI 프리미티브: `app/components/ui/{base,form-controls,navigation,overlay,feedback,data-display,motion-effects,hooks}`에 분류되어 있으며(`base/button.tsx`, `form-controls/select.tsx` 등) 필요 시 기존 변형을 확장하세요.
 - 스타일: `app/global.css`(토큰/베이스), `app/index.css`(미리 컴파일된 Tailwind 유틸), `app/custom.css`(헬퍼: `grid-7-3` 등).
 
 ## 자주 하는 변경
-- 홈 섹션 추가: `app/components/`에 컴포넌트를 만들고 `GameGrid.tsx`의 카테고리 바 아래에 포함하세요. 섹션 간격은 `space-y-8` 유지.
-- 히어로 비율 변경: `GameGrid.tsx`에서 `grid-7-3` ↔ `grid-6-4`로 교체(`app/custom.css`에 헬퍼 정의).
-- 카테고리 추가: `GameGrid.tsx`의 카테고리 배열을 확장하고, 필터 로직이 해당 id를 처리하는지 확인.
+- 홈 섹션 추가: `app/components/game/`에 컴포넌트를 만들고 `GameGrid.tsx`의 카테고리 바 아래에 포함하세요. 섹션 간격은 `space-y-8` 유지.
+- 히어로 비율 변경: `app/components/game/GameGrid.tsx`에서 `grid-7-3` ↔ `grid-6-4`로 교체(`app/custom.css`에 헬퍼 정의).
+- 카테고리 추가: `app/components/game/GameGrid.tsx`의 카테고리 배열을 확장하고, 필터 로직이 해당 id를 처리하는지 확인.
 - 헤더 드롭다운: Radix 트리거는 `<DropdownMenuTrigger asChild>`를 사용하고, 우리 `<Button>`을 자식으로 넣으세요(ref 전달됨).
 
 ## 스타일 규칙
