@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Badge } from "../y_ui/base/badge";
+import { Button } from "../y_ui/base/button";
+import { Separator } from "../y_ui/base/separator";
 import { Link } from "react-router-dom";
 
 type Post = {
@@ -19,18 +19,85 @@ type Post = {
 };
 
 const seedPosts: Post[] = [
-  { id: "a1", title: "레이드 매칭 개선 아이디어 공유", excerpt: "대기 시간을 줄이고 포지션 충족도를 높이기 위한 매칭 개선 아이디어를 정리했습니다.", type: "토론", tags: ["레이드", "매칭"], author: "RaiderKim", date: new Date(Date.now() - 2*60*60*1000).toISOString(), comments: 89, likes: 241 },
-  { id: "a2", title: "엔드게임 성장 루트 총정리", excerpt: "자원 수급과 세팅 우선순위를 단계별로 안내합니다.", type: "가이드", tags: ["엔드게임", "성장"], author: "이수현", date: new Date(Date.now() - 3*24*60*60*1000).toISOString(), comments: 12, likes: 97 },
-  { id: "a3", title: "커뮤니티 스크린샷 콘테스트 하이라이트", excerpt: "지난달 수상작을 모아봤습니다. 광원과 구도가 훌륭한 작품들!", type: "스크린샷", tags: ["아트", "콘테스트"], author: "Jin Park", date: new Date(Date.now() - 30*24*60*60*1000).toISOString(), comments: 21, likes: 180 },
-  { id: "a4", title: "패치 1.2 밸런스 체감 리뷰", excerpt: "힐러 관점에서 달라진 로테이션과 파티 시너지를 분석했습니다.", type: "리뷰", tags: ["패치", "밸런스"], author: "HealerJ", date: new Date(Date.now() - 5*24*60*60*1000).toISOString(), comments: 33, likes: 120 },
-  { id: "a5", title: "초보자 질문 모음 (9월)", excerpt: "처음 시작할 때 필수로 알아두면 좋은 팁들입니다.", type: "가이드", tags: ["뉴비", "팁"], author: "Newbie", date: new Date(Date.now() - 60*60*1000).toISOString(), comments: 54, likes: 210 },
+  {
+    id: "a1",
+    title: "레이드 매칭 개선 아이디어 공유",
+    excerpt:
+      "대기 시간을 줄이고 포지션 충족도를 높이기 위한 매칭 개선 아이디어를 정리했습니다.",
+    type: "토론",
+    tags: ["레이드", "매칭"],
+    author: "RaiderKim",
+    date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    comments: 89,
+    likes: 241,
+  },
+  {
+    id: "a2",
+    title: "엔드게임 성장 루트 총정리",
+    excerpt: "자원 수급과 세팅 우선순위를 단계별로 안내합니다.",
+    type: "가이드",
+    tags: ["엔드게임", "성장"],
+    author: "이수현",
+    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    comments: 12,
+    likes: 97,
+  },
+  {
+    id: "a3",
+    title: "커뮤니티 스크린샷 콘테스트 하이라이트",
+    excerpt: "지난달 수상작을 모아봤습니다. 광원과 구도가 훌륭한 작품들!",
+    type: "스크린샷",
+    tags: ["아트", "콘테스트"],
+    author: "Jin Park",
+    date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    comments: 21,
+    likes: 180,
+  },
+  {
+    id: "a4",
+    title: "패치 1.2 밸런스 체감 리뷰",
+    excerpt: "힐러 관점에서 달라진 로테이션과 파티 시너지를 분석했습니다.",
+    type: "리뷰",
+    tags: ["패치", "밸런스"],
+    author: "HealerJ",
+    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    comments: 33,
+    likes: 120,
+  },
+  {
+    id: "a5",
+    title: "초보자 질문 모음 (9월)",
+    excerpt: "처음 시작할 때 필수로 알아두면 좋은 팁들입니다.",
+    type: "가이드",
+    tags: ["뉴비", "팁"],
+    author: "Newbie",
+    date: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    comments: 54,
+    likes: 210,
+  },
 ];
 
-const allTypes = ["전체", "토론", "스크린샷", "가이드", "리뷰", "방송", "워크샵"] as const;
+const allTypes = [
+  "전체",
+  "토론",
+  "스크린샷",
+  "가이드",
+  "리뷰",
+  "방송",
+  "워크샵",
+] as const;
 const periodOptions = ["전체", "오늘", "이번 주", "이번 달"] as const;
-const popularTags = ["레이드", "매칭", "가이드", "뉴비", "아트", "패치", "밸런스"];
+const popularTags = [
+  "레이드",
+  "매칭",
+  "가이드",
+  "뉴비",
+  "아트",
+  "패치",
+  "밸런스",
+];
 
-function inPeriod(dateISO: string, period: typeof periodOptions[number]) {
+function inPeriod(dateISO: string, period: (typeof periodOptions)[number]) {
   const d = new Date(dateISO).getTime();
   const now = Date.now();
   if (period === "전체") return true;
@@ -49,49 +116,51 @@ export default function CommunityAllPage() {
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
-  useEffect(() => { setPage(1); }, [query, type, period, tagFilters.join("|"), sort]);
+  useEffect(() => {
+    setPage(1);
+  }, [query, type, period, tagFilters.join("|"), sort]);
 
   const filtered = useMemo(() => {
     // merge local posts with seeds
-// {/* Right: filters */}
-// <div className="space-y-4">
-//   <Card className="border-primary/20">
-//     <CardHeader>
-//       <CardTitle className="text-base">유형</CardTitle>
-//     </CardHeader>
-//     <CardContent className="flex flex-wrap gap-2">
-//       {allTypes.map((t) => (
-//         <Button key={t} size="sm" variant={type === t ? "default" : "outline"} className={type === t ? "" : "border-primary/30"} onClick={() => setType(t)}>{t}</Button>
-//       ))}
-//       <Button size="sm" variant="ghost" onClick={() => setType("전체")}>초기화</Button>
-//     </CardContent>
-//   </Card>
+    // {/* Right: filters */}
+    // <div className="space-y-4">
+    //   <Card className="border-primary/20">
+    //     <CardHeader>
+    //       <CardTitle className="text-base">유형</CardTitle>
+    //     </CardHeader>
+    //     <CardContent className="flex flex-wrap gap-2">
+    //       {allTypes.map((t) => (
+    //         <Button key={t} size="sm" variant={type === t ? "default" : "outline"} className={type === t ? "" : "border-primary/30"} onClick={() => setType(t)}>{t}</Button>
+    //       ))}
+    //       <Button size="sm" variant="ghost" onClick={() => setType("전체")}>초기화</Button>
+    //     </CardContent>
+    //   </Card>
 
-//   <Card className="border-primary/20">
-//     <CardHeader>
-//       <CardTitle className="text-base">기간</CardTitle>
-//     </CardHeader>
-//     <CardContent className="flex flex-wrap gap-2">
-//       {periodOptions.map((p) => (
-//         <Button key={p} size="sm" variant={period === p ? "default" : "outline"} className={period === p ? "" : "border-primary/30"} onClick={() => setPeriod(p)}>{p}</Button>
-//       ))}
-//     </CardContent>
-//   </Card>
+    //   <Card className="border-primary/20">
+    //     <CardHeader>
+    //       <CardTitle className="text-base">기간</CardTitle>
+    //     </CardHeader>
+    //     <CardContent className="flex flex-wrap gap-2">
+    //       {periodOptions.map((p) => (
+    //         <Button key={p} size="sm" variant={period === p ? "default" : "outline"} className={period === p ? "" : "border-primary/30"} onClick={() => setPeriod(p)}>{p}</Button>
+    //       ))}
+    //     </CardContent>
+    //   </Card>
 
-//   <Card className="border-primary/20">
-//     <CardHeader>
-//       <CardTitle className="text-base">인기 태그</CardTitle>
-//     </CardHeader>
-//     <CardContent className="flex flex-wrap gap-2">
-//       {popularTags.map((t) => (
-//         <Button key={t} size="sm" variant={tagFilters.includes(t) ? "default" : "outline"} className={tagFilters.includes(t) ? "" : "border-primary/30"} onClick={() => toggleTag(t)}>{t}</Button>
-//       ))}
-//       {!!tagFilters.length && (
-//         <Button size="sm" variant="ghost" onClick={() => setTagFilters([])}>초기화</Button>
-//       )}
-//     </CardContent>
-//   </Card>
-// </div>
+    //   <Card className="border-primary/20">
+    //     <CardHeader>
+    //       <CardTitle className="text-base">인기 태그</CardTitle>
+    //     </CardHeader>
+    //     <CardContent className="flex flex-wrap gap-2">
+    //       {popularTags.map((t) => (
+    //         <Button key={t} size="sm" variant={tagFilters.includes(t) ? "default" : "outline"} className={tagFilters.includes(t) ? "" : "border-primary/30"} onClick={() => toggleTag(t)}>{t}</Button>
+    //       ))}
+    //       {!!tagFilters.length && (
+    //         <Button size="sm" variant="ghost" onClick={() => setTagFilters([])}>초기화</Button>
+    //       )}
+    //     </CardContent>
+    //   </Card>
+    // </div>
     let local: Post[] = [];
     try {
       const raw = localStorage.getItem("community:posts");
@@ -114,11 +183,20 @@ export default function CommunityAllPage() {
     let list = [...local, ...seedPosts];
     if (type !== "전체") list = list.filter((p) => p.type === type);
     if (period !== "전체") list = list.filter((p) => inPeriod(p.date, period));
-    if (tagFilters.length) list = list.filter((p) => tagFilters.some((t) => p.tags.includes(t)));
+    if (tagFilters.length)
+      list = list.filter((p) => tagFilters.some((t) => p.tags.includes(t)));
     const q = query.trim().toLowerCase();
-    if (q) list = list.filter((p) => [p.title, p.excerpt, p.author, ...p.tags].some((v) => String(v).toLowerCase().includes(q)));
+    if (q)
+      list = list.filter((p) =>
+        [p.title, p.excerpt, p.author, ...p.tags].some((v) =>
+          String(v).toLowerCase().includes(q)
+        )
+      );
 
-    if (sort === "최신") list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    if (sort === "최신")
+      list.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
     if (sort === "인기") list.sort((a, b) => b.likes - a.likes);
     if (sort === "댓글순") list.sort((a, b) => b.comments - a.comments);
     return list;
@@ -127,7 +205,10 @@ export default function CommunityAllPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
 
-  const toggleTag = (t: string) => setTagFilters((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  const toggleTag = (t: string) =>
+    setTagFilters((prev) =>
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
+    );
 
   return (
     <div className="container mx-auto px-6 py-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
@@ -135,28 +216,41 @@ export default function CommunityAllPage() {
       <div className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold text-white">전체 글</h2>
-          <p className="text-sm text-muted-foreground mb-4">커뮤니티의 모든 게시글을 검색하고 필터링하세요.</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            커뮤니티의 모든 게시글을 검색하고 필터링하세요.
+          </p>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <Input placeholder="게시글 검색 (제목, 태그, 작성자)" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-md mb-4" />
+          <Input
+            placeholder="게시글 검색 (제목, 태그, 작성자)"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="max-w-md mb-4"
+          />
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">표시:</span>
             {(["최신", "인기", "댓글순"] as const).map((s) => (
-              <Button key={s} size="sm" variant={sort === s ? "default" : "outline"} className={sort === s ? "" : "border-primary/30"} onClick={() => setSort(s)}>
+              <Button
+                key={s}
+                size="sm"
+                variant={sort === s ? "default" : "outline"}
+                className={sort === s ? "" : "border-primary/30"}
+                onClick={() => setSort(s)}
+              >
                 {s}
               </Button>
             ))}
-          <div className="flex justify-end">
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="border-primary/30"
-            >
-              <Link to="/community/write">글쓰기</Link>
-            </Button>
-          </div>
+            <div className="flex justify-end">
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="border-primary/30"
+              >
+                <Link to="/community/write">글쓰기</Link>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -169,23 +263,45 @@ export default function CommunityAllPage() {
           >
             <Card className="border-primary/30 shadow-sm transition-colors transition-shadow hover:shadow-md group-hover:border-primary/40 group-hover:bg-primary/5 mb-4 mt-4">
               <CardContent className="pt-4 space-y-3">
-                <h3 className="text-base font-semibold group-hover:text-primary pb-2">{p.title}</h3>
-                <p className="text-sm text-muted-foreground pb-2">{p.excerpt}</p>
+                <h3 className="text-base font-semibold group-hover:text-primary pb-2">
+                  {p.title}
+                </h3>
+                <p className="text-sm text-muted-foreground pb-2">
+                  {p.excerpt}
+                </p>
                 <div className="flex flex-wrap items-center gap-2 pb-2">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/10 text-primary border border-primary/20"
+                  >
                     {p.type}
                   </Badge>
                   {p.tags.map((t) => (
-                    <Badge key={t} variant="outline" className="text-muted-foreground">
+                    <Badge
+                      key={t}
+                      variant="outline"
+                      className="text-muted-foreground"
+                    >
                       #{t}
                     </Badge>
                   ))}
                 </div>
                 <div className="text-xs text-muted-foreground flex items-center gap-4">
-                  <span className="inline-flex items-center gap-1">작성자 {p.author}</span>
-                  <span className="inline-flex items-center gap-1">댓글 {p.comments}</span>
-                  <span className="inline-flex items-center gap-1">좋아요 {p.likes}</span>
-                  <span>{new Date(p.date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</span>
+                  <span className="inline-flex items-center gap-1">
+                    작성자 {p.author}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    댓글 {p.comments}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    좋아요 {p.likes}
+                  </span>
+                  <span>
+                    {new Date(p.date).toLocaleDateString("ko-KR", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -194,12 +310,29 @@ export default function CommunityAllPage() {
 
         {/* Pagination */}
         <div className="flex items-center justify-end gap-2 text-white">
-          <Button size="sm" variant="outline" className="border-primary/30" disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>이전</Button>
-          <span className="text-sm">{page} / {totalPages}</span>
-          <Button size="sm" variant="outline" className="border-primary/30" disabled={page === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>다음</Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-primary/30"
+            disabled={page === 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            이전
+          </Button>
+          <span className="text-sm">
+            {page} / {totalPages}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-primary/30"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            다음
+          </Button>
         </div>
       </div>
-
     </div>
   );
 }

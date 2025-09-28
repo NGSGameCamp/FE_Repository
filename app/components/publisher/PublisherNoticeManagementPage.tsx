@@ -1,16 +1,21 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../y_ui/base/button";
+import { Input } from "../y_ui/base/input";
+import { Badge } from "../y_ui/base/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { fetchPublisherNotices, NoticeCategory, NoticeStatus, PublisherNotice } from "./publisherNoticeData";
+} from "../y_ui/overlay/dropdown-menu";
+import {
+  fetchPublisherNotices,
+  NoticeCategory,
+  NoticeStatus,
+  PublisherNotice,
+} from "./publisherNoticeData";
 import { Plus, ChevronDown, Eye, NotebookPen } from "lucide-react";
 import { PublisherLayout } from "./PublisherLayout";
 
@@ -22,7 +27,6 @@ const categoryLabels: Record<NoticeCategory, string> = {
   system: "시스템 공지",
   news: "새 소식",
 };
-
 
 const categoryBadges: Record<Exclude<NoticeCategory, "all">, string> = {
   update: "bg-indigo-500/15 text-indigo-200 border-indigo-400/30",
@@ -64,7 +68,8 @@ export default function PublisherNoticeManagementPage() {
   const navigate = useNavigate();
   const [category, setCategory] = useState<NoticeCategory>("all");
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<(typeof sortOptions)[number]["id"]>("latest");
+  const [sort, setSort] =
+    useState<(typeof sortOptions)[number]["id"]>("latest");
 
   const notices = useMemo(() => fetchPublisherNotices(), []);
 
@@ -76,18 +81,27 @@ export default function PublisherNoticeManagementPage() {
     if (query.trim()) {
       const lower = query.trim().toLowerCase();
       list = list.filter((notice) =>
-        [notice.title, notice.summary, notice.game].join("\u200b").toLowerCase().includes(lower),
+        [notice.title, notice.summary, notice.game]
+          .join("\u200b")
+          .toLowerCase()
+          .includes(lower)
       );
     }
     switch (sort) {
       case "oldest":
-        list.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        list.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
         break;
       case "views":
         list.sort((a, b) => b.views - a.views);
         break;
       default:
-        list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        list.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         break;
     }
     return list;
@@ -100,12 +114,16 @@ export default function PublisherNoticeManagementPage() {
     >
       <div className="space-y-1">
         <div className="flex items-center gap-2">
-          <h3 className="truncate text-base font-semibold text-white">{notice.title}</h3>
+          <h3 className="truncate text-base font-semibold text-white">
+            {notice.title}
+          </h3>
           <Badge
             className={`hidden sm:inline-flex h-6 items-center rounded-full border px-2 text-[11px] font-medium uppercase tracking-wide ${
               notice.category === "all"
                 ? "border-white/15 bg-white/5 text-white/60"
-                : categoryBadges[(notice.category as Exclude<NoticeCategory, "all">)] ?? "border-white/15 bg-white/5 text-white/60"
+                : categoryBadges[
+                    notice.category as Exclude<NoticeCategory, "all">
+                  ] ?? "border-white/15 bg-white/5 text-white/60"
             }`}
           >
             {categoryLabels[notice.category]}
@@ -117,11 +135,19 @@ export default function PublisherNoticeManagementPage() {
         <span className="font-medium text-white">{notice.game}</span>
         <span>조회수 {notice.views.toLocaleString()}</span>
       </div>
-      <Badge className={`inline-flex h-8 items-center justify-center rounded-full border px-3 text-xs font-medium ${statusBadges[notice.status]}`}>
+      <Badge
+        className={`inline-flex h-8 items-center justify-center rounded-full border px-3 text-xs font-medium ${
+          statusBadges[notice.status]
+        }`}
+      >
         {statusLabels[notice.status]}
       </Badge>
-      <span className="text-sm font-medium text-white/70">{formatDate(notice.createdAt)}</span>
-      <span className="hidden text-sm text-white/60 lg:block">{notice.views.toLocaleString()}</span>
+      <span className="text-sm font-medium text-white/70">
+        {formatDate(notice.createdAt)}
+      </span>
+      <span className="hidden text-sm text-white/60 lg:block">
+        {notice.views.toLocaleString()}
+      </span>
       <Button
         variant="ghost"
         size="sm"
@@ -185,11 +211,15 @@ export default function PublisherNoticeManagementPage() {
                 className="ml-auto flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 text-sm text-white/70 hover:bg-white/10"
               >
                 <Eye className="h-4 w-4" />
-                {sortOptions.find((option) => option.id === sort)?.label ?? "정렬"}
+                {sortOptions.find((option) => option.id === sort)?.label ??
+                  "정렬"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 border border-white/10 bg-publisher-card text-white">
+            <DropdownMenuContent
+              align="end"
+              className="w-40 border border-white/10 bg-publisher-card text-white"
+            >
               {sortOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.id}

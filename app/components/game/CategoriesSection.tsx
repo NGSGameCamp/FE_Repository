@@ -1,4 +1,4 @@
-import { Card } from "../ui/card";
+import { Card } from "../y_ui/base/card";
 
 interface Category {
   id: string;
@@ -10,7 +10,10 @@ interface CategoriesSectionProps {
   onSelect?: (id: string) => void;
 }
 
-export function CategoriesSection({ categories, onSelect }: CategoriesSectionProps) {
+export function CategoriesSection({
+  categories,
+  onSelect,
+}: CategoriesSectionProps) {
   return (
     <section className="mx-auto max-w-7xl w-full">
       <Card className="rounded-xl border border-primary/20 bg-background/80 overflow-hidden">

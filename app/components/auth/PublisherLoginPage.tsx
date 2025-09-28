@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Card, CardContent } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Alert, AlertTitle, AlertDescription } from "../ui/alert";
+import { Card, CardContent } from "../y_ui/base/card";
+import { Button } from "../y_ui/base/button";
+import { Input } from "../y_ui/base/input";
+import { Label } from "../y_ui/base/label";
+import { Alert, AlertTitle, AlertDescription } from "../y_ui/feedback/alert";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Check, LogOut } from "lucide-react";
 import {
@@ -58,7 +58,11 @@ export default function PublisherLoginPage() {
     }
 
     persistPublisherSession(res.account, false);
-    setSession({ id: res.account.id, companyName: res.account.companyName, email: res.account.email });
+    setSession({
+      id: res.account.id,
+      companyName: res.account.companyName,
+      email: res.account.email,
+    });
     setPassword("");
     navigate("/publisher/dashboard");
   };
@@ -77,16 +81,21 @@ export default function PublisherLoginPage() {
           <div className="pointer-events-none absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-blue-600/40 blur-3xl" />
           <CardContent className="relative z-10 space-y-8 p-10">
             <div className="space-y-3 text-center">
-              <span className="font-semibold tracking-[0.4em] text-cyan-300">NGS</span>
+              <span className="font-semibold tracking-[0.4em] text-cyan-300">
+                NGS
+              </span>
               <h1 className="text-3xl font-bold">배급사 로그인</h1>
-              <p className="text-sm text-white/70">게임 배급 관리 시스템에 접속하세요</p>
+              <p className="text-sm text-white/70">
+                게임 배급 관리 시스템에 접속하세요
+              </p>
             </div>
 
             {session && (
               <Alert className="border-cyan-400/40 bg-cyan-500/10 text-cyan-100">
                 <AlertTitle>로그인 중</AlertTitle>
                 <AlertDescription>
-                  현재 <strong>{session.companyName}</strong> 계정으로 접속 중입니다.
+                  현재 <strong>{session.companyName}</strong> 계정으로 접속
+                  중입니다.
                 </AlertDescription>
               </Alert>
             )}
@@ -100,7 +109,9 @@ export default function PublisherLoginPage() {
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="publisher-email" className="text-white">이메일</Label>
+                <Label htmlFor="publisher-email" className="text-white">
+                  이메일
+                </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
                   <Input
@@ -116,7 +127,9 @@ export default function PublisherLoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="publisher-password" className="text-white">비밀번호</Label>
+                <Label htmlFor="publisher-password" className="text-white">
+                  비밀번호
+                </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
                   <Input
@@ -141,7 +154,10 @@ export default function PublisherLoginPage() {
                     <LogOut className="h-4 w-4" /> 로그아웃
                   </button>
                 ) : (
-                  <Link to="/publisher/signup" className="text-xs text-blue-300 hover:text-blue-200">
+                  <Link
+                    to="/publisher/signup"
+                    className="text-xs text-blue-300 hover:text-blue-200"
+                  >
                     아직 계정이 없으신가요?
                   </Link>
                 )}
@@ -158,7 +174,10 @@ export default function PublisherLoginPage() {
 
             <div className="text-center text-xs text-white/50">
               배급사 회원가입이 필요하신가요?{" "}
-              <Link to="/publisher/signup" className="text-blue-300 hover:text-blue-200">
+              <Link
+                to="/publisher/signup"
+                className="text-blue-300 hover:text-blue-200"
+              >
                 배급사 회원가입
               </Link>
             </div>
@@ -186,9 +205,12 @@ export default function PublisherLoginPage() {
         </Card>
 
         <aside className="flex w-full max-w-md flex-col justify-center rounded-3xl border border-white/5 bg-gradient-to-br from-[#0b1120] to-[#050716] p-10 text-white/90">
-          <h2 className="text-2xl font-semibold text-white">배급사 파트너가 되세요</h2>
+          <h2 className="text-2xl font-semibold text-white">
+            배급사 파트너가 되세요
+          </h2>
           <p className="mt-3 text-sm text-white/60">
-            성장하는 게임 생태계와 함께하세요. 실시간 데이터와 맞춤형 도구로 더 나은 배급 전략을 설계할 수 있습니다.
+            성장하는 게임 생태계와 함께하세요. 실시간 데이터와 맞춤형 도구로 더
+            나은 배급 전략을 설계할 수 있습니다.
           </p>
           <ul className="mt-8 space-y-4 text-sm">
             {featureItems.map((item) => (

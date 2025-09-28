@@ -1,10 +1,10 @@
 import { FormEvent, useState } from "react";
-import { Card, CardContent } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Checkbox } from "../ui/checkbox";
+import { Card, CardContent } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Label } from "../y_ui/base/label";
+import { Button } from "../y_ui/base/button";
+import { Alert, AlertDescription, AlertTitle } from "../y_ui/feedback/alert";
+import { Checkbox } from "../y_ui/form-controls/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import { registerPublisher } from "./publisherStore";
 
@@ -50,8 +50,10 @@ export default function PublisherSignupPage() {
     if (!companyName.trim()) return setError("회사명을 입력하세요.");
     if (!email.trim()) return setError("이메일을 입력하세요.");
     if (!password) return setError("비밀번호를 입력하세요.");
-    if (password !== confirmPassword) return setError("비밀번호 확인이 일치하지 않습니다.");
-    if (!businessRegNumber.trim()) return setError("사업자등록번호를 입력하세요.");
+    if (password !== confirmPassword)
+      return setError("비밀번호 확인이 일치하지 않습니다.");
+    if (!businessRegNumber.trim())
+      return setError("사업자등록번호를 입력하세요.");
     if (!agreeTerms) return setError("약관에 동의해야 회원가입이 가능합니다.");
 
     setIsSubmitting(true);
@@ -88,9 +90,13 @@ export default function PublisherSignupPage() {
           <div className="pointer-events-none absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-blue-600/40 blur-3xl" />
           <CardContent className="relative z-10 p-10">
             <div className="space-y-3 text-center">
-              <span className="font-semibold tracking-[0.4em] text-cyan-300">NGS</span>
+              <span className="font-semibold tracking-[0.4em] text-cyan-300">
+                NGS
+              </span>
               <h1 className="text-3xl font-bold">배급사 회원가입</h1>
-              <p className="text-sm text-white/60">새로운 배급사 파트너로 등록해 주세요.</p>
+              <p className="text-sm text-white/60">
+                새로운 배급사 파트너로 등록해 주세요.
+              </p>
             </div>
 
             <form className="mt-10 grid gap-6" onSubmit={handleSubmit}>
@@ -109,7 +115,9 @@ export default function PublisherSignupPage() {
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="companyName" className="text-white">회사명</Label>
+                <Label htmlFor="companyName" className="text-white">
+                  회사명
+                </Label>
                 <Input
                   id="companyName"
                   value={companyName}
@@ -120,7 +128,9 @@ export default function PublisherSignupPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="email" className="text-white">이메일</Label>
+                <Label htmlFor="email" className="text-white">
+                  이메일
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -130,11 +140,15 @@ export default function PublisherSignupPage() {
                   placeholder="publisher@example.com"
                   className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/40"
                 />
-                <p className="text-xs text-white/40">비즈니스 이메일을 사용해 주세요.</p>
+                <p className="text-xs text-white/40">
+                  비즈니스 이메일을 사용해 주세요.
+                </p>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="password" className="text-white">비밀번호</Label>
+                <Label htmlFor="password" className="text-white">
+                  비밀번호
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -147,7 +161,9 @@ export default function PublisherSignupPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="confirmPassword" className="text-white">비밀번호 확인</Label>
+                <Label htmlFor="confirmPassword" className="text-white">
+                  비밀번호 확인
+                </Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -160,11 +176,17 @@ export default function PublisherSignupPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="businessRegNumber" className="text-white">사업자 등록번호</Label>
+                <Label htmlFor="businessRegNumber" className="text-white">
+                  사업자 등록번호
+                </Label>
                 <Input
                   id="businessRegNumber"
                   value={businessRegNumber}
-                  onChange={(event) => setBusinessRegNumber(event.target.value.replace(/[^\d-]/g, ""))}
+                  onChange={(event) =>
+                    setBusinessRegNumber(
+                      event.target.value.replace(/[^\d-]/g, "")
+                    )
+                  }
                   placeholder="000-00-00000"
                   className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/40"
                 />
@@ -178,7 +200,10 @@ export default function PublisherSignupPage() {
                     className="mt-0.5 border-white/40 data-[state=checked]:bg-blue-500"
                   />
                   <span>
-                    <span className="text-white">이용약관 및 개인정보처리방침</span>에 동의합니다.
+                    <span className="text-white">
+                      이용약관 및 개인정보처리방침
+                    </span>
+                    에 동의합니다.
                   </span>
                 </label>
                 <label className="flex items-start gap-3">
@@ -201,7 +226,10 @@ export default function PublisherSignupPage() {
 
               <p className="text-center text-sm text-white/60">
                 이미 계정이 있으신가요?{" "}
-                <Link to="/publisher01-1" className="text-blue-300 hover:text-blue-200">
+                <Link
+                  to="/publisher01-1"
+                  className="text-blue-300 hover:text-blue-200"
+                >
                   로그인
                 </Link>
               </p>

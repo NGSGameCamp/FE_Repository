@@ -1,16 +1,16 @@
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Button } from "../y_ui/base/button";
+import { Input } from "../y_ui/base/input";
+import { Textarea } from "../y_ui/base/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Badge } from "../ui/badge";
+} from "../y_ui/form-controls/select";
+import { Badge } from "../y_ui/base/badge";
 import { HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -118,7 +118,8 @@ export default function SupportRefundPage() {
         <div>
           <h2 className="text-xl font-semibold text-white">환불 문의</h2>
           <p className="text-sm text-muted-foreground">
-            구매하신 게임의 환불을 요청하실 수 있습니다. 환불 정책을 확인하고 필요한 정보를 제공해주세요.
+            구매하신 게임의 환불을 요청하실 수 있습니다. 환불 정책을 확인하고
+            필요한 정보를 제공해주세요.
           </p>
         </div>
       </div>
@@ -193,7 +194,6 @@ export default function SupportRefundPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          
           <Select value={reason} onValueChange={setReason}>
             <SelectTrigger className="max-w-md">
               <SelectValue placeholder="환불 사유를 선택해주세요" />
@@ -234,9 +234,7 @@ export default function SupportRefundPage() {
         <CardContent className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2 max-w-2xl"></div>
           <div>
-            <div className="text-xs text-muted-foreground mb-1">
-              (선택)
-            </div>
+            <div className="text-xs text-muted-foreground mb-1">(선택)</div>
             <Textarea
               rows={6}
               placeholder="환불 요청과 관련된 상세 사유가 있다면 입력해주세요."
@@ -250,7 +248,9 @@ export default function SupportRefundPage() {
 
       <div className="flex items-center justify-between">
         <div className="text-xs text-muted-foreground">
-          환불 정책에 동의하며, 제공한 정보가 정확함을 확인합니다. 자동 승인 대상인 경우 즉시 처리되며, 검토가 필요한 경우 3–5 영업일 이내에 결과를 알려드립니다.
+          환불 정책에 동의하며, 제공한 정보가 정확함을 확인합니다. 자동 승인
+          대상인 경우 즉시 처리되며, 검토가 필요한 경우 3–5 영업일 이내에 결과를
+          알려드립니다.
         </div>
         <Button onClick={submit} disabled={!valid} className="px-6">
           환불 요청 제출

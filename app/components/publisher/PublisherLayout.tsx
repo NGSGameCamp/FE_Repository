@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "../ui/utils";
-import { Button } from "../ui/button";
+import { cn } from "../y_ui/base/utils";
+import { Button } from "../y_ui/base/button";
 
 interface PublisherLayoutProps {
   title: string;
@@ -39,8 +39,12 @@ export function PublisherLayout({
               <div className="space-y-3">
                 {heroBadge}
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-semibold tracking-tight lg:text-4xl">{title}</h1>
-                  {subtitle ? <p className="text-sm text-white/70">{subtitle}</p> : null}
+                  <h1 className="text-3xl font-semibold tracking-tight lg:text-4xl">
+                    {title}
+                  </h1>
+                  {subtitle ? (
+                    <p className="text-sm text-white/70">{subtitle}</p>
+                  ) : null}
                 </div>
               </div>
               {actions ? (
@@ -51,7 +55,9 @@ export function PublisherLayout({
             </div>
           </section>
 
-          <div className={cn("mt-16 flex flex-col gap-16", className)}>{children}</div>
+          <div className={cn("mt-16 flex flex-col gap-16", className)}>
+            {children}
+          </div>
         </main>
       </div>
     </div>

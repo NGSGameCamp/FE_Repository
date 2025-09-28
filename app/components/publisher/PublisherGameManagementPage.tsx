@@ -1,9 +1,14 @@
 import { useMemo, useState } from "react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Button } from "../y_ui/base/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Badge } from "../y_ui/base/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../y_ui/overlay/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { mockGames } from "@/data/mockGames";
 import { PublisherLayout } from "./PublisherLayout";
@@ -35,7 +40,14 @@ function formatCurrency(value?: number | string) {
 
 const extendedGames = mockGames.map((game, index) => ({
   ...game,
-  status: index % 4 === 0 ? "selling" : index % 4 === 1 ? "review" : index % 4 === 2 ? "paused" : "upcoming",
+  status:
+    index % 4 === 0
+      ? "selling"
+      : index % 4 === 1
+      ? "review"
+      : index % 4 === 2
+      ? "paused"
+      : "upcoming",
   revenue: 20000000 + index * 6000000,
   unitsSold: 500 + index * 120,
   rating: Number(game.rating) || 4.5,
@@ -45,8 +57,10 @@ const extendedGames = mockGames.map((game, index) => ({
 export default function PublisherGameManagementPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<(typeof statusFilters)[number]["id"]>("all");
-  const [sort, setSort] = useState<(typeof sortOptions)[number]["id"]>("latest");
+  const [status, setStatus] =
+    useState<(typeof statusFilters)[number]["id"]>("all");
+  const [sort, setSort] =
+    useState<(typeof sortOptions)[number]["id"]>("latest");
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -57,7 +71,7 @@ export default function PublisherGameManagementPage() {
     }
     if (normalized) {
       list = list.filter((game) =>
-        `${game.title} ${game.genre}`.toLowerCase().includes(normalized),
+        `${game.title} ${game.genre}`.toLowerCase().includes(normalized)
       );
     }
 
@@ -130,11 +144,15 @@ export default function PublisherGameManagementPage() {
                 size="sm"
                 className="ml-auto flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 text-sm text-white/70 hover:bg-white/10"
               >
-                {sortOptions.find((option) => option.id === sort)?.label ?? "정렬"}
+                {sortOptions.find((option) => option.id === sort)?.label ??
+                  "정렬"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-36 border border-white/10 bg-publisher-card text-white">
+            <DropdownMenuContent
+              align="end"
+              className="w-36 border border-white/10 bg-publisher-card text-white"
+            >
               {sortOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.id}
@@ -163,7 +181,9 @@ export default function PublisherGameManagementPage() {
               <CardContent className="space-y-4 px-6 pb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-white">{game.title}</h3>
+                    <h3 className="text-lg font-semibold text-white">
+                      {game.title}
+                    </h3>
                     <p className="text-xs text-white/65">
                       {game.genre} {game.price}
                     </p>

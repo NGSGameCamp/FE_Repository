@@ -1,19 +1,22 @@
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Badge } from "../y_ui/base/badge";
+import { Button } from "../y_ui/base/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Separator } from "../ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+} from "../y_ui/form-controls/select";
+import { Separator } from "../y_ui/base/separator";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "../y_ui/form-controls/toggle-group";
 import { MessageSquare, Heart, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import StarBorder from "@/components/ui/StarBorder";
+import StarBorder from "~/components/y_ui/motion-effects/StarBorder";
 
 type Post = {
   id: string;
@@ -28,7 +31,14 @@ type Post = {
   time: string;
 };
 
-const games = ["전체", "Cyberpunk 2087", "Neon Racing", "Puzzle Matrix", "Esports Champion", "Digital Art Quest"] as const;
+const games = [
+  "전체",
+  "Cyberpunk 2087",
+  "Neon Racing",
+  "Puzzle Matrix",
+  "Esports Champion",
+  "Digital Art Quest",
+] as const;
 const topics = ["전체", "토론", "스크린샷", "가이드", "방송"] as const;
 const allTags = ["인기", "신규", "질문", "가이드", "팁", "공지"] as const;
 
@@ -74,7 +84,8 @@ const postsData: Post[] = [
   {
     id: "p4",
     title: "퍼즐 매트릭스 스테이지 12 공략",
-    excerpt: "이 스테이지는 체인 반응을 이해하는 것이 핵심입니다. 핵심 포인트는...",
+    excerpt:
+      "이 스테이지는 체인 반응을 이해하는 것이 핵심입니다. 핵심 포인트는...",
     game: "Puzzle Matrix",
     topic: "가이드",
     tags: ["가이드", "공지"],
@@ -98,14 +109,26 @@ const postsData: Post[] = [
 ];
 
 const trending = [
-  { id: "t1", title: "패치 1.2 밸런스 조정 토론", posts: 152, time: "1시간 전" },
-  { id: "t2", title: "커뮤니티 스크린샷 콘테스트 결과 공개", posts: 87, time: "3시간 전" },
+  {
+    id: "t1",
+    title: "패치 1.2 밸런스 조정 토론",
+    posts: 152,
+    time: "1시간 전",
+  },
+  {
+    id: "t2",
+    title: "커뮤니티 스크린샷 콘테스트 결과 공개",
+    posts: 87,
+    time: "3시간 전",
+  },
   { id: "t3", title: "초보자 빌드 모음 가이드", posts: 45, time: "어제" },
 ];
 
 export function CommunityPage() {
-  const [selectedGame, setSelectedGame] = useState<(typeof games)[number]>("전체");
-  const [selectedTopic, setSelectedTopic] = useState<(typeof topics)[number]>("전체");
+  const [selectedGame, setSelectedGame] =
+    useState<(typeof games)[number]>("전체");
+  const [selectedTopic, setSelectedTopic] =
+    useState<(typeof topics)[number]>("전체");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const filteredPosts = useMemo(() => {
@@ -113,7 +136,8 @@ export function CommunityPage() {
       const gameOk = selectedGame === "전체" || p.game === selectedGame;
       const topicOk = selectedTopic === "전체" || p.topic === selectedTopic;
       const tagOk =
-        selectedTags.length === 0 || selectedTags.some((t) => p.tags.includes(t));
+        selectedTags.length === 0 ||
+        selectedTags.some((t) => p.tags.includes(t));
       return gameOk && topicOk && tagOk;
     });
   }, [selectedGame, selectedTopic, selectedTags]);
@@ -129,8 +153,15 @@ export function CommunityPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white px-4">커뮤니티</h2>
         <div className="flex items-center gap-3">
-          <div className="text-sm text-muted-foreground">등록된 게시글 {filteredPosts.length}건</div>
-          <Button asChild size="sm" variant="outline" className="border-primary/30">
+          <div className="text-sm text-muted-foreground">
+            등록된 게시글 {filteredPosts.length}건
+          </div>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="border-primary/30"
+          >
             <Link to="/community/all">전체 글</Link>
           </Button>
         </div>
@@ -141,7 +172,10 @@ export function CommunityPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">게임 선택</div>
-              <Select value={selectedGame} onValueChange={(v) => setSelectedGame(v as any)}>
+              <Select
+                value={selectedGame}
+                onValueChange={(v) => setSelectedGame(v as any)}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="게임 선택" />
                 </SelectTrigger>
@@ -156,7 +190,10 @@ export function CommunityPage() {
             </div>
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">주제 선택</div>
-              <Select value={selectedTopic} onValueChange={(v) => setSelectedTopic(v as any)}>
+              <Select
+                value={selectedTopic}
+                onValueChange={(v) => setSelectedTopic(v as any)}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="주제 선택" />
                 </SelectTrigger>
@@ -170,7 +207,11 @@ export function CommunityPage() {
               </Select>
             </div>
             <div className="flex items-end justify-end">
-              <Button variant="outline" className="border-primary/30 mb-4" onClick={resetFilters}>
+              <Button
+                variant="outline"
+                className="border-primary/30 mb-4"
+                onClick={resetFilters}
+              >
                 필터 초기화
               </Button>
             </div>
@@ -179,7 +220,9 @@ export function CommunityPage() {
           <Separator className="my-6" />
 
           <div className="space-y-3">
-            <div className="text-xs text-muted-foreground mt-4 mb-2">태그 필터</div>
+            <div className="text-xs text-muted-foreground mt-4 mb-2">
+              태그 필터
+            </div>
             <ToggleGroup
               type="multiple"
               value={selectedTags}
@@ -201,26 +244,48 @@ export function CommunityPage() {
         {/* Main list */}
         <div className="space-y-6">
           {filteredPosts.map((p) => (
-            <Link key={p.id} to={`/community/post/${p.id}`} className="block group" aria-label={`${p.title} 게시글로 이동`}>
+            <Link
+              key={p.id}
+              to={`/community/post/${p.id}`}
+              className="block group"
+              aria-label={`${p.title} 게시글로 이동`}
+            >
               <Card className="border-primary/30 shadow-sm transition-colors transition-shadow hover:shadow-md group-hover:border-primary/40 group-hover:bg-primary/5">
                 <CardContent className="pt-0">
-                  <h3 className="text-base font-semibold group-hover:text-primary pt-4 pb-2">{p.title}</h3> 
-                  <p className="text-sm text-muted-foreground pb-2">{p.excerpt}</p>
+                  <h3 className="text-base font-semibold group-hover:text-primary pt-4 pb-2">
+                    {p.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground pb-2">
+                    {p.excerpt}
+                  </p>
                   <div className="flex flex-wrap items-center gap-2 pb-3">
-                    <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                    <Badge
+                      variant="secondary"
+                      className="bg-primary/10 text-primary border border-primary/20"
+                    >
                       {p.game}
                     </Badge>
                     <Badge variant="outline">{p.topic}</Badge>
                     {p.tags.map((t) => (
-                      <Badge key={t} variant="outline" className="text-muted-foreground">
+                      <Badge
+                        key={t}
+                        variant="outline"
+                        className="text-muted-foreground"
+                      >
                         #{t}
                       </Badge>
                     ))}
                   </div>
                   <div className="text-xs text-muted-foreground flex items-center gap-4">
-                    <span className="inline-flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" /> {p.comments}</span>
-                    <span className="inline-flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {p.likes}</span>
-                    <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {p.views.toLocaleString()}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <MessageSquare className="h-3.5 w-3.5" /> {p.comments}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Heart className="h-3.5 w-3.5" /> {p.likes}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Eye className="h-3.5 w-3.5" /> {p.views.toLocaleString()}
+                    </span>
                     <span>· {p.time}</span>
                   </div>
                 </CardContent>
@@ -239,7 +304,13 @@ export function CommunityPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <StarBorder as="div" color="cyan" speed="5s" className="block w-full" style={{ borderRadius: 12 }}>
+          <StarBorder
+            as="div"
+            color="cyan"
+            speed="5s"
+            className="block w-full"
+            style={{ borderRadius: 12 }}
+          >
             <Card className="border-transparent shadow-sm rounded-xl">
               <CardHeader>
                 <CardTitle className="text-base">트렌딩 토픽</CardTitle>
@@ -249,7 +320,9 @@ export function CommunityPage() {
                   <div key={t.id} className="flex items-start justify-between">
                     <div>
                       <div className="text-sm">{t.title}</div>
-                      <div className="text-xs text-muted-foreground">{t.time}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {t.time}
+                      </div>
                     </div>
                     <Badge variant="outline">게시글 {t.posts}</Badge>
                   </div>

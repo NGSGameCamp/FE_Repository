@@ -1,17 +1,17 @@
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { 
-  Flame, 
-  Trophy, 
-  Tag, 
+import { Button } from "../y_ui/base/button";
+import { Card, CardContent } from "../y_ui/base/card";
+import { Badge } from "../y_ui/base/badge";
+import {
+  Flame,
+  Trophy,
+  Tag,
   Zap,
   Target,
   Sword,
   Car,
   Users,
   Puzzle,
-  Globe
+  Globe,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -30,14 +30,34 @@ export function Sidebar({ selectedCategory, onCategoryChange }: SidebarProps) {
     { id: "action", label: "액션", icon: Target, color: "text-red-400" },
     { id: "rpg", label: "RPG", icon: Sword, color: "text-purple-400" },
     { id: "racing", label: "레이싱", icon: Car, color: "text-blue-400" },
-    { id: "multiplayer", label: "멀티플레이어", icon: Users, color: "text-green-400" },
+    {
+      id: "multiplayer",
+      label: "멀티플레이어",
+      icon: Users,
+      color: "text-green-400",
+    },
     { id: "puzzle", label: "퍼즐", icon: Puzzle, color: "text-yellow-400" },
-    { id: "simulation", label: "시뮬레이션", icon: Globe, color: "text-cyan-400" },
+    {
+      id: "simulation",
+      label: "시뮬레이션",
+      icon: Globe,
+      color: "text-cyan-400",
+    },
   ];
 
   const tags = [
-    "무료게임", "인디게임", "VR", "모바일", "PC", "콘솔", 
-    "온라인", "오프라인", "협동", "경쟁", "스토리", "아케이드"
+    "무료게임",
+    "인디게임",
+    "VR",
+    "모바일",
+    "PC",
+    "콘솔",
+    "온라인",
+    "오프라인",
+    "협동",
+    "경쟁",
+    "스토리",
+    "아케이드",
   ];
 
   return (
@@ -52,10 +72,12 @@ export function Sidebar({ selectedCategory, onCategoryChange }: SidebarProps) {
               return (
                 <Button
                   key={category.id}
-                  variant={selectedCategory === category.id ? "secondary" : "ghost"}
+                  variant={
+                    selectedCategory === category.id ? "secondary" : "ghost"
+                  }
                   className={`w-full justify-start gap-3 ${
-                    selectedCategory === category.id 
-                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" 
+                    selectedCategory === category.id
+                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                       : "hover:bg-blue-500/10 hover:text-blue-400"
                   }`}
                   onClick={() => onCategoryChange(category.id)}
@@ -79,10 +101,12 @@ export function Sidebar({ selectedCategory, onCategoryChange }: SidebarProps) {
               return (
                 <Button
                   key={genre.id}
-                  variant={selectedCategory === genre.id ? "secondary" : "ghost"}
+                  variant={
+                    selectedCategory === genre.id ? "secondary" : "ghost"
+                  }
                   className={`w-full justify-start gap-3 ${
-                    selectedCategory === genre.id 
-                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" 
+                    selectedCategory === genre.id
+                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                       : "hover:bg-blue-500/10 hover:text-blue-400"
                   }`}
                   onClick={() => onCategoryChange(genre.id)}

@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader } from "../ui/card";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Separator } from "../ui/separator";
+import { Card, CardContent, CardHeader } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Button } from "../y_ui/base/button";
+import { Badge } from "../y_ui/base/badge";
+import { Separator } from "../y_ui/base/separator";
 import { Loader2 } from "lucide-react";
 import {
   getMyOrders,
   type Order,
   type OrderStatus,
 } from "../../api/order/orderApi";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "../y_ui/feedback/alert";
 
 const KRW = (v: number) =>
   new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(

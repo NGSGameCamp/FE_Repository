@@ -1,7 +1,7 @@
-import { Button } from "../ui/button";
+import { Button } from "../y_ui/base/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "../y_ui/base/avatar";
+import { Input } from "~/components/y_ui/base/input";
 import {
   Users,
   ShoppingCart,
@@ -27,7 +27,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../y_ui/overlay/dropdown-menu";
 import { useAuth } from "../auth/AuthContext";
 import { useCartStore } from "../../stores/cartStore";
 import { useEffect, useMemo, useState } from "react";
@@ -50,7 +50,8 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
   const location = useLocation();
   const isHome = location.pathname === "/";
   const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
-  const [publisherSession, setPublisherSession] = useState<PublisherSession | null>(null);
+  const [publisherSession, setPublisherSession] =
+    useState<PublisherSession | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -160,7 +161,10 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
         {/* Main Header */}
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to={isPublisher ? "/publisher/dashboard" : "/"} className="flex items-center">
+          <Link
+            to={isPublisher ? "/publisher/dashboard" : "/"}
+            className="flex items-center"
+          >
             <img
               src="/NGS logo.png"
               alt="NGS New Game Studio"
@@ -356,29 +360,29 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
     </header>
   );
 }
-  const handleSearch = (term: string) => {
-    const normalized = term.trim().toLowerCase();
-    if (!normalized) return;
+const handleSearch = (term: string) => {
+  const normalized = term.trim().toLowerCase();
+  if (!normalized) return;
 
-    const match = mockGames.find((game) =>
-      game.title.toLowerCase().includes(normalized)
-    );
+  const match = mockGames.find((game) =>
+    game.title.toLowerCase().includes(normalized)
+  );
 
-    if (match) {
-      navigate(`/game/${match.id}`);
-    } else {
-      navigate(`/search?query=${encodeURIComponent(term.trim())}`);
-    }
-  };
+  if (match) {
+    navigate(`/game/${match.id}`);
+  } else {
+    navigate(`/search?query=${encodeURIComponent(term.trim())}`);
+  }
+};
 
-  const onSubmitSearch = (event: React.FormEvent<HTMLFormElement>) => {
+const onSubmitSearch = (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  handleSearch(searchQuery);
+};
+
+const onKeyDownSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  if (event.key === "Enter") {
     event.preventDefault();
     handleSearch(searchQuery);
-  };
-
-  const onKeyDownSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleSearch(searchQuery);
-    }
-  };
+  }
+};

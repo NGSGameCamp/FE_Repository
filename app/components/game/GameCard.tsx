@@ -1,7 +1,7 @@
-import { Card, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { Card, CardContent } from "../y_ui/base/card";
+import { Badge } from "../y_ui/base/badge";
+import { Button } from "../y_ui/base/button";
+import { ImageWithFallback } from "../z_figma/ImageWithFallback";
 import {
   Star,
   MessageSquare,

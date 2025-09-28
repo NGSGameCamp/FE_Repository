@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Textarea } from "../ui/textarea";
-import { Separator } from "../ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Button } from "../y_ui/base/button";
+import { Badge } from "../y_ui/base/badge";
+import { Textarea } from "../y_ui/base/textarea";
+import { Separator } from "../y_ui/base/separator";
 import { Star, ShoppingCart, CreditCard, Users, Heart } from "lucide-react";
 import {
   Carousel,
@@ -12,7 +12,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "../ui/carousel";
+} from "../y_ui/data-display/carousel";
 import { toast } from "sonner";
 import { addGameToCart } from "../../api/order/orderApi";
 import { useCartStore } from "../../stores/cartStore";
@@ -511,10 +511,26 @@ export function GameDetailView() {
                 </div>
                 <Badge className="bg-red-500/80">-{discountPercent}%</Badge>
               </div>
-              <div className="text-3xl font-extrabold text-primary">{KRW(game.price)}</div>
-              <Button className="w-full mb-2" onClick={() => navigate("/payment")}>지금 구매</Button>
-              <Button className="w-full mb-2" style={{ backgroundColor: '#10b981' }} onClick={handleAddToCart} disabled={isAddingToCart || isAlreadyInCart}>
-                {isAddingToCart ? '추가 중...' : isAlreadyInCart ? '장바구니에 있음' : '장바구니에 추가'}
+              <div className="text-3xl font-extrabold text-primary">
+                {KRW(game.price)}
+              </div>
+              <Button
+                className="w-full mb-2"
+                onClick={() => navigate("/payment")}
+              >
+                지금 구매
+              </Button>
+              <Button
+                className="w-full mb-2"
+                style={{ backgroundColor: "#10b981" }}
+                onClick={handleAddToCart}
+                disabled={isAddingToCart || isAlreadyInCart}
+              >
+                {isAddingToCart
+                  ? "추가 중..."
+                  : isAlreadyInCart
+                  ? "장바구니에 있음"
+                  : "장바구니에 추가"}
               </Button>
               <Button
                 variant="outline"

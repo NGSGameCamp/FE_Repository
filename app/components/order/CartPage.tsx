@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Button } from "../y_ui/base/button";
+import { Separator } from "../y_ui/base/separator";
 import { Trash2, Loader2 } from "lucide-react";
-import { getCart, removeGameFromCart, type Order } from "../../api/order/orderApi";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import {
+  getCart,
+  removeGameFromCart,
+  type Order,
+} from "../../api/order/orderApi";
+import { Alert, AlertDescription, AlertTitle } from "../y_ui/feedback/alert";
 import { useCartStore } from "../../stores/cartStore";
 import { useAuth } from "../auth/AuthContext";
 import {

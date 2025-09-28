@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Textarea } from "../y_ui/base/textarea";
+import { Button } from "../y_ui/base/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
@@ -39,7 +45,8 @@ export default function CommunityWritePage() {
   const onSubmit = () => {
     setError(null);
     if (!title.trim()) return setError("제목을 입력하세요.");
-    if (content.trim().length < 10) return setError("내용을 10자 이상 입력하세요.");
+    if (content.trim().length < 10)
+      return setError("내용을 10자 이상 입력하세요.");
     const tagList = tags
       .split(",")
       .map((t) => t.trim())

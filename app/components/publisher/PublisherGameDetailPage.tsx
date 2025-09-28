@@ -1,13 +1,28 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Gamepad, AlertTriangle, Calendar, Edit3, BarChart3, Star, Users, Activity, type LucideIcon } from "lucide-react";
+import {
+  Gamepad,
+  AlertTriangle,
+  Calendar,
+  Edit3,
+  BarChart3,
+  Star,
+  Users,
+  Activity,
+  type LucideIcon,
+} from "lucide-react";
 import { PublisherLayout } from "./PublisherLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Separator } from "../ui/separator";
-import { Textarea } from "../ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Button } from "../y_ui/base/button";
+import { Badge } from "../y_ui/base/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../y_ui/navigation/tabs";
+import { Separator } from "../y_ui/base/separator";
+import { Textarea } from "../y_ui/base/textarea";
 import { toast } from "sonner";
 import { mockGames } from "@/data/mockGames";
 import type { MockGame } from "@/data/mockGames";
@@ -58,13 +73,35 @@ const gameDetails: Record<string, GameOverview> = {
     genre: "RPG",
     tags: ["사이버펑크", "오픈월드", "액션"],
     updates: [
-      { version: "v1.2.0", date: "2024-11-28", summary: "새로운 퀘스트와 버그 수정" },
-      { version: "v1.1.5", date: "2024-11-15", summary: "성능 최적화 및 안정성 개선" },
-      { version: "v1.1.0", date: "2024-10-30", summary: "신규 맵 추가 및 밸런스 조정" },
+      {
+        version: "v1.2.0",
+        date: "2024-11-28",
+        summary: "새로운 퀘스트와 버그 수정",
+      },
+      {
+        version: "v1.1.5",
+        date: "2024-11-15",
+        summary: "성능 최적화 및 안정성 개선",
+      },
+      {
+        version: "v1.1.0",
+        date: "2024-10-30",
+        summary: "신규 맵 추가 및 밸런스 조정",
+      },
     ],
     notices: [
-      { id: "notice-1", title: "크로스플레이 베타 일정 안내", date: "2024-11-10", views: 1520 },
-      { id: "notice-2", title: "겨울 프로모션 사전 공지", date: "2024-10-25", views: 980 },
+      {
+        id: "notice-1",
+        title: "크로스플레이 베타 일정 안내",
+        date: "2024-11-10",
+        views: 1520,
+      },
+      {
+        id: "notice-2",
+        title: "겨울 프로모션 사전 공지",
+        date: "2024-10-25",
+        views: 980,
+      },
     ],
     minimumSpec: {
       os: "Windows 10 64-bit",
@@ -80,11 +117,21 @@ const gameDetails: Record<string, GameOverview> = {
       graphics: "NVIDIA RTX 2070",
       storage: "70 GB SSD",
     },
-    features: ["실시간 전투 시스템", "분기형 스토리", "크로스플레이 지원", "시즌제 콘텐츠"],
+    features: [
+      "실시간 전투 시스템",
+      "분기형 스토리",
+      "크로스플레이 지원",
+      "시즌제 콘텐츠",
+    ],
   },
 };
 
-const saleStatusCycle = ["판매 중", "검수 중", "판매 중지", "출시 예정"] as const;
+const saleStatusCycle = [
+  "판매 중",
+  "검수 중",
+  "판매 중지",
+  "출시 예정",
+] as const;
 const platformSets: string[][] = [
   ["PC"],
   ["PC", "PlayStation"],
@@ -164,33 +211,49 @@ function buildOverviewFromGame(game: MockGame, index: number): GameOverview {
   const saleStatus = saleStatusCycle[normalizedIndex % saleStatusCycle.length];
   const priceValue = parseNumber(game.price);
   const totalSales = 900 + normalizedIndex * 140;
-  const reviewCount = parseNumber(game.reviews) || Math.round(totalSales * 0.32);
+  const reviewCount =
+    parseNumber(game.reviews) || Math.round(totalSales * 0.32);
   const revenue =
     priceValue > 0
       ? priceValue * totalSales
       : (900 + normalizedIndex * 220) * 15000;
-  const releaseDate = `2024-${String((normalizedIndex % 12) + 1).padStart(2, "0")}-${String(12 + (normalizedIndex % 10)).padStart(2, "0")}`;
+  const releaseDate = `2024-${String((normalizedIndex % 12) + 1).padStart(
+    2,
+    "0"
+  )}-${String(12 + (normalizedIndex % 10)).padStart(2, "0")}`;
   const platforms = platformSets[normalizedIndex % platformSets.length];
   const features = Array.from(
     new Set([
       ...game.tags,
       featureLibrary[normalizedIndex % featureLibrary.length],
       featureLibrary[(normalizedIndex + 3) % featureLibrary.length],
-    ]),
+    ])
   );
   const updates = Array.from({ length: 3 }, (_, idx) => ({
     version: `v1.${normalizedIndex + idx + 1}.${(idx + 2) % 5}`,
-    date: `2024-${String(((normalizedIndex + 11 - idx) % 12) + 1).padStart(2, "0")}-${String(20 - idx * 4).padStart(2, "0")}`,
-    summary: `${game.title} ${updateTopics[(idx + normalizedIndex) % updateTopics.length]} 업데이트`,
+    date: `2024-${String(((normalizedIndex + 11 - idx) % 12) + 1).padStart(
+      2,
+      "0"
+    )}-${String(20 - idx * 4).padStart(2, "0")}`,
+    summary: `${game.title} ${
+      updateTopics[(idx + normalizedIndex) % updateTopics.length]
+    } 업데이트`,
   }));
   const notices = Array.from({ length: 2 }, (_, idx) => ({
     id: `notice-${game.id}-${idx + 1}`,
-    title: `${noticeTopics[(idx + normalizedIndex) % noticeTopics.length]} 안내`,
-    date: `2024-${String(((normalizedIndex + idx + 8) % 12) + 1).padStart(2, "0")}-${String(8 + idx * 7).padStart(2, "0")}`,
+    title: `${
+      noticeTopics[(idx + normalizedIndex) % noticeTopics.length]
+    } 안내`,
+    date: `2024-${String(((normalizedIndex + idx + 8) % 12) + 1).padStart(
+      2,
+      "0"
+    )}-${String(8 + idx * 7).padStart(2, "0")}`,
     views: 600 + normalizedIndex * 160 + idx * 210,
   }));
-  const minimumSpecTemplate = minimumSpecTemplates[normalizedIndex % minimumSpecTemplates.length];
-  const recommendedSpecTemplate = recommendedSpecTemplates[normalizedIndex % recommendedSpecTemplates.length];
+  const minimumSpecTemplate =
+    minimumSpecTemplates[normalizedIndex % minimumSpecTemplates.length];
+  const recommendedSpecTemplate =
+    recommendedSpecTemplates[normalizedIndex % recommendedSpecTemplates.length];
 
   return {
     releaseDate,
@@ -218,16 +281,22 @@ function buildOverviewFromGame(game: MockGame, index: number): GameOverview {
 }
 
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(value);
+  new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" }).format(
+    value
+  );
 
-const formatNumber = (value: number) => new Intl.NumberFormat("ko-KR").format(value);
+const formatNumber = (value: number) =>
+  new Intl.NumberFormat("ko-KR").format(value);
 
 export default function PublisherGameDetailPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const [updateContent, setUpdateContent] = useState("");
 
-  const game = useMemo(() => mockGames.find((item) => item.id === gameId), [gameId]);
+  const game = useMemo(
+    () => mockGames.find((item) => item.id === gameId),
+    [gameId]
+  );
   const detail = useMemo(() => {
     if (!game) return undefined;
     const index = mockGames.findIndex((item) => item.id === game.id);
@@ -247,7 +316,8 @@ export default function PublisherGameDetailPage() {
       >
         <Card className="border border-white/12 bg-publisher-card text-center text-white/70">
           <CardContent className="py-16">
-            존재하지 않는 게임입니다. 게임 관리 페이지로 돌아가 다시 시도해 주세요.
+            존재하지 않는 게임입니다. 게임 관리 페이지로 돌아가 다시 시도해
+            주세요.
             <div className="mt-6 flex justify-center">
               <Button
                 className="h-11 rounded-2xl bg-blue-500 px-6 text-sm font-semibold text-white"
@@ -319,11 +389,18 @@ export default function PublisherGameDetailPage() {
                 <div>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-white/60">
                     <span>장르: {detail.genre}</span>
-                    <Separator orientation="vertical" className="hidden h-3 sm:block" />
+                    <Separator
+                      orientation="vertical"
+                      className="hidden h-3 sm:block"
+                    />
                     <span>플랫폼: {detail.platforms.join(", ")}</span>
-                    <Separator orientation="vertical" className="hidden h-3 sm:block" />
+                    <Separator
+                      orientation="vertical"
+                      className="hidden h-3 sm:block"
+                    />
                     <span className="inline-flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5" /> 출시일 {detail.releaseDate}
+                      <Calendar className="h-3.5 w-3.5" /> 출시일{" "}
+                      {detail.releaseDate}
                     </span>
                   </div>
                   <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white lg:text-4xl">
@@ -335,29 +412,56 @@ export default function PublisherGameDetailPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <StatCard label="현재 가격" value={formatCurrency(detail.price)} />
-                  <StatCard label="총 판매량" value={formatNumber(detail.totalSales)} />
-                  <StatCard label="총 수익" value={formatCurrency(detail.revenue)} />
-                  <StatCard label="평균 평점" value={`${detail.rating.toFixed(1)} / 5`} />
+                  <StatCard
+                    label="현재 가격"
+                    value={formatCurrency(detail.price)}
+                  />
+                  <StatCard
+                    label="총 판매량"
+                    value={formatNumber(detail.totalSales)}
+                  />
+                  <StatCard
+                    label="총 수익"
+                    value={formatCurrency(detail.revenue)}
+                  />
+                  <StatCard
+                    label="평균 평점"
+                    value={`${detail.rating.toFixed(1)} / 5`}
+                  />
                 </div>
               </div>
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="h-11 rounded-2xl border border-white/12 bg-white/5 text-white/60">
-                <TabsTrigger value="overview" className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white">
+                <TabsTrigger
+                  value="overview"
+                  className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white"
+                >
                   개요
                 </TabsTrigger>
-                <TabsTrigger value="stats" className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white">
+                <TabsTrigger
+                  value="stats"
+                  className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white"
+                >
                   판매 통계
                 </TabsTrigger>
-                <TabsTrigger value="reviews" className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white">
+                <TabsTrigger
+                  value="reviews"
+                  className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white"
+                >
                   리뷰
                 </TabsTrigger>
-                <TabsTrigger value="updates" className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white">
+                <TabsTrigger
+                  value="updates"
+                  className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white"
+                >
                   업데이트
                 </TabsTrigger>
-                <TabsTrigger value="dlc" className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white">
+                <TabsTrigger
+                  value="dlc"
+                  className="rounded-2xl data-[state=active]:bg-white/15 data-[state=active]:text-white"
+                >
                   DLC
                 </TabsTrigger>
               </TabsList>
@@ -372,7 +476,12 @@ export default function PublisherGameDetailPage() {
                 <ReviewSection detail={detail} />
               </TabsContent>
               <TabsContent value="updates" className="space-y-8 pt-6">
-                <UpdateSection detail={detail} updateContent={updateContent} onChange={setUpdateContent} onPost={handlePostUpdate} />
+                <UpdateSection
+                  detail={detail}
+                  updateContent={updateContent}
+                  onChange={setUpdateContent}
+                  onPost={handlePostUpdate}
+                />
               </TabsContent>
               <TabsContent value="dlc" className="space-y-8 pt-6">
                 <DlcPlaceholder />
@@ -388,21 +497,30 @@ export default function PublisherGameDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4 p-6">
               {detail.notices.map((notice) => (
-                <div key={notice.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/75">
+                <div
+                  key={notice.id}
+                  className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/75"
+                >
                   <div>
                     <p className="font-medium text-white">{notice.title}</p>
-                    <p className="text-xs text-white/50">{notice.date} · 조회수 {formatNumber(notice.views)}</p>
+                    <p className="text-xs text-white/50">
+                      {notice.date} · 조회수 {formatNumber(notice.views)}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
                     className="h-9 rounded-xl border border-white/10 bg-white/5 px-3 text-xs text-white/70 hover:bg-white/10"
-                    onClick={() => toast.info("공지 상세는 곧 연결될 예정입니다.")}
+                    onClick={() =>
+                      toast.info("공지 상세는 곧 연결될 예정입니다.")
+                    }
                   >
                     조회
                   </Button>
                 </div>
               ))}
-              {detail.notices.length === 0 && <p className="text-sm text-white/50">등록된 공지가 없습니다.</p>}
+              {detail.notices.length === 0 && (
+                <p className="text-sm text-white/50">등록된 공지가 없습니다.</p>
+              )}
             </CardContent>
           </Card>
 
@@ -411,7 +529,10 @@ export default function PublisherGameDetailPage() {
               <CardTitle className="text-lg text-red-100">위험 구역</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 p-6 text-sm text-red-100/90">
-              <p>게임을 완전히 삭제하거나 판매 중지를 요청할 수 있습니다. 승인 후 적용됩니다.</p>
+              <p>
+                게임을 완전히 삭제하거나 판매 중지를 요청할 수 있습니다. 승인 후
+                적용됩니다.
+              </p>
               <div className="flex flex-col gap-3">
                 <Button
                   variant="ghost"
@@ -449,14 +570,19 @@ function OverviewSection({ detail }: { detail: GameOverview }) {
     <div className="space-y-8">
       <div>
         <h3 className="text-lg font-semibold text-white">게임 소개</h3>
-        <p className="mt-3 text-sm leading-6 text-white/70">{detail.description}</p>
+        <p className="mt-3 text-sm leading-6 text-white/70">
+          {detail.description}
+        </p>
       </div>
 
       <div>
         <h3 className="text-lg font-semibold text-white">핵심 기능</h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {detail.features.map((feature) => (
-            <Badge key={feature} className="rounded-full border border-blue-400/40 bg-blue-500/15 px-3 py-1 text-xs text-blue-100">
+            <Badge
+              key={feature}
+              className="rounded-full border border-blue-400/40 bg-blue-500/15 px-3 py-1 text-xs text-blue-100"
+            >
               {feature}
             </Badge>
           ))}
@@ -479,10 +605,26 @@ function SalesStats({ detail }: { detail: GameOverview }) {
           <CardTitle className="text-base">실시간 KPI</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <Metric label="활성 플레이어" value={formatNumber(detail.activePlayers)} icon={Users} />
-          <Metric label="평균 평점" value={`${detail.rating.toFixed(1)} / 5`} icon={Star} />
-          <Metric label="환불률" value={`${detail.refundRate.toFixed(1)}%`} icon={Activity} />
-          <Metric label="리뷰 수" value={formatNumber(detail.reviewCount)} icon={BarChart3} />
+          <Metric
+            label="활성 플레이어"
+            value={formatNumber(detail.activePlayers)}
+            icon={Users}
+          />
+          <Metric
+            label="평균 평점"
+            value={`${detail.rating.toFixed(1)} / 5`}
+            icon={Star}
+          />
+          <Metric
+            label="환불률"
+            value={`${detail.refundRate.toFixed(1)}%`}
+            icon={Activity}
+          />
+          <Metric
+            label="리뷰 수"
+            value={formatNumber(detail.reviewCount)}
+            icon={BarChart3}
+          />
         </CardContent>
       </Card>
 
@@ -508,9 +650,18 @@ function ReviewSection({ detail }: { detail: GameOverview }) {
           <CardTitle className="text-base">요약</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-white/70">
-          <p>평점 {detail.rating.toFixed(1)}점 · 총 {formatNumber(detail.reviewCount)}개의 리뷰가 수집되었습니다.</p>
-          <p>긍정 리뷰는 게임의 풍부한 스토리와 도시 디자인을 높게 평가하고 있습니다.</p>
-          <p>부정 리뷰는 일부 구간의 최적화 문제 및 온라인 매칭 대기를 지적합니다.</p>
+          <p>
+            평점 {detail.rating.toFixed(1)}점 · 총{" "}
+            {formatNumber(detail.reviewCount)}개의 리뷰가 수집되었습니다.
+          </p>
+          <p>
+            긍정 리뷰는 게임의 풍부한 스토리와 도시 디자인을 높게 평가하고
+            있습니다.
+          </p>
+          <p>
+            부정 리뷰는 일부 구간의 최적화 문제 및 온라인 매칭 대기를
+            지적합니다.
+          </p>
         </CardContent>
       </Card>
 
@@ -520,7 +671,9 @@ function ReviewSection({ detail }: { detail: GameOverview }) {
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-white/70">
           <p>· 커뮤니티 팀이 24시간 이내 응답률 92%를 유지 중입니다.</p>
-          <p>· 다음 패치에서 최적화 개선 및 보안 패치를 우선 적용 예정입니다.</p>
+          <p>
+            · 다음 패치에서 최적화 개선 및 보안 패치를 우선 적용 예정입니다.
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -546,7 +699,10 @@ function UpdateSection({
         </CardHeader>
         <CardContent className="space-y-3">
           {detail.updates.map((update) => (
-            <div key={update.version} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/75">
+            <div
+              key={update.version}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/75"
+            >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-white">{update.version}</p>
@@ -559,7 +715,9 @@ function UpdateSection({
               <p className="mt-3 text-sm text-white/70">{update.summary}</p>
             </div>
           ))}
-          {detail.updates.length === 0 && <p className="text-sm text-white/50">등록된 업데이트가 없습니다.</p>}
+          {detail.updates.length === 0 && (
+            <p className="text-sm text-white/50">등록된 업데이트가 없습니다.</p>
+          )}
         </CardContent>
       </Card>
 

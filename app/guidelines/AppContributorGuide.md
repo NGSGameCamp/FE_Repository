@@ -11,7 +11,7 @@
 - 주문/결제: `app/components/order/*` (`CartPage.tsx`, `OrdersPage.tsx`, `PaymentPage.tsx`).
 - 고객지원: `app/components/support/*`.
 - 사용자: `app/components/user/*`.
-- UI 프리미티브: `app/components/ui/*`(Button, Card, Badge 등).
+- UI 프리미티브: `app/components/ui/{base,form-controls,navigation,overlay,feedback,data-display,motion-effects,hooks}`에 분류되어 있으며(`base/button.tsx`, `form-controls/select.tsx` 등) 필요 시 기존 변형을 확장하세요.
 - 스타일: `app/global.css`(토큰/베이스), `app/index.css`(미리 컴파일된 Tailwind 유틸), `app/custom.css`(헬퍼: `grid-7-3` 등).
 
 ## 자주 하는 변경

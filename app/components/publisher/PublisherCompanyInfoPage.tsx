@@ -1,11 +1,11 @@
 import { ChangeEvent, useMemo, useRef, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
+import { Input } from "../y_ui/base/input";
+import { Textarea } from "../y_ui/base/textarea";
+import { Button } from "../y_ui/base/button";
+import { Label } from "../y_ui/base/label";
 import { PublisherLayout } from "./PublisherLayout";
-import { Badge } from "../ui/badge";
+import { Badge } from "../y_ui/base/badge";
 import { toast } from "sonner";
 import { Building2, Upload } from "lucide-react";
 
@@ -26,7 +26,10 @@ export default function PublisherCompanyInfoPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const logoLetter = useMemo(() => company.name.slice(0, 1).toUpperCase(), [company.name]);
+  const logoLetter = useMemo(
+    () => company.name.slice(0, 1).toUpperCase(),
+    [company.name]
+  );
 
   const onLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,7 +48,9 @@ export default function PublisherCompanyInfoPage() {
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    toast.success("회사 정보를 임시로 저장했습니다. 추후 API 연동 후 반영됩니다.");
+    toast.success(
+      "회사 정보를 임시로 저장했습니다. 추후 API 연동 후 반영됩니다."
+    );
   };
 
   return (
@@ -72,10 +77,7 @@ export default function PublisherCompanyInfoPage() {
           </nav>
         </aside>
 
-        <form
-          onSubmit={onSubmit}
-          className="space-y-6"
-        >
+        <form onSubmit={onSubmit} className="space-y-6">
           <Card className="border border-white/12 bg-publisher-card text-white shadow-[0_26px_70px_rgba(5,12,30,0.55)]">
             <CardHeader>
               <CardTitle className="text-lg">회사 정보</CardTitle>
@@ -87,7 +89,10 @@ export default function PublisherCompanyInfoPage() {
                   id="company-name"
                   value={company.name}
                   onChange={(event) =>
-                    setCompany((prev) => ({ ...prev, name: event.target.value }))
+                    setCompany((prev) => ({
+                      ...prev,
+                      name: event.target.value,
+                    }))
                   }
                   className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   required
@@ -116,7 +121,9 @@ export default function PublisherCompanyInfoPage() {
                     >
                       <Upload className="mr-2 h-4 w-4" /> 로고 변경
                     </Button>
-                    <p className="text-xs text-white/50">권장 크기: 200x200px, JPG/PNG</p>
+                    <p className="text-xs text-white/50">
+                      권장 크기: 200x200px, JPG/PNG
+                    </p>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -135,7 +142,10 @@ export default function PublisherCompanyInfoPage() {
                     id="registration"
                     value={company.registrationNumber}
                     onChange={(event) =>
-                      setCompany((prev) => ({ ...prev, registrationNumber: event.target.value }))
+                      setCompany((prev) => ({
+                        ...prev,
+                        registrationNumber: event.target.value,
+                      }))
                     }
                     className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   />
@@ -146,7 +156,10 @@ export default function PublisherCompanyInfoPage() {
                     id="registeredAt"
                     value={company.registeredAt}
                     onChange={(event) =>
-                      setCompany((prev) => ({ ...prev, registeredAt: event.target.value }))
+                      setCompany((prev) => ({
+                        ...prev,
+                        registeredAt: event.target.value,
+                      }))
                     }
                     className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   />
@@ -159,7 +172,10 @@ export default function PublisherCompanyInfoPage() {
                   id="description"
                   value={company.description}
                   onChange={(event) =>
-                    setCompany((prev) => ({ ...prev, description: event.target.value }))
+                    setCompany((prev) => ({
+                      ...prev,
+                      description: event.target.value,
+                    }))
                   }
                   rows={4}
                   className="rounded-2xl border-white/15 bg-white/5 text-sm text-white placeholder:text-white/40"
@@ -173,7 +189,10 @@ export default function PublisherCompanyInfoPage() {
                     id="website"
                     value={company.website}
                     onChange={(event) =>
-                      setCompany((prev) => ({ ...prev, website: event.target.value }))
+                      setCompany((prev) => ({
+                        ...prev,
+                        website: event.target.value,
+                      }))
                     }
                     className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   />
@@ -184,7 +203,10 @@ export default function PublisherCompanyInfoPage() {
                     id="email"
                     value={company.contactEmail}
                     onChange={(event) =>
-                      setCompany((prev) => ({ ...prev, contactEmail: event.target.value }))
+                      setCompany((prev) => ({
+                        ...prev,
+                        contactEmail: event.target.value,
+                      }))
                     }
                     className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   />
@@ -195,7 +217,10 @@ export default function PublisherCompanyInfoPage() {
                     id="phone"
                     value={company.contactPhone}
                     onChange={(event) =>
-                      setCompany((prev) => ({ ...prev, contactPhone: event.target.value }))
+                      setCompany((prev) => ({
+                        ...prev,
+                        contactPhone: event.target.value,
+                      }))
                     }
                     className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   />
@@ -206,7 +231,10 @@ export default function PublisherCompanyInfoPage() {
                     id="address"
                     value={company.address}
                     onChange={(event) =>
-                      setCompany((prev) => ({ ...prev, address: event.target.value }))
+                      setCompany((prev) => ({
+                        ...prev,
+                        address: event.target.value,
+                      }))
                     }
                     className="h-11 rounded-2xl border-white/15 bg-white/5 text-white placeholder:text-white/40"
                   />

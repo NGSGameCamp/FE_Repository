@@ -50,17 +50,17 @@ This guide codifies the visual language and component patterns in this repo so o
 
 ## Components (Primitives)
 
-- `Button` (`app/components/ui/button.tsx`)
+- `Button` (`app/components/ui/base/button.tsx`)
   - Variants: `default | destructive | outline | secondary | ghost | link` via `cva`.
   - Sizes: `sm | default | lg | icon`.
   - Implementation: uses `React.forwardRef` and Radix `Slot` for `asChild` support.
   - Integration: When used inside Radix triggers (e.g., `DropdownMenuTrigger`), pass `asChild` to the trigger and render `<Button>` as child.
 
-- `Card` (`app/components/ui/card.tsx`)
+- `Card` (`app/components/ui/base/card.tsx`)
   - Purpose: neutral surface with border; used for list items, panels.
   - Compose with `CardHeader`, `CardContent`, etc., or plain `Card` wrapper.
 
-- `Badge` (`app/components/ui/badge.tsx`)
+- `Badge` (`app/components/ui/base/badge.tsx`)
   - Variants: `default | secondary | destructive | outline`.
   - Use for tags, statuses, small highlights.
 
@@ -141,7 +141,7 @@ This guide codifies the visual language and component patterns in this repo so o
 - Tokens & base: `app/global.css`
 - Precompiled utilities: `app/index.css`
 - Custom helpers: `app/custom.css`
-- UI primitives: `app/components/ui/*`
+- UI primitives: `app/components/ui/{base,form-controls,navigation,overlay,feedback,data-display,motion-effects,hooks}`
 - Page modules: `app/components/game/*Section.tsx`, `game/FeaturedGame.tsx`, `layout/Header.tsx`
 
 ---
