@@ -1,8 +1,8 @@
-import { API_BASE_URL, fetchApi } from "../fetchApi";
+import { fetchApi } from "../fetchApi";
 import type { signInRequest, signInResponse, signUpRequest } from "./types";
 
 const signIn = (request: signInRequest): Promise<signInResponse> => {
-  return fetchApi<signInResponse>(`${API_BASE_URL}/auth/signin`, {
+  return fetchApi<signInResponse>(`/auth/signin`, {
     method: "POST",
     body: JSON.stringify(request),
   });
@@ -10,7 +10,7 @@ const signIn = (request: signInRequest): Promise<signInResponse> => {
 
 const signUp = (request: signUpRequest): Promise<boolean> => {
   return fetchApi<boolean>(
-    `${API_BASE_URL}/auth/signup`,
+    `/auth/signup`,
     {
       method: "POST",
       body: JSON.stringify(request),

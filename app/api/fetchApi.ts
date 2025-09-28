@@ -1,13 +1,10 @@
-// 백엔드 API의 기본 URL
-export const API_BASE_URL = "/api";
-
 // 공통 fetch 함수
 export async function fetchApi<T>(
   url: string,
   options: RequestInit = {},
   ok?: boolean // 응답 본문 안 받고 ok만 받을 때 사용함
 ): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch("/api" + url, {
     ...options,
     credentials: "include",
     headers: {

@@ -1,13 +1,6 @@
-import { API_BASE_URL, fetchApi } from "../fetchApi";
-import {
-  mockCommunityBoardDetail,
-  mockCommunityBoards,
-} from "./mocks";
-import type {
-  ApiResult,
-  CommunityBoard,
-  CommunityBoardDetail,
-} from "./types";
+import { VITE_API_URL, fetchApi } from "../fetchApi";
+import { mockCommunityBoardDetail, mockCommunityBoards } from "./mocks";
+import type { ApiResult, CommunityBoard, CommunityBoardDetail } from "./types";
 
 function clone<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -26,11 +19,14 @@ async function requestWithFallback<T>(
   fallback: T
 ): Promise<ApiResult<T>> {
   try {
-    const data = await fetchApi<T>(`${API_BASE_URL}${path}`);
+    const data = await fetchApi<T>(`${path}`);
     return { data, isMock: false };
   } catch (error) {
     if (import.meta.env?.DEV) {
-      console.warn(`[communityApi] ${path} 요청 실패로 mock 데이터 사용`, error);
+      console.warn(
+        `[communityApi] ${path} 요청 실패로 mock 데이터 사용`,
+        error
+      );
     }
     return { data: clone(fallback), isMock: true };
   }
