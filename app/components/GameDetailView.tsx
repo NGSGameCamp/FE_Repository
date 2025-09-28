@@ -511,23 +511,10 @@ export function GameDetailView() {
                 </div>
                 <Badge className="bg-red-500/80">-{discountPercent}%</Badge>
               </div>
-              <div className="text-3xl font-extrabold text-primary">
-                {KRW(game.price)}
-              </div>
-              <Button className="w-full" onClick={() => navigate("/payment")}>
-                지금 구매
-              </Button>
-              <Button
-                className="w-full"
-                style={{ backgroundColor: "#10b981" }}
-                onClick={handleAddToCart}
-                disabled={isAddingToCart || isAlreadyInCart}
-              >
-                {isAddingToCart
-                  ? "추가 중..."
-                  : isAlreadyInCart
-                  ? "장바구니에 있음"
-                  : "장바구니에 추가"}
+              <div className="text-3xl font-extrabold text-primary">{KRW(game.price)}</div>
+              <Button className="w-full mb-2" onClick={() => navigate("/payment")}>지금 구매</Button>
+              <Button className="w-full mb-2" style={{ backgroundColor: '#10b981' }} onClick={handleAddToCart} disabled={isAddingToCart || isAlreadyInCart}>
+                {isAddingToCart ? '추가 중...' : isAlreadyInCart ? '장바구니에 있음' : '장바구니에 추가'}
               </Button>
               <Button
                 variant="outline"

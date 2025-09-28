@@ -30,7 +30,13 @@ import {
 } from "./ui/dropdown-menu";
 import { useAuth } from "./auth/AuthContext";
 import { useCartStore } from "../stores/cartStore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getPublisherSession,
+  clearPublisherSession,
+  type PublisherSession,
+} from "./auth/publisherStore";
+import { mockGames } from "@/data/mockGames";
 
 interface HeaderProps {
   selectedCategory: string;
@@ -44,6 +50,8 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
   const location = useLocation();
   const isHome = location.pathname === "/";
   const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
+  const [publisherSession, setPublisherSession] = useState<PublisherSession | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     try {
@@ -54,6 +62,34 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
       setAvatarSrc(undefined);
     }
   }, [user?.email]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateSession = () => {
+      try {
+        const { session } = getPublisherSession();
+        setPublisherSession(session);
+      } catch {
+        setPublisherSession(null);
+      }
+    };
+
+    updateSession();
+    window.addEventListener("storage", updateSession);
+    return () => window.removeEventListener("storage", updateSession);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const { session } = getPublisherSession();
+      setPublisherSession(session);
+    } catch {
+      setPublisherSession(null);
+    }
+  }, [location.pathname]);
+
+  const isPublisher = !!publisherSession;
   const categories = [
     { id: "recommended", label: "추천", icon: Flame },
     { id: "trending", label: "트렌딩", icon: Trophy },
@@ -68,13 +104,63 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
     { id: "puzzle", label: "퍼즐", icon: Puzzle },
   ];
 
+  const navItems = useMemo(() => {
+    if (isPublisher) {
+      return [
+        {
+          to: "/publisher/dashboard",
+          label: "배급사 센터",
+          Icon: Building2,
+        },
+        {
+          to: "/publisher/dashboard?panel=overview",
+          label: "대시보드",
+          Icon: LayoutDashboard,
+        },
+        {
+          to: "/publisher/games",
+          label: "게임 관리",
+          Icon: Gamepad2,
+        },
+        {
+          to: "/publisher/notices",
+          label: "공지 관리",
+          Icon: ClipboardList,
+        },
+        {
+          to: "/publisher/info",
+          label: "회사 정보",
+          Icon: Building2,
+        },
+      ];
+    }
+
+    return [
+      {
+        to: "/library",
+        label: "라이브러리",
+        Icon: Gamepad2,
+      },
+      {
+        to: "/search",
+        label: "검색",
+        Icon: Search,
+      },
+      {
+        to: "/community",
+        label: "커뮤니티",
+        Icon: Users,
+      },
+    ];
+  }, [isPublisher]);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-6">
         {/* Main Header */}
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+          <Link to={isPublisher ? "/publisher/dashboard" : "/"} className="flex items-center">
             <img
               src="/NGS logo.png"
               alt="NGS New Game Studio"
@@ -83,52 +169,38 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
           </Link>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-10 pr-4 h-9 placeholder:text-muted-foreground"
-                placeholder="게임 검색..."
-                type="search"
-              />
-            </div>
-          </div>
+          {!isPublisher && (
+            <form onSubmit={onSubmitSearch} className="flex-1 max-w-md mx-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={onKeyDownSearch}
+                  className="pl-10 pr-4 h-9 placeholder:text-muted-foreground"
+                  placeholder="게임 검색..."
+                  type="search"
+                />
+              </div>
+            </form>
+          )}
 
           {/* User Actions */}
           <nav className="flex items-center space-x-4">
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Link to="/library" className="inline-flex items-center">
-                <Gamepad2 className="h-4 w-4 mr-2" />
-                라이브러리
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Link to="/search" className="inline-flex items-center">
-                <Search className="h-4 w-4 mr-2" />
-                검색
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Link to="/community" className="inline-flex items-center">
-                <Users className="h-4 w-4 mr-2" />
-                커뮤니티
-              </Link>
-            </Button>
+            {navItems.map(({ to, label, Icon }) => (
+              <Button
+                key={label}
+                asChild
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+              >
+                <Link to={to} className="inline-flex items-center">
+                  <Icon className="h-4 w-4 mr-2" />
+                  {label}
+                </Link>
+              </Button>
+            ))}
 
             <Button
               asChild
@@ -141,52 +213,6 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
                 고객센터
               </Link>
             </Button>
-
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Link
-                to="/publisher/dashboard"
-                className="inline-flex items-center"
-              >
-                <Building2 className="h-4 w-4 mr-2" />
-                배급사 센터
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Link
-                to="/publisher/dashboard"
-                className="inline-flex items-center"
-              >
-                <LayoutDashboard className="h-4 w-4 mr-2" />
-                대시보드
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            >
-              <Link
-                to="/publisher/notices"
-                className="inline-flex items-center"
-              >
-                <ClipboardList className="h-4 w-4 mr-2" />
-                공지 관리
-              </Link>
-            </Button>
-
             {isAuthenticated && (
               <Button
                 asChild
@@ -206,7 +232,7 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
               </Button>
             )}
 
-            {!isAuthenticated ? (
+            {!isAuthenticated && !isPublisher && (
               <Button
                 asChild
                 variant="outline"
@@ -218,7 +244,8 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
                   Sign in
                 </Link>
               </Button>
-            ) : (
+            )}
+            {isAuthenticated && (
               <Button
                 variant="outline"
                 size="sm"
@@ -229,6 +256,20 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
                 }}
               >
                 Sign out
+              </Button>
+            )}
+            {isPublisher && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
+                onClick={() => {
+                  clearPublisherSession();
+                  setPublisherSession(null);
+                  navigate("/publisher/login");
+                }}
+              >
+                Publisher Sign out
               </Button>
             )}
             {isAuthenticated && (
@@ -315,3 +356,29 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
     </header>
   );
 }
+  const handleSearch = (term: string) => {
+    const normalized = term.trim().toLowerCase();
+    if (!normalized) return;
+
+    const match = mockGames.find((game) =>
+      game.title.toLowerCase().includes(normalized)
+    );
+
+    if (match) {
+      navigate(`/game/${match.id}`);
+    } else {
+      navigate(`/search?query=${encodeURIComponent(term.trim())}`);
+    }
+  };
+
+  const onSubmitSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSearch(searchQuery);
+  };
+
+  const onKeyDownSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSearch(searchQuery);
+    }
+  };

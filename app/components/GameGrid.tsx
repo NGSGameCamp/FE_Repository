@@ -9,7 +9,7 @@ interface Game {
   title: string;
   image: string;
   rating: number;
-  downloads: string;
+  reviews: string;
   genre: string;
   tags: string[];
   price: string;
@@ -27,6 +27,17 @@ export function GameGrid({
   selectedCategory,
   onCategoryChange,
 }: GameGridProps) {
+  const getReviewCount = (value: string) => {
+    const numeric = parseFloat(value.replace(/[^0-9.]/g, ""));
+    if (Number.isNaN(numeric)) return 0;
+    if (value.includes("만")) return numeric * 10000;
+    if (/[mk]/i.test(value)) {
+      if (/m/i.test(value)) return numeric * 1_000_000;
+      if (/k/i.test(value)) return numeric * 1000;
+    }
+    return numeric;
+  };
+
   // Filter games for different sections
   const topRatedGames = games
     .filter((game) => game.rating >= 4.7)
@@ -44,7 +55,7 @@ export function GameGrid({
     .slice(0, 6);
 
   const trendingGames = games
-    .filter((game) => parseInt(game.downloads.replace(/[^\d]/g, "")) >= 2000000)
+    .filter((game) => getReviewCount(game.reviews) >= 200)
     .slice(0, 6);
 
   // If a specific category is selected, show filtered results
@@ -52,7 +63,7 @@ export function GameGrid({
     const filteredGames = games.filter((game) => {
       switch (selectedCategory) {
         case "trending":
-          return parseInt(game.downloads.replace(/[^\d]/g, "")) >= 2000000;
+          return getReviewCount(game.reviews) >= 200;
         case "new":
           return ["7", "8", "1"].includes(game.id);
         case "action":

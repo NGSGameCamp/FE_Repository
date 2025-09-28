@@ -8,7 +8,7 @@ interface Game {
   title: string;
   image: string;
   rating: number;
-  downloads: string;
+  reviews: string;
   genre: string;
   tags: string[];
   price: string;

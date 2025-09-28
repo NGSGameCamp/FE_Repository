@@ -72,7 +72,7 @@ This guide codifies the visual language and component patterns in this repo so o
   - Guidelines: keep action buttons ghost/outline; avoid heavy fills in the header.
 
 - FeaturedGame (`app/components/FeaturedGame.tsx`)
-  - Content: genre badges, title, description, stats (rating/downloads/price), tags, actions.
+  - Content: genre badges, title, description, stats (rating/reviews/price), tags, actions.
   - Media: background image with low opacity overlay and gradient mask; foreground image tile on the right (hover scale).
   - Actions: primary “상세 페이지”, outline “팔로잉”.
   - Props: `embed` to fill parent height and remove outside margins when used in hero row.
@@ -91,7 +91,7 @@ This guide codifies the visual language and component patterns in this repo so o
   - Body: horizontal scroll list with `scroll-snap` aligned cards.
 
 - GameCard (`app/components/GameCard.tsx`)
-  - Composition: media, title, tags (badges), rating/downloads/price; action icons as needed.
+  - Composition: media, title, tags (badges), rating/reviews/price; action icons as needed.
 
 ## Responsive & Breakpoints
 
@@ -147,4 +147,3 @@ This guide codifies the visual language and component patterns in this repo so o
 ---
 
 If you add a new component or pattern, document its purpose, props, variants, and example usage here to keep generation consistent across models.
-

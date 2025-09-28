@@ -4,19 +4,19 @@ import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import {
   Star,
+  MessageSquare,
   Download,
   Heart,
   Share2,
   PlayCircle,
   ShoppingCart,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import { addGameToCart, type Game as ApiGame } from "../api/order/orderApi";
 import { addGameToLocalCart } from "../stores/localCartStore";
 import { useCartStore } from "../stores/cartStore";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface GameCardProps {
   game: {
@@ -24,7 +24,7 @@ interface GameCardProps {
     title: string;
     image: string;
     rating: number;
-    downloads: string;
+    reviews: string;
     genre: string;
     tags: string[];
     price: string;
@@ -119,7 +119,7 @@ export function GameCard({ game }: GameCardProps) {
             {game.description}
           </p>
         </div>
-        {/* Rating and Downloads */}
+        {/* Rating and Reviews */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
@@ -127,8 +127,8 @@ export function GameCard({ game }: GameCardProps) {
               <span className="text-sm">{game.rating}</span>
             </div>
             <div className="flex items-center gap-1 text-muted-foreground">
-              <Download className="h-3 w-3" />
-              <span className="text-sm">{game.downloads}</span>
+              <MessageSquare className="h-3 w-3" />
+              <span className="text-sm">{game.reviews}</span>
             </div>
           </div>
           <div className="flex items-center gap-1">
