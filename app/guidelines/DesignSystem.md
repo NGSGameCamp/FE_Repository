@@ -66,31 +66,31 @@ This guide codifies the visual language and component patterns in this repo so o
 
 ## Page Modules
 
-- Header (`app/components/Header.tsx`)
+- Header (`app/components/layout/Header.tsx`)
   - Sticky top bar with logo, search, actions.
   - Category shortcuts: “추천/트렌딩/신작” buttons + “장르별” Radix dropdown.
   - Guidelines: keep action buttons ghost/outline; avoid heavy fills in the header.
 
-- FeaturedGame (`app/components/FeaturedGame.tsx`)
+- FeaturedGame (`app/components/game/FeaturedGame.tsx`)
   - Content: genre badges, title, description, stats (rating/reviews/price), tags, actions.
   - Media: background image with low opacity overlay and gradient mask; foreground image tile on the right (hover scale).
   - Actions: primary “상세 페이지”, outline “팔로잉”.
   - Props: `embed` to fill parent height and remove outside margins when used in hero row.
 
-- NewGamesSection (`app/components/NewGamesSection.tsx`)
+- NewGamesSection (`app/components/game/NewGamesSection.tsx`)
   - Panel with title row and a list of up to 5 items (thumbnail, title, optional description, price).
   - Props: `embed` for hero row alignment.
   - Link: “더 보기” at header right.
 
-- CategoriesSection (`app/components/CategoriesSection.tsx`)
+- CategoriesSection (`app/components/game/CategoriesSection.tsx`)
   - Horizontal chip bar inside a `Card`; horizontally scrollable on small screens.
   - Buttons: rounded-full, outline on hover; `onSelect` passes the selected id upward.
 
-- GameSection (`app/components/GameSection.tsx`)
+- GameSection (`app/components/game/GameSection.tsx`)
   - Title row with optional “모두 보기”; left/right scroll buttons.
   - Body: horizontal scroll list with `scroll-snap` aligned cards.
 
-- GameCard (`app/components/GameCard.tsx`)
+- GameCard (`app/components/game/GameCard.tsx`)
   - Composition: media, title, tags (badges), rating/reviews/price; action icons as needed.
 
 ## Responsive & Breakpoints
@@ -142,7 +142,7 @@ This guide codifies the visual language and component patterns in this repo so o
 - Precompiled utilities: `app/index.css`
 - Custom helpers: `app/custom.css`
 - UI primitives: `app/components/ui/*`
-- Page modules: `app/components/*Section.tsx`, `FeaturedGame.tsx`, `Header.tsx`
+- Page modules: `app/components/game/*Section.tsx`, `game/FeaturedGame.tsx`, `layout/Header.tsx`
 
 ---
 
