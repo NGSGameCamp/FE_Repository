@@ -1,4 +1,4 @@
-import { VITE_API_URL, fetchApi } from "../fetchApi";
+import { fetchApi } from "../fetchApi";
 import { mockCommunityBoardDetail, mockCommunityBoards } from "./mocks";
 import type { ApiResult, CommunityBoard, CommunityBoardDetail } from "./types";
 
