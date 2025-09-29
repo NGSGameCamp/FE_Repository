@@ -89,8 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: info.nickname,
       });
 
-      console.log(res);
-
       const signInRes = await loginWithPassword(info.email, info.password);
       if (signInRes.ok) return { ok: true };
 
