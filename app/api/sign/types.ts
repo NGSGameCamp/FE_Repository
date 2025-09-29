@@ -4,7 +4,7 @@ interface signInRequest {
 }
 
 interface signInResponse {
-  accessToken: string;
+  // accessToken: string;
   userId: string;
   nickname: string;
   email: string;

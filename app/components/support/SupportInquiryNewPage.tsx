@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Button } from "../y_ui/base/button";
-import { Input } from "../y_ui/base/input";
 import { Textarea } from "../y_ui/base/textarea";
 import { Checkbox } from "../y_ui/form-controls/checkbox";
 import {
@@ -13,7 +12,12 @@ import {
 } from "../y_ui/form-controls/select";
 import { HelpCircle, Upload, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { createSupport } from "../../api/support/supportApi";
+import type {
+  GameSupportFormPayload,
+  SupportAttachment,
+  SupportRequest,
+} from "../../api/support/types";
 
 type ProblemType =
   | "설치 문제"
@@ -43,13 +47,13 @@ const defaultPurchased = [
 type ImagePreview = { id: string; url: string; file: File };
 
 export function SupportInquiryNewPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [game, setGame] = useState<string>("");
   const [selected, setSelected] = useState<ProblemType[]>([]);
   const [desc, setDesc] = useState<string>("");
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // API 전송 중 중복 제출을 방지하기 위한 상태값을 둔다.
 
   const purchased = useMemo(() => {
     return defaultPurchased;
@@ -81,8 +85,70 @@ export function SupportInquiryNewPage() {
     );
   };
 
-  const submit = () => {
+  const mapFormToRequest = (
+    payload: GameSupportFormPayload
+  ): SupportRequest => {
+    // mapFormToRequest는 화면에서 수집한 데이터를 API 스펙이 요구하는 필드로 재구성한다.
+    const primaryIssue = payload.issueTypes[0] ?? "기타";
+    const title = `[${primaryIssue}] ${payload.gameTitle}`;
+    const attachmentSummary = payload.attachments
+      .map(
+        (attachment) => `${attachment.name} (${formatBytes(attachment.size)})`
+      )
+      .join(", ");
+    const attachmentBlock = attachmentSummary
+      ? `\n\n첨부 파일: ${attachmentSummary}`
+      : "";
+    // TODO:
+
+    // console.log("content:", payload.issueTypes, payload.description);
+    return {
+      gameId: 0 /*payload.gameTitle*/,
+      orderId: 0 /*payload.orderId*/,
+      title,
+      content: `문제 유형: ${
+        payload.issueTypes.join(", ") || "미지정"
+      }\n\n상세 설명:\n${payload.description}${attachmentBlock}`,
+    };
+  };
+
+  const formatBytes = (size: number) => {
+    // formatBytes는 첨부 파일 크기를 사람이 읽기 쉬운 단위(KB/MB)로 변환해 문자열을 만든다.
+    if (size === 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB"];
+    const idx = Math.min(
+      Math.floor(Math.log(size) / Math.log(1024)),
+      units.length - 1
+    );
+    const formatted = size / Math.pow(1024, idx);
+    return `${formatted.toFixed(idx === 0 ? 0 : 1)} ${units[idx]}`;
+  };
+
+  const buildFormPayload = (): GameSupportFormPayload => {
+    // buildFormPayload는 폼 상태를 모아 API 전송 전 중간 데이터 객체를 구성한다.
+    const attachments: SupportAttachment[] = images.map((im) => ({
+      name: im.file.name,
+      size: im.file.size,
+    }));
+    return {
+      gameTitle: game,
+      issueTypes: selected,
+      description: desc.trim(),
+      attachments,
+      orderId: deriveOrderId(game),
+    };
+  };
+
+  const deriveOrderId = (title: string) => {
+    // deriveOrderId는 실제 주문번호가 없는 상태를 가정하고 더미 주문번호를 규칙적으로 만든다.
+    if (!title) return "ORDER-UNKNOWN";
+    const index = purchased.findIndex((item) => item === title);
+    return index >= 0 ? `ORDER-${index + 1}` : "ORDER-CUSTOM";
+  };
+
+  const submit = async () => {
     setError(null);
+    if (isSubmitting) return; // 이미 제출 중이라면 추가 요청을 차단한다.
     if (!valid) {
       if (!game) return setError("문의할 게임을 선택하세요.");
       if (!selected.length)
@@ -91,30 +157,21 @@ export function SupportInquiryNewPage() {
         return setError("상세 설명을 10자 이상 입력하세요.");
     }
     try {
-      const raw = localStorage.getItem("support:inquiries");
-      const arr = raw ? JSON.parse(raw) : [];
-      const recId = String(Date.now());
-      const rec = {
-        id: recId,
-        user: user?.email || "guest",
-        game,
-        types: selected,
-        desc: desc.trim(),
-        images: images.map((im) => ({
-          name: im.file.name,
-          size: im.file.size,
-        })),
-        createdAt: new Date().toISOString(),
-        status: "접수대기",
-        kind: "게임 문의",
-      };
-      arr.push(rec);
-      localStorage.setItem("support:inquiries", JSON.stringify(arr));
+      setIsSubmitting(true); // API 호출이 시작되면 로딩 플래그를 켜서 중복 클릭을 막는다.
+      const formPayload = buildFormPayload(); // 폼 데이터를 한곳에 모은다.
+      const requestPayload = mapFormToRequest({
+        ...formPayload,
+        orderId: formPayload.orderId,
+      }); // API 스펙에 맞는 구조로 변환한다.
+      const response = await createSupport("game", requestPayload); // support API에 게임 문의 등록 요청을 전송한다.
+
       navigate("/support/success", {
-        state: { id: `INQ-${recId}`, kind: "게임 문의" },
-      });
-    } catch {
-      setError("저장 중 오류가 발생했습니다.");
+        state: { id: `INQ-${response.id}`, kind: "게임 문의" },
+      }); // 응답 ID를 이용해 성공 화면으로 이동한다.
+    } catch (apiError) {
+      setError("문의 등록 중 오류가 발생했습니다."); // API 실패 시 사용자에게 에러를 표시한다.
+    } finally {
+      setIsSubmitting(false); // 호출 완료 후에는 다시 제출할 수 있도록 상태를 복구한다.
     }
   };
 
@@ -258,7 +315,11 @@ export function SupportInquiryNewPage() {
           일반적으로 24시간 이내에 답변드리며, 기술적 이슈는 더 소요될 수
           있습니다.
         </div>
-        <Button onClick={submit} disabled={!valid} className="px-6">
+        <Button
+          onClick={submit}
+          disabled={!valid || isSubmitting}
+          className="px-6"
+        >
           게임 문의 보내기
         </Button>
       </div>

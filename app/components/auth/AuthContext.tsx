@@ -71,9 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await signIn({ email: loginStr, pwd: password });
 
-      const token = res.accessToken;
+      // const token = res.accessToken;
       setUser({ id: res.userId, name: res.nickname, email: res.email });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token }));
+      // localStorage.setItem(STORAGE_KEY, JSON.stringify({ token }));
       return { ok: true };
     } catch (e) {
       return { ok: false, error: "로그인 중 오류가 발생했습니다." };
