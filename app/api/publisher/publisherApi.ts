@@ -1,4 +1,4 @@
-import { API_BASE_URL, fetchApi } from "../fetchApi";
+import { fetchApi } from "../fetchApi";
 import { mockPublisherCompany } from "./mocks";
 import type { ApiResult, PublisherCompany } from "./types";
 
@@ -18,9 +18,7 @@ export async function getPublisherCompany(): Promise<
   ApiResult<PublisherCompany>
 > {
   try {
-    const data = await fetchApi<PublisherCompany>(
-      `${API_BASE_URL}/publisher/company`
-    );
+    const data = await fetchApi<PublisherCompany>(`/publisher/company`);
     return { data, isMock: false };
   } catch (error) {
     if (import.meta.env?.DEV) {

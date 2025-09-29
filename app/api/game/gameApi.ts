@@ -1,10 +1,11 @@
-import { API_BASE_URL, fetchApi } from "../fetchApi";
-import {
-  mockGameDetails,
-  mockGames,
-  mockSearchGames,
-} from "./mocks";
-import type { ApiResult, GameDetail, GameSearchItem, GameSummary } from "./types";
+import { fetchApi } from "../fetchApi";
+import { mockGameDetails, mockGames, mockSearchGames } from "./mocks";
+import type {
+  ApiResult,
+  GameDetail,
+  GameSearchItem,
+  GameSummary,
+} from "./types";
 
 function cloneFallback<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -23,7 +24,7 @@ async function requestWithFallback<T>(
   fallback: T
 ): Promise<ApiResult<T>> {
   try {
-    const data = await fetchApi<T>(`${API_BASE_URL}${path}`);
+    const data = await fetchApi<T>(`${path}`);
     return { data, isMock: false };
   } catch (error) {
     if (import.meta.env?.DEV) {
