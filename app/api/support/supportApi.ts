@@ -2,20 +2,20 @@
 import { fetchApi } from "../fetchApi";
 
 export interface SupportRequest {
-  gameId: string,
-  orderId: string,
-  title: string,
+  gameId: string;
+  orderId: string;
+  title: string;
   content: string;
 }
 
 export interface SupportResponse {
-    id: number,
-    userId: number,
-    orderId: number,
-    categoryId: number,
-    title: string,
-    content: string,
-    createdAt: Date
+  id: number;
+  userId: number;
+  orderId: number;
+  categoryId: number;
+  title: string;
+  content: string;
+  createdAt: Date;
 }
 
 /**

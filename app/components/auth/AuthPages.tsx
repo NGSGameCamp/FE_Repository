@@ -46,9 +46,10 @@ export function LoginPage() {
   };
 
   const onSocial = (provider: "google" | "naver" | "kakao") => {
-    alert(`${provider} 로그인은 데모로 연결됩니다.`);
-    login({ email: `${provider}@demo.local`, name: provider.toUpperCase() });
-    navigate("/");
+    const oauthUrl = `${
+      import.meta.env.VITE_API_URL
+    }/oauth2/authorization/${provider}`;
+    window.location.href = oauthUrl;
   };
 
   return (
