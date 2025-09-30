@@ -53,13 +53,7 @@ export default function SupportSuccessPage() {
           <CardTitle className="text-base">접수 완료 정보</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-md border border-primary/20 p-3">
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
-              <CalendarDays className="h-4 w-4" />
-              접수 번호
-            </div>
-            <div className="font-medium mt-1">{id}</div>
-          </div>
+          
           <div className="rounded-md border border-primary/20 p-3">
             <div className="text-xs text-muted-foreground flex items-center gap-2">
               <Clock3 className="h-4 w-4" />
@@ -107,7 +101,7 @@ export default function SupportSuccessPage() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
         <Button
           variant="outline"
           className="border-primary/30"
