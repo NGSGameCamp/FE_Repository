@@ -176,7 +176,11 @@ export function SupportInquiryNewPage() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-6 space-y-6">
+    <div className="container mx-auto px-6 py-6">
+      <div
+        className="mx-auto w-full space-y-6"
+        style={{ width: "min(100%, 50vw)", minWidth: "320px" }}
+      >
       <div className="flex items-start gap-3">
         <HelpCircle className="h-6 w-6 text-primary mt-0.5" />
         <div>
@@ -322,6 +326,7 @@ export function SupportInquiryNewPage() {
         >
           게임 문의 보내기
         </Button>
+      </div>
       </div>
     </div>
   );
