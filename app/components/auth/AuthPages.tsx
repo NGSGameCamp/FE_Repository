@@ -243,8 +243,11 @@ export function SignupPage() {
     v === null ? "검사 전" : v ? "사용 가능" : "이미 사용 중";
 
   return (
-    <div className="container mx-auto px-6 py-10">
-      <div className="mx-auto max-w-3xl">
+    <div className="container mx-auto px-6 py-10 mt-4">
+      <div
+        className="mx-auto w-full"
+        style={{ width: "max(320px, calc(100vw / 3))" }}
+      >
         <Card className="border-primary/20">
           <CardHeader>
             <CardTitle>회원가입</CardTitle>
@@ -271,38 +274,37 @@ export function SignupPage() {
               </p>
             </div>
 
-            <Row>
-              <div className="space-y-2">
-                <Label htmlFor="email">이메일</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailChecked(null);
-                    }}
-                  />
-                  <Button variant="outline" onClick={checkEmail}>
-                    중복확인
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {helper(emailChecked)}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pwd">비밀번호</Label>
+            <div className="space-y-2">
+              <Label htmlFor="email">이메일</Label>
+              <div className="flex gap-2">
                 <Input
-                  id="pwd"
-                  type="password"
-                  placeholder="영문, 숫자 포함 8자 이상"
-                  value={pwd}
-                  onChange={(e) => setPwd(e.target.value)}
+                  id="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailChecked(null);
+                  }}
                 />
+                <Button variant="outline" onClick={checkEmail}>
+                  중복확인
+                </Button>
               </div>
-            </Row>
+              <p className="text-xs text-muted-foreground">
+                {helper(emailChecked)}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pwd">비밀번호</Label>
+              <Input
+                id="pwd"
+                type="password"
+                placeholder="영문, 숫자 포함 8자 이상"
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="pwd2">비밀번호 확인</Label>
