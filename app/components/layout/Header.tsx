@@ -140,12 +140,7 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
       ];
     }
 
-    return [
-      {
-        to: "/library",
-        label: "라이브러리",
-        Icon: Gamepad2,
-      },
+    const items = [
       {
         to: "/search",
         label: "검색",
@@ -157,7 +152,17 @@ export function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
         Icon: Users,
       },
     ];
-  }, [isPublisher]);
+
+    if (isAuthenticated) {
+      items.unshift({
+        to: "/library",
+        label: "라이브러리",
+        Icon: Gamepad2,
+      });
+    }
+
+    return items;
+  }, [isPublisher, isAuthenticated]);
 
   useEffect(() => {
     if (!hasCatalog && !gamesLoading) {

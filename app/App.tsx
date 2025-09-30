@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "./components/layout/Header";
 import { GameGrid } from "./components/game/GameGrid";
-import { Routes, Route, useParams, useLocation } from "react-router-dom";
+import { Routes, Route, useParams, useLocation, Navigate } from "react-router-dom";
 import { CommunityPage } from "./components/community/CommunityPage";
 import CommunityAllPage from "./components/community/CommunityAllPage";
 import CommunityWritePage from "./components/community/CommunityWritePage";
@@ -44,6 +44,7 @@ import UserEditPage from "./components/user/UserEditPage";
 import UserInfoPage from "./components/user/UserInfoPage";
 import UserDeletePage from "./components/user/UserDeletePage";
 import { useGameStore } from "./stores/gameStore";
+import { useAuth } from "./components/auth/AuthContext";
 
 function Payment02Stub() {
   const params = useParams();
@@ -77,6 +78,7 @@ export default function App() {
   const location = useLocation();
   const { fetchCart } = useCartStore();
   const { games, fetchGames, loading: gamesLoading } = useGameStore();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchCart();
@@ -160,7 +162,16 @@ export default function App() {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/order02" element={<ScreenStub id="order02" />} />
         <Route path="/game03" element={<ScreenStub id="game03" />} />
-        <Route path="/library" element={<LibraryPage />} />
+        <Route
+          path="/library"
+          element={
+            isAuthenticated ? (
+              <LibraryPage />
+            ) : (
+              <Navigate to="/login" replace state={{ from: location.pathname }} />
+            )
+          }
+        />
         <Route path="/user01" element={<ScreenStub id="user01" />} />
         <Route path="/user02" element={<ScreenStub id="user02" />} />
         <Route path="/user03" element={<ScreenStub id="user03" />} />
