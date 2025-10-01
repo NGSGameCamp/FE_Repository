@@ -3,7 +3,7 @@ import { Card, CardContent } from "../y_ui/base/card";
 import { Button } from "../y_ui/base/button";
 import { Badge } from "../y_ui/base/badge";
 import { useNavigate } from "react-router-dom";
-import { Eye, Heart } from "lucide-react";
+import { Eye, Heart, Clock3, History } from "lucide-react";
 
 const STORAGE_KEY = "library:games";
 
@@ -142,12 +142,12 @@ export default function LibraryPage() {
                           {game.title}
                         </div>
                       </div>
-                      {game.isFavorite ? (
-                        <Heart
-                          className="h-4 w-4 text-rose-400"
-                          fill="currentColor"
-                        />
-                      ) : null}
+                      <Heart
+                        className={`h-4 w-4 shrink-0 text-rose-400 transition-opacity duration-200 ${
+                          game.isFavorite ? "opacity-100" : "opacity-0"
+                        }`}
+                        fill={game.isFavorite ? "currentColor" : "none"}
+                      />
                     </button>
                   );
                 })}
@@ -173,18 +173,24 @@ export default function LibraryPage() {
                         <h1 className="text-4xl font-bold mb-3">
                           {selected.title}
                         </h1>
-                        <div className="flex items-center gap-4 mb-6">
+                        <div className="flex items-center gap-3 mb-6">
                           <Badge
                             variant="outline"
                             className="border-primary/40"
                           >
                             {selected.genre}
                           </Badge>
-                          <span className="text-sm text-muted-foreground">
-                            총 플레이 시간: {selected.playTimeHours}시간
+                          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-white/90 backdrop-blur">
+                            <Clock3 className="h-3.5 w-3.5 text-white/70" />
+                            <span className="whitespace-nowrap">
+                              총 플레이 시간: {selected.playTimeHours}시간
+                            </span>
                           </span>
-                          <span className="text-sm text-muted-foreground">
-                            마지막 플레이: {timeAgo(selected.lastPlayedAt)}
+                          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-white/90 backdrop-blur">
+                            <History className="h-3.5 w-3.5 text-white/70" />
+                            <span className="whitespace-nowrap">
+                              마지막 플레이: {timeAgo(selected.lastPlayedAt)}
+                            </span>
                           </span>
                         </div>
 
