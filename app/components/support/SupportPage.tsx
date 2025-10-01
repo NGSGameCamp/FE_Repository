@@ -23,7 +23,11 @@ export function SupportPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto px-6 py-6 space-y-8">
+    <div className="container mx-auto px-6 py-6">
+      <div
+        className="mx-auto w-full space-y-8"
+        style={{ width: "min(100%, 50vw)", minWidth: "320px" }}
+      >
       {/* Intro */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -130,6 +134,7 @@ export function SupportPage() {
             </Card>
           </StarBorder>
         </div>
+      </div>
       </div>
     </div>
   );
