@@ -97,6 +97,30 @@ export const mockGames: GameSummary[] = [
     price: "₩15,000",
     description: "복잡한 매트릭스를 해결하는 퍼즐 게임",
   },
+  {
+    id: "9",
+    title: "Starlight Odyssey",
+    image:
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx8fHx8fHx8&ixlib=rb-4.1.0&q=80&w=1080",
+    rating: 4.9,
+    reviews: "312",
+    genre: "RPG",
+    tags: ["우주", "서사", "오픈월드"],
+    price: "₩62,000",
+    description: "광활한 은하를 탐험하는 서사적 RPG 어드벤처",
+  },
+  {
+    id: "10",
+    title: "Quantum Arena",
+    image:
+      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmdXR1cmlzdGljJTIwc2Npw7Zmb3JtJTIwZ2FtZXxlbnwxfHx8fDE3NTczMzA3MTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    rating: 4.8,
+    reviews: "205",
+    genre: "멀티플레이어",
+    tags: ["e스포츠", "전략", "PvP"],
+    price: "₩41,000",
+    description: "양자 역학을 주제로 한 하이퍼 스피드 멀티플레이어 배틀",
+  },
 ];
 
 export type MockGame = (typeof mockGames)[number];

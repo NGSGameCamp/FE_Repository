@@ -96,19 +96,6 @@ export function GameCard({ game }: GameCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="absolute bottom-4 left-4 right-4"></div>
         </div>
-        {/* Price badge */}
-        <div className="absolute top-2 right-2">
-          <Badge
-            variant={game.price === "무료" ? "secondary" : "outline"}
-            className={
-              game.price === "무료"
-                ? "bg-green-500/20 text-green-400 border-green-500/30"
-                : "bg-primary/20 text-primary border-primary/30"
-            }
-          >
-            {game.price}
-          </Badge>
-        </div>
       </div>
       <CardContent className="p-4">
         <div className="mb-2">
@@ -119,9 +106,9 @@ export function GameCard({ game }: GameCardProps) {
             {game.description}
           </p>
         </div>
-        {/* Rating and Reviews */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        {/* Rating, Reviews, Price */}
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
               <span className="text-sm">{game.rating}</span>
@@ -130,6 +117,16 @@ export function GameCard({ game }: GameCardProps) {
               <MessageSquare className="h-3 w-3" />
               <span className="text-sm">{game.reviews}</span>
             </div>
+            <Badge
+              variant={game.price === "무료" ? "secondary" : "outline"}
+              className={
+                game.price === "무료"
+                  ? "bg-green-500/20 text-green-400 border-green-500/30"
+                  : "bg-primary/20 text-primary border-primary/30"
+              }
+            >
+              {game.price}
+            </Badge>
           </div>
           <div className="flex items-center gap-1">
             <Button
