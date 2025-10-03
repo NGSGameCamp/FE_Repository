@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../y_ui/base/card";
 import { Badge } from "../y_ui/base/badge";
 import { Button } from "../y_ui/base/button";
@@ -17,6 +17,12 @@ import {
 import { MessageSquare, Heart, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import StarBorder from "~/components/y_ui/motion-effects/StarBorder";
+import {
+  getCommunityBoards,
+} from "../../api/community/communityApi";
+import type { CommunityBoard } from "../../api/community/types";
+import { getGames } from "../../api/game/gameApi";
+import type { GameSummary } from "../../api/game/types";
 
 type Post = {
   id: string;
@@ -31,7 +37,7 @@ type Post = {
   time: string;
 };
 
-const games = [
+const gameFilterOptions = [
   "전체",
   "Cyberpunk 2087",
   "Neon Racing",
@@ -125,11 +131,130 @@ const trending = [
 ];
 
 export function CommunityPage() {
+  const [boards, setBoards] = useState<CommunityBoard[]>([]);
+  const [boardsLoading, setBoardsLoading] = useState<boolean>(false);
+  const [boardsError, setBoardsError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("전체");
+  const [gameSummaries, setGameSummaries] = useState<GameSummary[]>([]);
+  const [gamesError, setGamesError] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] =
-    useState<(typeof games)[number]>("전체");
+    useState<(typeof gameFilterOptions)[number]>("전체");
   const [selectedTopic, setSelectedTopic] =
     useState<(typeof topics)[number]>("전체");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    let canceled = false;
+
+    const loadBoards = async () => {
+      setBoardsLoading(true);
+      setBoardsError(null);
+      try {
+        const { data } = await getCommunityBoards();
+        if (!canceled) {
+          setBoards(data);
+        }
+      } catch (error) {
+        if (!canceled) {
+          setBoardsError(
+            error instanceof Error
+              ? error.message
+              : "커뮤니티 목록을 불러오지 못했습니다."
+          );
+        }
+      } finally {
+        if (!canceled) {
+          setBoardsLoading(false);
+        }
+      }
+    };
+
+    loadBoards();
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let canceled = false;
+
+    const loadGames = async () => {
+      try {
+        const { data } = await getGames();
+        if (!canceled) {
+          setGameSummaries(data);
+        }
+      } catch (error) {
+        if (!canceled) {
+          setGamesError(
+            error instanceof Error
+              ? error.message
+              : "게임 정보를 불러오지 못했습니다."
+          );
+        }
+      }
+    };
+
+    loadGames();
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  const categoryOptions = useMemo(() => {
+    const genreSet = new Set<string>();
+    gameSummaries.forEach((game) => {
+      if (game.genre) {
+        genreSet.add(game.genre);
+      }
+    });
+
+    if (genreSet.size === 0) {
+      boards.forEach((board) => {
+        (board.tags || []).forEach((tag) => genreSet.add(tag));
+        (board.genres || []).forEach((genre) => genreSet.add(genre));
+      });
+    }
+
+    const sorted = Array.from(genreSet).sort((a, b) => a.localeCompare(b));
+    return ["전체", ...sorted];
+  }, [boards, gameSummaries]);
+
+  useEffect(() => {
+    if (!categoryOptions.includes(selectedCategory)) {
+      setSelectedCategory("전체");
+    }
+  }, [categoryOptions, selectedCategory]);
+
+  const boardGenreMap = useMemo(() => {
+    const map = new Map<string, string>();
+    gameSummaries.forEach((game) => {
+      if (game.genre) {
+        map.set(game.title.toLowerCase(), game.genre);
+      }
+    });
+    return map;
+  }, [gameSummaries]);
+
+  const filteredBoards = useMemo(() => {
+    const gameBoards = boards.filter((board) => board.type === "game");
+    if (selectedCategory === "전체") {
+      return gameBoards;
+    }
+    return gameBoards.filter((board) => {
+      const boardGenre = boardGenreMap.get(board.name.toLowerCase());
+      if (boardGenre) {
+        return boardGenre === selectedCategory;
+      }
+      const fallbackTags = new Set([
+        ...(board.tags || []),
+        ...(board.genres || []),
+      ]);
+      return fallbackTags.has(selectedCategory);
+    });
+  }, [boards, boardGenreMap, selectedCategory]);
 
   const filteredPosts = useMemo(() => {
     return postsData.filter((p) => {
@@ -168,7 +293,168 @@ export function CommunityPage() {
       </div>
 
       <Card className="border-primary/30 shadow-sm">
-        <CardContent className="pt-6">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <CardTitle className="text-lg font-semibold">
+              게임별 커뮤니티 찾기
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              관심 있는 게임을 선택하면 해당 커뮤니티로 이동합니다.
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <div className="mb-2 text-xs text-muted-foreground">카테고리</div>
+            <div className="overflow-x-auto">
+              <ToggleGroup
+                type="single"
+                value={selectedCategory}
+                onValueChange={(value) =>
+                  setSelectedCategory(value || "전체")
+                }
+                className="flex w-full gap-2"
+              >
+                {categoryOptions.map((category) => (
+                  <ToggleGroupItem
+                    key={category}
+                    value={category}
+                    className="flex-shrink-0 rounded-full px-4 py-2 text-xs"
+                  >
+                    {category}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {boardsLoading && (
+              <div className="rounded-xl border border-primary/20 p-6 text-sm text-muted-foreground">
+                커뮤니티 목록을 불러오는 중입니다...
+              </div>
+            )}
+
+            {!boardsLoading && boardsError && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+                {boardsError}
+              </div>
+            )}
+
+            {gamesError && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-primary/80">
+                게임 장르 정보를 불러오지 못해 커뮤니티 태그 기준으로 표시합니다.
+              </div>
+            )}
+
+            {!boardsLoading && !boardsError && filteredBoards.length === 0 && (
+              <div className="rounded-xl border border-primary/20 p-6 text-sm text-muted-foreground">
+                해당 조건에 맞는 커뮤니티가 없습니다.
+              </div>
+            )}
+
+            {!boardsLoading && !boardsError &&
+              filteredBoards.map((board) => {
+                const heroSrc = board.hero
+                  ? board.hero.includes("?")
+                    ? `${board.hero}&auto=compress&fit=crop&w=120&q=60`
+                    : `${board.hero}?auto=compress&fit=crop&w=120&q=60`
+                  : null;
+                const boardGenreLabel = boardGenreMap.get(
+                  board.name.toLowerCase()
+                );
+
+                return (
+                  <Link
+                    key={board.id}
+                    to={`/community/board/${board.id}`}
+                    className="group flex items-center gap-4 rounded-2xl border border-primary/20 bg-background/60 p-4 transition hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-primary/20 bg-primary/10">
+                      {heroSrc ? (
+                        <img
+                          src={heroSrc}
+                          alt={`${board.name} 대표 이미지`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-primary">
+                          {board.name.slice(0, 2)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold transition-colors group-hover:text-primary">
+                          {board.name}
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="bg-primary/15 text-primary border border-primary/30"
+                        >
+                          {board.type === "game" ? "게임" : "토픽"}
+                        </Badge>
+                        {boardGenreLabel && (
+                          <Badge
+                            variant="outline"
+                            className="border-primary/20 px-2 py-1 text-[11px] text-primary/80"
+                          >
+                            {boardGenreLabel}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {board.info && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {board.info}
+                        </p>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                        {board.concurrent && <span>{board.concurrent}</span>}
+                        {typeof board.rating === "number" && (
+                          <span>
+                            평점 {board.rating.toFixed(1)}
+                            {board.ratingCount
+                              ? ` · ${board.ratingCount.toLocaleString()}명`
+                              : ""}
+                          </span>
+                        )}
+                        {board.released && <span>출시 {board.released}</span>}
+                      </div>
+
+                      {board.tags && board.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {board.tags.map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="border-primary/20 px-2 py-1 text-[11px] text-muted-foreground"
+                            >
+                              #{tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="hidden text-xs font-medium text-primary sm:block">
+                      바로 가기 →
+                    </div>
+                  </Link>
+                );
+              })}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-primary/30 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">게시글 필터</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">게임 선택</div>
@@ -180,7 +466,7 @@ export function CommunityPage() {
                   <SelectValue placeholder="게임 선택" />
                 </SelectTrigger>
                 <SelectContent>
-                  {games.map((g) => (
+                  {gameFilterOptions.map((g) => (
                     <SelectItem key={g} value={g}>
                       {g}
                     </SelectItem>
@@ -209,7 +495,7 @@ export function CommunityPage() {
             <div className="flex items-end justify-end">
               <Button
                 variant="outline"
-                className="border-primary/30 mb-4"
+                className="mb-1 border-primary/30"
                 onClick={resetFilters}
               >
                 필터 초기화
@@ -220,15 +506,13 @@ export function CommunityPage() {
           <Separator className="my-6" />
 
           <div className="space-y-3">
-            <div className="text-xs text-muted-foreground mt-4 mb-2">
-              태그 필터
-            </div>
+            <div className="text-xs text-muted-foreground">태그 필터</div>
             <ToggleGroup
               type="multiple"
               value={selectedTags}
               onValueChange={(v) => setSelectedTags(v)}
               variant="outline"
-              className="flex flex-wrap"
+              className="flex flex-wrap gap-2"
             >
               {allTags.map((t) => (
                 <ToggleGroupItem key={t} value={t} className="px-3">
